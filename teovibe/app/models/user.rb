@@ -1,5 +1,8 @@
 class User < ApplicationRecord
+  include Badgeable
+
   has_secure_password
+  has_one_attached :avatar
   has_many :sessions, dependent: :destroy
   has_many :posts, dependent: :destroy
   has_many :comments, dependent: :destroy
@@ -19,5 +22,14 @@ class User < ApplicationRecord
 
   def admin?
     role == "admin"
+  end
+
+  # 아바타 URL 반환 (Active Storage 첨부 우선, 기존 avatar_url 폴백)
+  def display_avatar_url(size: 80)
+    if avatar.attached?
+      avatar.variant(resize_to_fill: [ size, size ])
+    elsif avatar_url.present?
+      avatar_url
+    end
   end
 end

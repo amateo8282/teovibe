@@ -120,6 +120,16 @@ None - no external service configuration required.
 - `@tosspayments/payment-widget-sdk` npm 패키지 설치 및 CheckoutWidget.tsx 컴포넌트 구현 필요
 - checkouts/show.html.erb 뷰 파일 생성 필요 (React 마운트 포인트 포함)
 
+## Self-Check: PASSED
+
+- teovibe/app/models/order.rb: FOUND
+- teovibe/db/migrate/20260222102017_create_orders.rb: FOUND
+- teovibe/db/migrate/20260222102044_add_price_to_skill_packs.rb: FOUND
+- teovibe/db/migrate/20260222102056_add_payment_customer_key_to_users.rb: FOUND
+- teovibe/app/controllers/checkouts_controller.rb: FOUND
+- Commit 1acd844: FOUND
+- Commit 97e724f: FOUND
+
 ---
 *Phase: 04-commerce*
 *Completed: 2026-02-22*

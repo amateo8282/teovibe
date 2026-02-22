@@ -46,13 +46,12 @@ Plans:
   3. 텍스트를 선택하면 버블 메뉴(볼드, 이탤릭, 링크 등)가 나타난다
   4. 작성자 프로필 페이지에 아바타, 바이오, 소셜링크, 포인트/레벨/뱃지, 작성 글 목록이 표시된다
   5. Admin 대시보드에 조회수 상위 게시글과 회원가입 추이 통계가 표시된다
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 02-01: rhino-editor 도입 (vendor bundle, ActionText 호환성, 기존 데이터 검증)
-- [ ] 02-02: 에디터 이미지 업로드 + 버블 메뉴/플로팅 툴바
-- [ ] 02-03: 작성자 프로필 페이지 강화 (아바타, 바이오, 소셜링크, 게이미피케이션)
-- [ ] 02-04: Admin 콘텐츠 분석 대시보드
+- [ ] 02-01-PLAN.md -- rhino-editor 도입 및 폼 교체 (Trix 대체, 이미지 업로드, 버블 메뉴)
+- [ ] 02-02-PLAN.md -- 작성자 프로필 강화 (Active Storage 아바타, 소셜링크, 뱃지)
+- [ ] 02-03-PLAN.md -- Admin 콘텐츠 분석 대시보드 (chartkick + groupdate)
 
 ### Phase 3: Interactive Landing
 **Goal**: React 인터랙티브 컴포넌트로 랜딩페이지를 완성하여 외부 방문자의 전환율을 높인다
@@ -107,7 +106,7 @@ Note: Phase 3 depends only on Phase 1 (can begin in parallel with Phase 2 if des
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 3/3 | Complete    | 2026-02-22 |
-| 2. Content Experience | 0/4 | Not started | - |
+| 2. Content Experience | 0/3 | Not started | - |
 | 3. Interactive Landing | 0/2 | Not started | - |
 | 4. Commerce | 0/3 | Not started | - |
 | 5. Polish | 0/2 | Not started | - |

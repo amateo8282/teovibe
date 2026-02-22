@@ -1,26 +1,26 @@
 # TeoVibe Kamal 배포 설정
 service: teovibe
 
-image: ghcr.io/YOUR_GITHUB_USERNAME/teovibe
+image: ghcr.io/amateo8282/teovibe
 
-# 배포 서버 (실제 IP로 교체 필요)
+# Hetzner VPS
 servers:
   web:
-    - YOUR_SERVER_IP
+    - 5.78.179.202
   # job:
   #   hosts:
-  #     - YOUR_SERVER_IP
+  #     - 5.78.179.202
   #   cmd: bin/jobs
 
 # SSL + 프록시 설정
 proxy:
   ssl: true
-  host: teovibe.com
+  host: jaeho.im
 
 # GitHub Container Registry
 registry:
   server: ghcr.io
-  username: YOUR_GITHUB_USERNAME
+  username: amateo8282
   password:
     - KAMAL_REGISTRY_PASSWORD
 
@@ -50,8 +50,7 @@ asset_path: /rails/public/assets
 # 빌드 설정
 builder:
   arch: amd64
-  # remote: ssh://docker@docker-builder-server
 
 # SSH 설정
-# ssh:
-#   user: app
+ssh:
+  user: root

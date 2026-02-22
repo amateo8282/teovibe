@@ -430,6 +430,10 @@ GEM
     uri (1.1.1)
     useragent (0.16.11)
     version_gem (1.1.9)
+    view_component (4.4.0)
+      actionview (>= 7.1.0)
+      activesupport (>= 7.1.0)
+      concurrent-ruby (~> 1)
     vite_rails (3.0.20)
       railties (>= 5.1, < 9)
       vite_ruby (~> 3.0, >= 3.2.2)
@@ -496,6 +500,7 @@ DEPENDENCIES
   thruster
   turbo-rails
   tzinfo-data
+  view_component (~> 4.4)
   vite_rails
   web-console
 

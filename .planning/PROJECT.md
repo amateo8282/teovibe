@@ -62,7 +62,7 @@
 ## Constraints
 
 - **Tech stack**: Rails 모놀리스 유지 -- 검증된 구조를 깨지 않음
-- **Frontend**: React는 react-rails gem으로 Rails 내 부분 적용 -- 별도 SPA 아님
+- **Frontend**: vite_ruby + React로 Rails 내 부분 적용 -- 별도 SPA 아님
 - **Database**: SQLite 유지 -- 현재 규모에 적합
 - **1인 운영**: 유지보수 복잡도를 최소화하는 방향으로 설계
 - **결제**: 토스페이먼츠 연동 기반만 구축 -- 실결제는 별도 마일스톤
@@ -71,9 +71,10 @@
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Rails 내 React (react-rails) | 별도 SPA 대비 유지보수 간편, 기존 인프라 활용 | -- Pending |
-| Rich Text 에디터 개선 방향 (Trix 강화 vs TipTap 등 대체) | 글 작성 UX가 가장 부족한 영역으로 지목됨 | -- Pending |
-| 토스페이먼츠 기반 구조 선설계 | 실결제 전 모델/라우팅/UI 기반을 먼저 마련 | -- Pending |
+| vite_ruby + React (react-rails 대신) | react-rails gem은 유지보수 중단 권고, ImportMap은 JSX 미지원. vite_ruby가 Propshaft과 공존 가능 | -- Pending |
+| rhino-editor (TipTap 기반) | ActionText 호환 유지하며 에디터 UX 개선. 기존 데이터 깨짐 없음 | -- Pending |
+| 토스페이먼츠 기반 구조 선설계 | 실결제 전 모델/라우팅/UI 기반을 먼저 마련. 공식 Ruby gem 없으므로 Faraday 직접 호출 | -- Pending |
+| ImportMap → vite_ruby 전환 | JSX/React/npm 패키지 사용의 필수 선행 작업 | -- Pending |
 
 ---
-*Last updated: 2026-02-22 after initialization*
+*Last updated: 2026-02-22 after roadmap creation*

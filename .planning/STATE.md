@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-22)
 ## Current Position
 
 Phase: 4 of 5 (Commerce)
-Plan: 1 of 3 in current phase (04-01 완료)
+Plan: 2 of 3 in current phase (04-02 완료)
 Status: In progress
-Last activity: 2026-02-22 — 04-01 완료: Order 모델(enum/unique index) + SkillPack price + User payment_customer_key + CheckoutsController 스켈레톤
+Last activity: 2026-02-22 — 04-02 완료: CheckoutWidget React 컴포넌트 + 체크아웃 ERB 뷰 3개 (show/success/fail)
 
-Progress: [██████░░░░] 60%
+Progress: [███████░░░] 67%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 9
-- Average duration: 3 min
-- Total execution time: 29 min
+- Total plans completed: 10
+- Average duration: 3.4 min
+- Total execution time: 34 min
 
 **By Phase:**
 
@@ -30,10 +30,10 @@ Progress: [██████░░░░] 60%
 | 01-foundation | 3/3 | 19 min | 6 min |
 | 02-content-experience | 3/3 | 4 min | 1 min |
 | 03-interactive-landing | 2/3 | 4 min | 2 min |
-| 04-commerce | 1/3 | 2 min | 2 min |
+| 04-commerce | 2/3 | 7 min | 3.5 min |
 
 **Recent Trend:**
-- Last 5 plans: 1 min, 2 min, 2 min, 2 min, 2 min
+- Last 5 plans: 2 min, 2 min, 2 min, 2 min, 5 min
 - Trend: -
 
 *Updated after each plan completion*
@@ -75,6 +75,9 @@ Recent decisions affecting current work:
 - [04-01]: toss_order_id unique index + payment_event_id conditional unique index (WHERE IS NOT NULL) — SQLite partial index 지원
 - [04-01]: User payment_customer_key를 UUID로 자동생성하여 재사용 — 이메일/ID 예측 가능 값 금지 (토스 정책)
 - [04-01]: CheckoutsController success 액션은 Plan 03에서 confirm 로직 추가 예정
+- [04-02]: CheckoutWidget.tsx의 paymentMethodsRef 타입은 any로 지정 — SDK 반환 타입 복잡도 회피
+- [04-02]: success/fail 액션을 redirect에서 render로 전환 — ERB 뷰 활성화를 위한 필수 수정
+- [04-02]: @tosspayments/payment-widget-sdk 0.12.1 설치 (v1 SDK, v2 마이그레이션은 다음 마일스톤)
 
 ### Pending Todos
 
@@ -87,5 +90,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Completed 04-commerce/04-01-PLAN.md (Order 모델 + 결제 DB 스키마 + CheckoutsController 스켈레톤 완성)
+Stopped at: Completed 04-commerce/04-02-PLAN.md (CheckoutWidget React 컴포넌트 + 체크아웃 ERB 뷰 3개 완성)
 Resume file: None

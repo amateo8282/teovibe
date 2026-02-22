@@ -40,7 +40,12 @@ Rails.application.routes.draw do
 
   # 스킬팩
   resources :skill_packs, only: [:index, :show] do
-    member { get :download }
+    member do
+      get :download
+      get "checkout", to: "checkouts#show", as: :checkout
+      get "checkout/success", to: "checkouts#success", as: :checkout_success
+      get "checkout/fail", to: "checkouts#fail", as: :checkout_fail
+    end
   end
   get "dl/:download_token", to: "skill_packs#token_download", as: :token_download
 

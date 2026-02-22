@@ -12,38 +12,55 @@
     <%= vite_javascript_tag 'application' %>
   </head>
 
-  <body class="bg-gray-50 text-tv-black min-h-screen flex">
-    <%# 사이드바 %>
-    <aside class="w-60 bg-tv-dark text-white min-h-screen fixed">
-      <div class="p-6">
-        <h1 class="text-xl font-black mb-8">
-          <%= link_to "TeoVibe Admin", admin_root_path, class: "hover:text-tv-gold transition-colors" %>
-        </h1>
-        <nav class="space-y-1">
-          <%= link_to "대시보드", admin_root_path,
-            class: "block px-3 py-2 rounded-lg text-sm #{request.path == admin_root_path ? 'bg-white/10 font-bold' : 'hover:bg-white/5'}" %>
-          <%= link_to "랜딩 섹션", admin_landing_sections_path,
-            class: "block px-3 py-2 rounded-lg text-sm #{request.path.start_with?('/admin/landing') ? 'bg-white/10 font-bold' : 'hover:bg-white/5'}" %>
-          <%= link_to "게시글", admin_posts_path,
-            class: "block px-3 py-2 rounded-lg text-sm #{request.path.start_with?('/admin/posts') ? 'bg-white/10 font-bold' : 'hover:bg-white/5'}" %>
-          <%= link_to "사용자", admin_users_path,
-            class: "block px-3 py-2 rounded-lg text-sm #{request.path.start_with?('/admin/users') ? 'bg-white/10 font-bold' : 'hover:bg-white/5'}" %>
-          <%= link_to "댓글", admin_comments_path,
-            class: "block px-3 py-2 rounded-lg text-sm #{request.path.start_with?('/admin/comments') ? 'bg-white/10 font-bold' : 'hover:bg-white/5'}" %>
-          <%= link_to "스킬팩", admin_skill_packs_path,
-            class: "block px-3 py-2 rounded-lg text-sm #{request.path.start_with?('/admin/skill_packs') ? 'bg-white/10 font-bold' : 'hover:bg-white/5'}" %>
-          <%= link_to "문의", admin_inquiries_path,
-            class: "block px-3 py-2 rounded-lg text-sm #{request.path.start_with?('/admin/inquiries') ? 'bg-white/10 font-bold' : 'hover:bg-white/5'}" %>
-          <hr class="border-white/10 my-4">
-          <%= link_to "사이트로 이동", root_path, class: "block px-3 py-2 rounded-lg text-sm hover:bg-white/5 text-tv-light-gray" %>
-        </nav>
-      </div>
-    </aside>
+  <body class="bg-gray-50 text-tv-black min-h-screen">
+    <div data-controller="admin-sidebar">
+      <%# 모바일 오버레이 (클릭 시 사이드바 닫기) %>
+      <div data-admin-sidebar-target="overlay"
+           data-action="click->admin-sidebar#close"
+           class="hidden fixed inset-0 bg-black/50 z-40 md:hidden"></div>
 
-    <%# 메인 콘텐츠 %>
-    <main class="ml-60 flex-1 p-8">
-      <%= render "shared/flash" %>
-      <%= yield %>
-    </main>
+      <%# 사이드바 %>
+      <aside data-admin-sidebar-target="sidebar"
+             class="fixed inset-y-0 left-0 z-50 w-60 bg-tv-dark text-white -translate-x-full md:translate-x-0 transition-transform">
+        <div class="p-6">
+          <h1 class="text-xl font-black mb-8">
+            <%= link_to "TeoVibe Admin", admin_root_path, class: "hover:text-tv-gold transition-colors" %>
+          </h1>
+          <nav class="space-y-1">
+            <%= link_to "대시보드", admin_root_path,
+              class: "block px-3 py-2 rounded-lg text-sm #{request.path == admin_root_path ? 'bg-white/10 font-bold' : 'hover:bg-white/5'}" %>
+            <%= link_to "랜딩 섹션", admin_landing_sections_path,
+              class: "block px-3 py-2 rounded-lg text-sm #{request.path.start_with?('/admin/landing') ? 'bg-white/10 font-bold' : 'hover:bg-white/5'}" %>
+            <%= link_to "게시글", admin_posts_path,
+              class: "block px-3 py-2 rounded-lg text-sm #{request.path.start_with?('/admin/posts') ? 'bg-white/10 font-bold' : 'hover:bg-white/5'}" %>
+            <%= link_to "사용자", admin_users_path,
+              class: "block px-3 py-2 rounded-lg text-sm #{request.path.start_with?('/admin/users') ? 'bg-white/10 font-bold' : 'hover:bg-white/5'}" %>
+            <%= link_to "댓글", admin_comments_path,
+              class: "block px-3 py-2 rounded-lg text-sm #{request.path.start_with?('/admin/comments') ? 'bg-white/10 font-bold' : 'hover:bg-white/5'}" %>
+            <%= link_to "스킬팩", admin_skill_packs_path,
+              class: "block px-3 py-2 rounded-lg text-sm #{request.path.start_with?('/admin/skill_packs') ? 'bg-white/10 font-bold' : 'hover:bg-white/5'}" %>
+            <%= link_to "문의", admin_inquiries_path,
+              class: "block px-3 py-2 rounded-lg text-sm #{request.path.start_with?('/admin/inquiries') ? 'bg-white/10 font-bold' : 'hover:bg-white/5'}" %>
+            <hr class="border-white/10 my-4">
+            <%= link_to "사이트로 이동", root_path, class: "block px-3 py-2 rounded-lg text-sm hover:bg-white/5 text-tv-light-gray" %>
+          </nav>
+        </div>
+      </aside>
+
+      <%# 메인 콘텐츠 %>
+      <main class="md:ml-60 flex-1 p-4 md:p-8 min-h-screen">
+        <%# 모바일 헤더 (햄버거 버튼 + 타이틀) %>
+        <div class="md:hidden flex items-center gap-4 mb-6 pb-4 border-b border-gray-200">
+          <button data-action="click->admin-sidebar#open" class="p-1 rounded hover:bg-gray-100 transition-colors">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+          </button>
+          <span class="text-lg font-black">TeoVibe Admin</span>
+        </div>
+        <%= render "shared/flash" %>
+        <%= yield %>
+      </main>
+    </div>
   </body>
 </html>

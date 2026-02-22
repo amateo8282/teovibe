@@ -11,3 +11,6 @@ import "../controllers"
 // trix + rhino-editor 동시 import 금지 (ActionText JS 이중 등록 발생)
 import "rhino-editor"
 import "rhino-editor/exports/styles/trix.css"
+
+// 차트 라이브러리 (Admin 대시보드)
+import "chartkick/chart.js"

@@ -29,6 +29,10 @@ gem "omniauth-rails_csrf_protection"
 # 페이지네이션
 gem "pagy"
 
+# 차트 (Admin 대시보드)
+gem "chartkick"
+gem "groupdate"
+
 # SEO
 gem "meta-tags"
 gem "sitemap_generator"

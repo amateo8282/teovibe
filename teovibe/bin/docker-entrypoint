@@ -3,9 +3,20 @@
 # If running the rails server then create or migrate existing database
 if [ "${@: -2:1}" == "./bin/rails" ] && [ "${@: -1:1}" == "server" ]; then
   ./bin/rails db:prepare
-  ./bin/rails db:prepare DATABASE=queue
-  ./bin/rails db:prepare DATABASE=cache
-  ./bin/rails db:prepare DATABASE=cable
+
+  # Solid Queue/Cache/Cable은 schema_format이 :sql이지만 structure.sql이 불완전하므로
+  # queue_schema.rb를 직접 로드한다
+  ./bin/rails runner "
+    [:queue, :cache, :cable].each do |db|
+      config = ActiveRecord::Base.configurations.configs_for(env_name: Rails.env, name: db.to_s)
+      next unless config
+      ActiveRecord::Tasks::DatabaseTasks.create(config)
+      schema_file = Rails.root.join('db', \"#{db}_schema.rb\")
+      if schema_file.exist?
+        ActiveRecord::Tasks::DatabaseTasks.load_schema(config, :ruby, schema_file.to_s)
+      end
+    end
+  "
 fi
 
 exec "${@}"

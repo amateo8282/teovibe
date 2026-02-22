@@ -7,6 +7,7 @@ import "@hotwired/turbo-rails"
 // Stimulus 컨트롤러 등록
 import "../controllers"
 
-// Trix 에디터 및 ActionText
-import "trix"
-import "@rails/actiontext"
+// rhino-editor (TipTap 기반 리치 텍스트 에디터)
+// trix + rhino-editor 동시 import 금지 (ActionText JS 이중 등록 발생)
+import "rhino-editor"
+import "rhino-editor/exports/styles/trix.css"

@@ -16,6 +16,7 @@
     "@rails/actiontext": "^8.1.200",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
+    "rhino-editor": "^0.17.3",
     "trix": "^2.1.16"
   }
 }

@@ -1,0 +1,15 @@
+<%# React 마운트 패턴 및 ViewComponent 공존 검증 페이지 %>
+<div class="container mx-auto py-8">
+  <h1 class="text-2xl font-bold mb-4">React 데모 페이지</h1>
+  <p class="mb-4">이 페이지는 React 컴포넌트가 전용 페이지에 마운트되는 패턴을 검증합니다.</p>
+
+  <%# ViewComponent 렌더링 확인 %>
+  <%= render(CardComponent.new(title: "ViewComponent", body: "서버사이드 렌더링 컴포넌트")) %>
+
+  <%# React 마운트 포인트 %>
+  <div id="react-root" class="mt-8"></div>
+</div>
+
+<% content_for :head do %>
+  <%= vite_javascript_tag 'react-demo' %>
+<% end %>

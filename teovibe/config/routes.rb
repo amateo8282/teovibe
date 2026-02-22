@@ -93,6 +93,9 @@ Rails.application.routes.draw do
     end
   end
 
+  # React 데모 (ViewComponent + React 마운트 패턴 검증)
+  get "demo/react", to: "demo#react"
+
   # Health check
   get "up" => "rails/health#show", as: :rails_health_check
 

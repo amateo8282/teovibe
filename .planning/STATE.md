@@ -5,32 +5,33 @@
 See: .planning/PROJECT.md (updated 2026-02-22)
 
 **Core value:** 사용자가 재방문하고 싶은 수준의 콘텐츠 품질과 UX를 갖춘 커뮤니티 플랫폼
-**Current focus:** Phase 1 - Foundation
+**Current focus:** Phase 2 - Content Experience
 
 ## Current Position
 
-Phase: 1 of 5 (Foundation)
-Plan: 3 of 3 in current phase
-Status: Phase complete
-Last activity: 2026-02-22 — 01-03 완료: ViewComponent 설치 및 React 전용 페이지 마운트 패턴 검증
+Phase: 2 of 5 (Content Experience)
+Plan: 2 of 3 in current phase
+Status: In progress
+Last activity: 2026-02-22 — 02-02 완료: Active Storage 아바타, 소셜링크, Badgeable concern으로 프로필 강화
 
-Progress: [███░░░░░░░] 20%
+Progress: [████░░░░░░] 33%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 3
-- Average duration: 6 min
-- Total execution time: 19 min
+- Total plans completed: 5
+- Average duration: 5 min
+- Total execution time: 21 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-foundation | 3/3 | 19 min | 6 min |
+| 02-content-experience | 2/3 | 2 min | 1 min |
 
 **Recent Trend:**
-- Last 5 plans: 7 min, 5 min, 7 min
+- Last 5 plans: 7 min, 5 min, 7 min, 1 min, 1 min
 - Trend: -
 
 *Updated after each plan completion*
@@ -54,6 +55,9 @@ Recent decisions affecting current work:
 - [01-03]: turbo:before-render 대신 turbo:before-cache 사용 (캐시 오염 방지, RESEARCH.md 권장)
 - [01-03]: root 레퍼런스를 module 스코프에 저장하여 Turbo Drive 재방문 시 중복 마운트 방지
 - [01-03]: content_for :head 블록으로 페이지별 JS 엔트리포인트 로드 (전역 로드 방지)
+- [02-02]: Active Storage 아바타 추가 시 기존 avatar_url 컬럼 유지 (OAuth 아바타 폴백 보존)
+- [02-02]: 소셜링크를 JSON 단일 컬럼 아닌 3개 별도 string 컬럼으로 구현 (파싱 복잡도 회피)
+- [02-02]: 뱃지 로직을 별도 gem 없이 Badgeable concern으로 직접 구현 (4개 뱃지에 gem은 과도)
 
 ### Pending Todos
 
@@ -67,5 +71,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Completed 01-foundation/01-03-PLAN.md (ViewComponent + React 전용 페이지 마운트 패턴 — Phase 1 완료)
+Stopped at: Completed 02-content-experience/02-02-PLAN.md (Active Storage 아바타, 소셜링크, Badgeable concern 프로필 강화)
 Resume file: None

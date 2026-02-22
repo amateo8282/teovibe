@@ -34,8 +34,8 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### Profile & Content
 
-- [ ] **PROF-01**: 작성자 프로필 페이지에 아바타, 바이오, 소셜링크, 작성 글 목록을 표시한다
-- [ ] **PROF-02**: 프로필에 포인트, 레벨, 뱃지를 시각적으로 표시한다 (게이미피케이션)
+- [x] **PROF-01**: 작성자 프로필 페이지에 아바타, 바이오, 소셜링크, 작성 글 목록을 표시한다
+- [x] **PROF-02**: 프로필에 포인트, 레벨, 뱃지를 시각적으로 표시한다 (게이미피케이션)
 
 ### UI/UX
 
@@ -105,8 +105,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | COMM-02 | Phase 4 | Pending |
 | COMM-03 | Phase 4 | Pending |
 | COMM-04 | Phase 4 | Pending |
-| PROF-01 | Phase 2 | Pending |
-| PROF-02 | Phase 2 | Pending |
+| PROF-01 | Phase 2 | Complete |
+| PROF-02 | Phase 2 | Complete |
 | UIUX-01 | Phase 5 | Pending |
 | UIUX-02 | Phase 5 | Pending |
 | ADMN-01 | Phase 2 | Pending |

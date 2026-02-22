@@ -21,8 +21,8 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### Landing Page
 
-- [ ] **LAND-01**: React 컴포넌트로 인터랙티브 랜딩페이지를 구현한다 (애니메이션 히어로, CTA, 소셜프루프 섹션)
-- [ ] **LAND-02**: Admin에서 랜딩페이지 섹션 콘텐츠를 관리하면 React 컴포넌트에 반영된다
+- [x] **LAND-01**: React 컴포넌트로 인터랙티브 랜딩페이지를 구현한다 (애니메이션 히어로, CTA, 소셜프루프 섹션)
+- [x] **LAND-02**: Admin에서 랜딩페이지 섹션 콘텐츠를 관리하면 React 컴포넌트에 반영된다
 - [ ] **LAND-03**: 랜딩페이지가 모바일에서도 매끄럽게 동작한다 (반응형)
 
 ### Commerce
@@ -98,8 +98,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | EDIT-01 | Phase 2 | Complete |
 | EDIT-02 | Phase 2 | Complete |
 | EDIT-03 | Phase 2 | Complete |
-| LAND-01 | Phase 3 | Pending |
-| LAND-02 | Phase 3 | Pending |
+| LAND-01 | Phase 3 | Complete |
+| LAND-02 | Phase 3 | Complete |
 | LAND-03 | Phase 3 | Pending |
 | COMM-01 | Phase 4 | Pending |
 | COMM-02 | Phase 4 | Pending |

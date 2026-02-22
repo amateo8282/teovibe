@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-22)
 
 **Core value:** 사용자가 재방문하고 싶은 수준의 콘텐츠 품질과 UX를 갖춘 커뮤니티 플랫폼
-**Current focus:** Phase 2 - Content Experience (완료)
+**Current focus:** Phase 3 - Interactive Landing
 
 ## Current Position
 
-Phase: 2 of 5 (Content Experience)
-Plan: 3 of 3 in current phase (Phase 2 완료)
-Status: Phase 2 complete
-Last activity: 2026-02-22 — 02-03 완료: chartkick + groupdate로 Admin 대시보드 콘텐츠 분석 차트 추가
+Phase: 3 of 5 (Interactive Landing)
+Plan: 1 of 3 in current phase (03-01 완료)
+Status: In progress
+Last activity: 2026-02-22 — 03-01 완료: motion stagger 애니메이션 히어로 섹션 + /api/v1/landing_sections JSON API + React 랜딩페이지 스캐폴드
 
-Progress: [████░░░░░░] 40%
+Progress: [████░░░░░░] 43%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 6
+- Total plans completed: 7
 - Average duration: 4 min
-- Total execution time: 23 min
+- Total execution time: 25 min
 
 **By Phase:**
 
@@ -29,9 +29,10 @@ Progress: [████░░░░░░] 40%
 |-------|-------|-------|----------|
 | 01-foundation | 3/3 | 19 min | 6 min |
 | 02-content-experience | 3/3 | 4 min | 1 min |
+| 03-interactive-landing | 1/3 | 2 min | 2 min |
 
 **Recent Trend:**
-- Last 5 plans: 5 min, 7 min, 1 min, 1 min, 2 min
+- Last 5 plans: 7 min, 1 min, 1 min, 2 min, 2 min
 - Trend: -
 
 *Updated after each plan completion*
@@ -63,6 +64,9 @@ Recent decisions affecting current work:
 - [02-02]: 뱃지 로직을 별도 gem 없이 Badgeable concern으로 직접 구현 (4개 뱃지에 gem은 과도)
 - [02-03]: chartkick:install 제너레이터 미실행 (importmap 전용, Vite에서는 npm import만 사용)
 - [02-03]: chartkick gem(서버사이드 헬퍼) + chartkick npm(Chart.js 클라이언트 어댑터)으로 역할 분리
+- [03-01]: motion 패키지명 사용 (`motion/react` import) — 구 `framer-motion`에서 리브랜딩된 최신 패키지
+- [03-01]: SECTION_COMPONENTS 맵 패턴으로 section_type 문자열 -> React 컴포넌트 라우팅 (Plan 02+ 확장 준비)
+- [03-01]: allow_unauthenticated_access를 Api::V1::LandingSectionsController에 적용 (비로그인 랜딩 접근)
 
 ### Pending Todos
 
@@ -75,5 +79,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Completed 02-content-experience/02-03-PLAN.md (chartkick + groupdate로 Admin 대시보드 콘텐츠 분석 차트 추가)
+Stopped at: Completed 03-interactive-landing/03-01-PLAN.md (motion stagger 히어로 섹션 + JSON API + React 랜딩페이지 스캐폴드)
 Resume file: None

@@ -15,9 +15,9 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### Editor
 
-- [ ] **EDIT-01**: rhino-editor(TipTap 기반)를 도입하여 기존 ActionText/Trix를 대체하며 기존 콘텐츠와 호환을 유지한다
-- [ ] **EDIT-02**: 에디터에서 이미지를 드래그&드롭으로 업로드하고 크기 조절할 수 있다
-- [ ] **EDIT-03**: 에디터에 버블 메뉴(선택 텍스트 서식)와 플로팅 툴바를 제공한다
+- [x] **EDIT-01**: rhino-editor(TipTap 기반)를 도입하여 기존 ActionText/Trix를 대체하며 기존 콘텐츠와 호환을 유지한다
+- [x] **EDIT-02**: 에디터에서 이미지를 드래그&드롭으로 업로드하고 크기 조절할 수 있다
+- [x] **EDIT-03**: 에디터에 버블 메뉴(선택 텍스트 서식)와 플로팅 툴바를 제공한다
 
 ### Landing Page
 
@@ -95,9 +95,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | INFRA-01 | Phase 1 | Complete |
 | INFRA-02 | Phase 1 | Complete |
 | INFRA-03 | Phase 1 | Complete |
-| EDIT-01 | Phase 2 | Pending |
-| EDIT-02 | Phase 2 | Pending |
-| EDIT-03 | Phase 2 | Pending |
+| EDIT-01 | Phase 2 | Complete |
+| EDIT-02 | Phase 2 | Complete |
+| EDIT-03 | Phase 2 | Complete |
 | LAND-01 | Phase 3 | Pending |
 | LAND-02 | Phase 3 | Pending |
 | LAND-03 | Phase 3 | Pending |

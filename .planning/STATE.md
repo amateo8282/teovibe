@@ -55,6 +55,9 @@ Recent decisions affecting current work:
 - [01-03]: turbo:before-render 대신 turbo:before-cache 사용 (캐시 오염 방지, RESEARCH.md 권장)
 - [01-03]: root 레퍼런스를 module 스코프에 저장하여 Turbo Drive 재방문 시 중복 마운트 방지
 - [01-03]: content_for :head 블록으로 페이지별 JS 엔트리포인트 로드 (전역 로드 방지)
+- [02-01]: rhino-editor 0.17.x 선택 (0.18.x는 rhinoImage/rhinoAttachment 제거로 이미지 업로드 불가)
+- [02-01]: trix/actiontext JS import만 제거, npm 패키지 자체는 유지 (CSS 의존성 안전하게 보존)
+- [02-01]: rhino-editor 폼 패턴 — hidden_field + <rhino-editor> 웹 컴포넌트, to_trix_html로 기존 콘텐츠 호환
 - [02-02]: Active Storage 아바타 추가 시 기존 avatar_url 컬럼 유지 (OAuth 아바타 폴백 보존)
 - [02-02]: 소셜링크를 JSON 단일 컬럼 아닌 3개 별도 string 컬럼으로 구현 (파싱 복잡도 회피)
 - [02-02]: 뱃지 로직을 별도 gem 없이 Badgeable concern으로 직접 구현 (4개 뱃지에 gem은 과도)
@@ -71,5 +74,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Completed 02-content-experience/02-02-PLAN.md (Active Storage 아바타, 소셜링크, Badgeable concern 프로필 강화)
+Stopped at: Completed 02-content-experience/02-01-PLAN.md (rhino-editor 0.17.x 도입, Trix 에디터 대체, 이미지 업로드/버블 메뉴 활성화)
 Resume file: None

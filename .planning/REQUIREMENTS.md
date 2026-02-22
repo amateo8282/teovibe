@@ -92,30 +92,30 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| INFRA-01 | - | Pending |
-| INFRA-02 | - | Pending |
-| INFRA-03 | - | Pending |
-| EDIT-01 | - | Pending |
-| EDIT-02 | - | Pending |
-| EDIT-03 | - | Pending |
-| LAND-01 | - | Pending |
-| LAND-02 | - | Pending |
-| LAND-03 | - | Pending |
-| COMM-01 | - | Pending |
-| COMM-02 | - | Pending |
-| COMM-03 | - | Pending |
-| COMM-04 | - | Pending |
-| PROF-01 | - | Pending |
-| PROF-02 | - | Pending |
-| UIUX-01 | - | Pending |
-| UIUX-02 | - | Pending |
-| ADMN-01 | - | Pending |
+| INFRA-01 | Phase 1 | Pending |
+| INFRA-02 | Phase 1 | Pending |
+| INFRA-03 | Phase 1 | Pending |
+| EDIT-01 | Phase 2 | Pending |
+| EDIT-02 | Phase 2 | Pending |
+| EDIT-03 | Phase 2 | Pending |
+| LAND-01 | Phase 3 | Pending |
+| LAND-02 | Phase 3 | Pending |
+| LAND-03 | Phase 3 | Pending |
+| COMM-01 | Phase 4 | Pending |
+| COMM-02 | Phase 4 | Pending |
+| COMM-03 | Phase 4 | Pending |
+| COMM-04 | Phase 4 | Pending |
+| PROF-01 | Phase 2 | Pending |
+| PROF-02 | Phase 2 | Pending |
+| UIUX-01 | Phase 5 | Pending |
+| UIUX-02 | Phase 5 | Pending |
+| ADMN-01 | Phase 2 | Pending |
 
 **Coverage:**
 - v1 requirements: 18 total
-- Mapped to phases: 0
-- Unmapped: 18
+- Mapped to phases: 18
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-22*
-*Last updated: 2026-02-22 after initial definition*
+*Last updated: 2026-02-22 after roadmap creation — traceability complete*

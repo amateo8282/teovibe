@@ -31,7 +31,7 @@ Progress: [██████████] 100%
 | 02-content-experience | 3/3 | 4 min | 1 min |
 | 03-interactive-landing | 2/3 | 4 min | 2 min |
 | 04-commerce | 3/3 | 9 min | 3 min |
-| 05-polish | 1/? | 1 min | 1 min |
+| 05-polish | 2/? | 6 min | 3 min |
 
 **Recent Trend:**
 - Last 5 plans: 2 min, 2 min, 2 min, 2 min, 5 min
@@ -84,6 +84,9 @@ Recent decisions affecting current work:
 - [04-03]: secret_key nil 방어를 PaymentService 외부(컨트롤러)에서 처리 — 서비스 클래스는 key 수신/사용만
 - [05-01]: Admin 사이드바 기본 숨김은 -translate-x-full CSS로 구현 — Stimulus는 클래스 토글만 담당
 - [05-01]: Admin body에서 flex 제거 후 wrapper div로 admin-sidebar 컨트롤러 감쌈 (flex 레이아웃 충돌 방지)
+- [05-02]: ErrorsController는 ActionController::Base 직접 상속 — ApplicationController의 Authentication include로 인한 DB 의존성 우회
+- [05-02]: 500 에러는 별도 error 레이아웃 사용 — navbar의 DB 쿼리(Current.user 등) 위험 제거
+- [05-02]: 에러 뷰에서 link_to/root_path 대신 <a href='/'> 직접 사용 — ActionController::Base는 Rails URL 헬퍼 미포함
 
 ### Pending Todos
 
@@ -96,5 +99,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Completed 05-polish/05-01-PLAN.md (공개 Navbar 모바일 메뉴 알림/관리자 링크 추가 + Admin 사이드바 off-canvas 모바일 반응형)
+Stopped at: Completed 05-polish/05-02-PLAN.md (exceptions_app 패턴으로 404/500/422 커스텀 에러 페이지 구현 — ErrorsController + 에러 뷰 3개 + error 레이아웃)
 Resume file: None

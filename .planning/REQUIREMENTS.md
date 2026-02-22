@@ -40,7 +40,7 @@ Requirements for this milestone. Each maps to roadmap phases.
 ### UI/UX
 
 - [x] **UIUX-01**: 전체 레이아웃의 모바일 반응형을 보완한다 (네비게이션, 사이드바, 카드 레이아웃)
-- [ ] **UIUX-02**: 커스텀 404/500 에러 페이지를 제공한다
+- [x] **UIUX-02**: 커스텀 404/500 에러 페이지를 제공한다
 
 ### Admin
 
@@ -108,7 +108,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PROF-01 | Phase 2 | Complete |
 | PROF-02 | Phase 2 | Complete |
 | UIUX-01 | Phase 5 | Complete |
-| UIUX-02 | Phase 5 | Pending |
+| UIUX-02 | Phase 5 | Complete |
 | ADMN-01 | Phase 2 | Complete |
 
 **Coverage:**

@@ -79,6 +79,8 @@ Rails.application.configure do
 
   # DNS rebinding 방어
   config.hosts = [
+    "jaeho.im",
+    /.*\.jaeho\.im/,
     "teovibe.com",
     /.*\.teovibe\.com/
   ]

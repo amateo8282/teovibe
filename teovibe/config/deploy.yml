@@ -12,9 +12,9 @@ servers:
   #     - 5.78.179.202
   #   cmd: bin/jobs
 
-# 프록시 설정 (DNS 전파 후 ssl: true 활성화)
+# 프록시 설정
 proxy:
-  ssl: false
+  ssl: true
   host: jaeho.im
 
 # Docker Hub

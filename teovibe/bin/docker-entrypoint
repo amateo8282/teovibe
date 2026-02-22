@@ -4,16 +4,34 @@
 if [ "${@: -2:1}" == "./bin/rails" ] && [ "${@: -1:1}" == "server" ]; then
   ./bin/rails db:prepare
 
-  # Solid Queue/Cache/Cable은 schema_format이 :sql이지만 structure.sql이 불완전하므로
-  # queue_schema.rb를 직접 로드한다
+  # Solid Queue/Cache/Cable: schema_format이 :sql이지만 structure.sql에 테이블이 없으므로
+  # schema.rb에서 직접 로드. 테이블이 비어있으면 강제 생성
   ./bin/rails runner "
     [:queue, :cache, :cable].each do |db|
       config = ActiveRecord::Base.configurations.configs_for(env_name: Rails.env, name: db.to_s)
       next unless config
-      ActiveRecord::Tasks::DatabaseTasks.create(config)
+
       schema_file = Rails.root.join('db', \"#{db}_schema.rb\")
-      if schema_file.exist?
+      next unless schema_file.exist?
+
+      # DB 파일 생성
+      db_path = config.database
+      FileUtils.mkdir_p(File.dirname(db_path)) unless File.exist?(File.dirname(db_path))
+
+      # 테이블이 비어있으면 스키마 로드
+      conn = SQLite3::Database.new(db_path)
+      tables = conn.execute(\"SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'ar_%' AND name NOT LIKE 'schema_%'\")
+      conn.close
+
+      if tables.empty?
+        puts \"Loading schema for #{db} database...\"
+        # DISABLE_DATABASE_ENVIRONMENT_CHECK으로 프로덕션 보호 우회
+        ENV['DISABLE_DATABASE_ENVIRONMENT_CHECK'] = '1'
         ActiveRecord::Tasks::DatabaseTasks.load_schema(config, :ruby, schema_file.to_s)
+        ENV.delete('DISABLE_DATABASE_ENVIRONMENT_CHECK')
+        puts \"Schema loaded for #{db}.\"
+      else
+        puts \"#{db} database already has #{tables.length} tables, skipping.\"
       end
     end
   "

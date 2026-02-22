@@ -29,12 +29,12 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. Solid Queue/Cache/Cable이 별도 SQLite 파일을 사용하며 WAL 모드가 활성화되어 있다
   3. ViewComponent가 설치되어 첫 UI 컴포넌트(예: CardComponent)가 렌더링된다
   4. JSX 파일을 작성하고 브라우저에서 React 컴포넌트가 마운트됨을 확인할 수 있다
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 01-01: vite_ruby 설치 및 ImportMap에서 마이그레이션 (Stimulus/Turbo 검증 포함)
-- [ ] 01-02: SQLite WAL 모드 + Solid Queue/Cache/Cable 별도 DB 구성
-- [ ] 01-03: ViewComponent 4.x 설치 및 첫 컴포넌트 추출
+- [ ] 01-01-PLAN.md -- vite_ruby 파이프라인 전환 (ImportMap 제거, Stimulus/Turbo 마이그레이션, Tailwind CSS v4 @tailwindcss/vite 전환)
+- [ ] 01-02-PLAN.md -- SQLite WAL 모드 확인 + 개발 환경 Solid Queue/Cache/Cable 별도 DB 구성
+- [ ] 01-03-PLAN.md -- ViewComponent 4.x 설치 + React 데모 전용 페이지 마운트 (Turbo 공존 검증)
 
 ### Phase 2: Content Experience
 **Goal**: 글 작성 UX를 개선하고 작성자 프로필을 완성하며 Admin에 콘텐츠 분석을 제공하여 플랫폼 콘텐츠 품질을 높인다
@@ -106,7 +106,7 @@ Note: Phase 3 depends only on Phase 1 (can begin in parallel with Phase 2 if des
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 0/3 | Not started | - |
+| 1. Foundation | 0/3 | Planned | - |
 | 2. Content Experience | 0/4 | Not started | - |
 | 3. Interactive Landing | 0/2 | Not started | - |
 | 4. Commerce | 0/3 | Not started | - |

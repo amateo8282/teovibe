@@ -1,26 +1,5 @@
-<% @sections.each do |section| %>
-  <% partial_name = "pages/sections/#{section.section_type}" %>
-  <% if lookup_context.template_exists?(partial_name, [], true) %>
-    <%= render partial: partial_name, locals: { section: section } %>
-  <% else %>
-    <%= render partial: "pages/sections/custom", locals: { section: section } %>
-  <% end %>
-<% end %>
+<div id="landing-root"></div>
 
-<% if @sections.empty? %>
-  <%# 섹션이 없을 때 기본 히어로 %>
-  <section class="min-h-[calc(100vh-86px)] flex items-center justify-center bg-tv-cream">
-    <div class="text-center max-w-4xl mx-auto px-5">
-      <h1 class="text-display md:text-hero font-black tracking-tight leading-tight mb-6">
-        바이브코딩으로<br>사업을 만드는 사람들
-      </h1>
-      <p class="text-lg text-tv-gray mb-10 max-w-xl mx-auto">
-        코딩 없이 시작하는 1인 사업화 여정을 기록하고, 공유하고, 함께 성장하세요.
-      </p>
-      <div class="flex flex-col sm:flex-row gap-4 justify-center">
-        <%= link_to "시작하기", new_registration_path, class: "bg-tv-black text-white rounded-pill px-8 py-4 text-lg font-bold hover:opacity-90 transition-opacity" %>
-        <%= link_to "더 알아보기", about_path, class: "border border-tv-black text-tv-black rounded-pill px-8 py-4 text-lg font-bold hover:bg-tv-black hover:text-white transition-colors" %>
-      </div>
-    </div>
-  </section>
+<% content_for :head do %>
+  <%= vite_javascript_tag 'landing' %>
 <% end %>

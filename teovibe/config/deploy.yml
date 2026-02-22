@@ -12,9 +12,9 @@ servers:
   #     - 5.78.179.202
   #   cmd: bin/jobs
 
-# SSL + 프록시 설정
+# 프록시 설정 (DNS 전파 후 ssl: true 활성화)
 proxy:
-  ssl: true
+  ssl: false
   host: jaeho.im
 
 # GitHub Container Registry

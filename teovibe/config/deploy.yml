@@ -1,7 +1,7 @@
 # TeoVibe Kamal 배포 설정
 service: teovibe
 
-image: amateo8282/teovibe
+image: teojay/teovibe
 
 # Hetzner VPS
 servers:
@@ -17,10 +17,9 @@ proxy:
   ssl: false
   host: jaeho.im
 
-# GitHub Container Registry
+# Docker Hub
 registry:
-  server: ghcr.io
-  username: amateo8282
+  username: teojay
   password:
     - KAMAL_REGISTRY_PASSWORD
 

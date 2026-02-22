@@ -19,6 +19,9 @@ module Teovibe
     # SQLite FTS5 가상 테이블 지원을 위해 structure.sql 사용
     config.active_record.schema_format = :sql
 
+    # 커스텀 에러 페이지: Rails 라우터로 에러 처리
+    config.exceptions_app = self.routes
+
     # Configuration for the application, engines, and railties goes here.
     #
     # These settings can be overridden in specific environments using the files

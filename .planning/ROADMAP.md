@@ -33,7 +33,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 Plans:
 - [ ] 01-01-PLAN.md -- vite_ruby 파이프라인 전환 (ImportMap 제거, Stimulus/Turbo 마이그레이션, Tailwind CSS v4 @tailwindcss/vite 전환)
-- [ ] 01-02-PLAN.md -- SQLite WAL 모드 확인 + 개발 환경 Solid Queue/Cache/Cable 별도 DB 구성
+- [x] 01-02-PLAN.md -- SQLite WAL 모드 확인 + 개발 환경 Solid Queue/Cache/Cable 별도 DB 구성
 - [ ] 01-03-PLAN.md -- ViewComponent 4.x 설치 + React 데모 전용 페이지 마운트 (Turbo 공존 검증)
 
 ### Phase 2: Content Experience
@@ -106,7 +106,7 @@ Note: Phase 3 depends only on Phase 1 (can begin in parallel with Phase 2 if des
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 0/3 | Planned | - |
+| 1. Foundation | 1/3 | In progress | - |
 | 2. Content Experience | 0/4 | Not started | - |
 | 3. Interactive Landing | 0/2 | Not started | - |
 | 4. Commerce | 0/3 | Not started | - |

@@ -77,12 +77,12 @@ Plans:
   2. 스킬팩 체크아웃 페이지에서 상품 정보와 가격이 표시되고 결제 버튼이 렌더링된다
   3. 토스페이먼츠 위젯이 테스트 모드로 초기화되어 결제 UI가 표시된다
   4. 결제 완료 후 서버사이드 confirm API가 호출되고 Order 상태가 업데이트된다
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 04-01: Order/Payment 모델 + 결제 상태 스키마 (idempotency 포함)
-- [ ] 04-02: 체크아웃 페이지 UI + 토스페이먼츠 SDK 초기화
-- [ ] 04-03: 서버사이드 결제 confirm API (PaymentService + PaymentsController)
+- [ ] 04-01-PLAN.md -- Order 모델 + 결제 상태 스키마 + 체크아웃 라우트/컨트롤러 스켈레톤
+- [ ] 04-02-PLAN.md -- 체크아웃 페이지 UI + 토스페이먼츠 SDK 위젯 초기화
+- [ ] 04-03-PLAN.md -- 서버사이드 결제 confirm API (PaymentService + CheckoutsController#success)
 
 ### Phase 5: Polish
 **Goal**: 전체 모바일 반응형과 에러 페이지를 완성하여 외부에 공개해도 부끄럽지 않은 프로덕션 완성도를 달성한다

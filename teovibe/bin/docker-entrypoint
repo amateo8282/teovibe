@@ -4,34 +4,34 @@
 if [ "${@: -2:1}" == "./bin/rails" ] && [ "${@: -1:1}" == "server" ]; then
   ./bin/rails db:prepare
 
-  # Solid Queue/Cache/Cable: schema_format이 :sql이지만 structure.sql에 테이블이 없으므로
-  # schema.rb에서 직접 로드. 테이블이 비어있으면 강제 생성
+  # Solid Queue/Cache/Cable: schema_format :sql이지만 structure.sql이 불완전
+  # queue_schema.rb를 직접 해당 DB에 로드
   ./bin/rails runner "
-    [:queue, :cache, :cable].each do |db|
+    {queue: SolidQueue::Job, cable: ActionCable::SubscriptionAdapter::Base}.each do |db, _klass|
       config = ActiveRecord::Base.configurations.configs_for(env_name: Rails.env, name: db.to_s)
       next unless config
 
       schema_file = Rails.root.join('db', \"#{db}_schema.rb\")
       next unless schema_file.exist?
 
-      # DB 파일 생성
-      db_path = config.database
-      FileUtils.mkdir_p(File.dirname(db_path)) unless File.exist?(File.dirname(db_path))
+      db_path = config.respond_to?(:database) ? config.database : config.configuration_hash[:database]
+      next unless db_path
 
-      # 테이블이 비어있으면 스키마 로드
+      # sqlite3를 사용해서 테이블 존재 여부 확인
+      require 'sqlite3'
       conn = SQLite3::Database.new(db_path)
-      tables = conn.execute(\"SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'ar_%' AND name NOT LIKE 'schema_%'\")
+      tables = conn.execute(\"SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'solid_%'\")
       conn.close
 
       if tables.empty?
-        puts \"Loading schema for #{db} database...\"
-        # DISABLE_DATABASE_ENVIRONMENT_CHECK으로 프로덕션 보호 우회
-        ENV['DISABLE_DATABASE_ENVIRONMENT_CHECK'] = '1'
-        ActiveRecord::Tasks::DatabaseTasks.load_schema(config, :ruby, schema_file.to_s)
-        ENV.delete('DISABLE_DATABASE_ENVIRONMENT_CHECK')
-        puts \"Schema loaded for #{db}.\"
+        puts \"Loading schema for #{db} into #{db_path}...\"
+        # 직접 해당 DB에 연결해서 스키마 로드
+        ActiveRecord::Base.establish_connection(config.configuration_hash)
+        load(schema_file.to_s)
+        ActiveRecord::Base.establish_connection(:primary)
+        puts \"Done loading #{db} schema.\"
       else
-        puts \"#{db} database already has #{tables.length} tables, skipping.\"
+        puts \"#{db} database already has #{tables.length} solid_* tables, skipping.\"
       end
     end
   "

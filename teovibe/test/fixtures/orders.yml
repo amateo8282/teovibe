@@ -1,0 +1,17 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  user: one
+  skill_pack: one
+  status: 1
+  toss_order_id: MyString
+  payment_event_id: MyString
+  amount: 1
+
+two:
+  user: two
+  skill_pack: two
+  status: 1
+  toss_order_id: MyString
+  payment_event_id: MyString
+  amount: 1

@@ -2,6 +2,7 @@ class SkillPack < ApplicationRecord
   has_one_attached :file
   has_one_attached :thumbnail
   has_many :downloads, dependent: :destroy
+  has_many :orders, dependent: :destroy
 
   enum :category, { template: 0, component: 1, guide: 2, toolkit: 3 }
   enum :status, { draft: 0, published: 1 }

@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS "schema_migrations" ("version" varchar NOT NULL PRIMARY KEY);
 CREATE TABLE IF NOT EXISTS "ar_internal_metadata" ("key" varchar NOT NULL PRIMARY KEY, "value" varchar, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL);
-CREATE TABLE IF NOT EXISTS "users" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "email_address" varchar NOT NULL, "password_digest" varchar NOT NULL, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL, "nickname" varchar DEFAULT '' NOT NULL /*application='Teovibe'*/, "avatar_url" varchar /*application='Teovibe'*/, "bio" text /*application='Teovibe'*/, "role" integer DEFAULT 0 NOT NULL /*application='Teovibe'*/, "points" integer DEFAULT 0 NOT NULL /*application='Teovibe'*/, "level" integer DEFAULT 1 NOT NULL /*application='Teovibe'*/, "posts_count" integer DEFAULT 0 NOT NULL /*application='Teovibe'*/, "comments_count" integer DEFAULT 0 NOT NULL /*application='Teovibe'*/);
+CREATE TABLE IF NOT EXISTS "users" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "email_address" varchar NOT NULL, "password_digest" varchar NOT NULL, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL, "nickname" varchar DEFAULT '' NOT NULL /*application='Teovibe'*/, "avatar_url" varchar /*application='Teovibe'*/, "bio" text /*application='Teovibe'*/, "role" integer DEFAULT 0 NOT NULL /*application='Teovibe'*/, "points" integer DEFAULT 0 NOT NULL /*application='Teovibe'*/, "level" integer DEFAULT 1 NOT NULL /*application='Teovibe'*/, "posts_count" integer DEFAULT 0 NOT NULL /*application='Teovibe'*/, "comments_count" integer DEFAULT 0 NOT NULL /*application='Teovibe'*/, "github_url" varchar /*application='Teovibe'*/, "twitter_url" varchar /*application='Teovibe'*/, "website_url" varchar /*application='Teovibe'*/, "payment_customer_key" varchar /*application='Teovibe'*/);
 CREATE UNIQUE INDEX "index_users_on_email_address" ON "users" ("email_address") /*application='Teovibe'*/;
 CREATE TABLE IF NOT EXISTS "sessions" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "user_id" integer NOT NULL, "ip_address" varchar, "user_agent" varchar, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL, CONSTRAINT "fk_rails_758836b4f0"
 FOREIGN KEY ("user_id")
@@ -62,7 +62,7 @@ FOREIGN KEY ("blob_id")
 CREATE UNIQUE INDEX "index_active_storage_variant_records_uniqueness" ON "active_storage_variant_records" ("blob_id", "variation_digest") /*application='Teovibe'*/;
 CREATE TABLE IF NOT EXISTS "action_text_rich_texts" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "name" varchar NOT NULL, "body" text, "record_type" varchar NOT NULL, "record_id" bigint NOT NULL, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL);
 CREATE UNIQUE INDEX "index_action_text_rich_texts_uniqueness" ON "action_text_rich_texts" ("record_type", "record_id", "name") /*application='Teovibe'*/;
-CREATE TABLE IF NOT EXISTS "skill_packs" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "title" varchar NOT NULL, "description" text, "category" integer DEFAULT 0 NOT NULL, "download_token" varchar NOT NULL, "downloads_count" integer DEFAULT 0 NOT NULL, "status" integer DEFAULT 0 NOT NULL, "slug" varchar, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL);
+CREATE TABLE IF NOT EXISTS "skill_packs" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "title" varchar NOT NULL, "description" text, "category" integer DEFAULT 0 NOT NULL, "download_token" varchar NOT NULL, "downloads_count" integer DEFAULT 0 NOT NULL, "status" integer DEFAULT 0 NOT NULL, "slug" varchar, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL, "price" integer DEFAULT 0 NOT NULL /*application='Teovibe'*/);
 CREATE UNIQUE INDEX "index_skill_packs_on_download_token" ON "skill_packs" ("download_token") /*application='Teovibe'*/;
 CREATE UNIQUE INDEX "index_skill_packs_on_slug" ON "skill_packs" ("slug") /*application='Teovibe'*/;
 CREATE INDEX "index_skill_packs_on_category" ON "skill_packs" ("category") /*application='Teovibe'*/;
@@ -119,7 +119,23 @@ CREATE TRIGGER posts_fts_delete AFTER DELETE ON posts BEGIN
         INSERT INTO posts_fts(posts_fts, rowid, title, body, slug)
         VALUES ('delete', old.id, old.title, COALESCE(old.body, ''), COALESCE(old.slug, ''));
       END;
+CREATE TABLE IF NOT EXISTS "orders" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "user_id" integer NOT NULL, "skill_pack_id" integer NOT NULL, "status" integer DEFAULT 0 NOT NULL, "toss_order_id" varchar NOT NULL, "payment_event_id" varchar, "amount" integer NOT NULL, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL, CONSTRAINT "fk_rails_f868b47f6a"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+, CONSTRAINT "fk_rails_c2d59fb3f2"
+FOREIGN KEY ("skill_pack_id")
+  REFERENCES "skill_packs" ("id")
+);
+CREATE INDEX "index_orders_on_user_id" ON "orders" ("user_id") /*application='Teovibe'*/;
+CREATE INDEX "index_orders_on_skill_pack_id" ON "orders" ("skill_pack_id") /*application='Teovibe'*/;
+CREATE UNIQUE INDEX "index_orders_on_toss_order_id" ON "orders" ("toss_order_id") /*application='Teovibe'*/;
+CREATE UNIQUE INDEX "index_orders_on_payment_event_id" ON "orders" ("payment_event_id") WHERE payment_event_id IS NOT NULL /*application='Teovibe'*/;
+CREATE INDEX "index_orders_on_status" ON "orders" ("status") /*application='Teovibe'*/;
 INSERT INTO "schema_migrations" (version) VALUES
+('20260222102056'),
+('20260222102044'),
+('20260222102017'),
+('20260222083121'),
 ('20260218063734'),
 ('20260218063719'),
 ('20260218063451'),

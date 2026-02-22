@@ -19,8 +19,10 @@
     <%# Pretendard 폰트 CDN %>
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
 
-    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
-    <%= javascript_importmap_tags %>
+    <%# Vite 빌드 파이프라인 (importmap 대체) %>
+    <%= vite_client_tag %>
+    <%= vite_react_refresh_tag %>
+    <%= vite_javascript_tag 'application' %>
   </head>
 
   <body class="bg-tv-cream text-tv-black min-h-screen flex flex-col">

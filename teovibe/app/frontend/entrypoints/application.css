@@ -1,0 +1,48 @@
+@import "tailwindcss";
+
+/* TeoVibe 디자인 시스템 - memoir 톤앤매너 기반 */
+@theme {
+  /* Primary */
+  --color-tv-black: #1D1403;
+  --color-tv-white: #FFFFFF;
+  --color-tv-cream: #F5F1EA;
+  --color-tv-dark: #3E3A33;
+
+  /* Accent */
+  --color-tv-gold: #F4BA54;
+  --color-tv-orange: #E86221;
+  --color-tv-green: #124234;
+  --color-tv-burgundy: #8D3D3E;
+
+  /* Neutral */
+  --color-tv-gray: #757369;
+  --color-tv-light-gray: #AAA9A7;
+
+  /* Semantic */
+  --color-tv-nav-bg: rgba(255, 255, 255, 0.6);
+  --color-tv-card-shadow: rgba(0, 0, 0, 0.2);
+
+  /* 폰트 */
+  --font-sans: 'Pretendard Variable', Pretendard, -apple-system, 'system-ui', 'Apple SD Gothic Neo', Roboto, 'Noto Sans KR', 'Segoe UI', 'Malgun Gothic', sans-serif;
+
+  /* 폰트 크기 */
+  --text-hero: 90px;
+  --text-hero--line-height: 1.05;
+  --text-hero--letter-spacing: -0.8px;
+
+  --text-display: 60px;
+  --text-display--line-height: 65px;
+  --text-display--letter-spacing: -0.8px;
+
+  --text-heading: 50px;
+  --text-heading--line-height: 1.15;
+  --text-heading--letter-spacing: -0.5px;
+
+  --text-subheading: 24px;
+  --text-subheading--line-height: 36px;
+
+  /* 둥근 모서리 */
+  --radius-pill: 100px;
+  --radius-card: 24px;
+  --radius-card-lg: 28px;
+}

@@ -62,11 +62,11 @@ Plans:
   2. Admin에서 랜딩섹션 콘텐츠를 수정하면 React 컴포넌트에 반영된다
   3. 모바일(375px)에서 랜딩페이지 전체 섹션이 깨짐 없이 표시된다
   4. Turbo 네비게이션 후 React 컴포넌트가 메모리 누수 없이 언마운트된다
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 03-01: React 랜딩페이지 컴포넌트 구현 (히어로, CTA, 소셜프루프)
-- [ ] 03-02: Admin CMS 연동 + 모바일 반응형 + Turbo 언마운트 처리
+- [ ] 03-01-PLAN.md -- JSON API + React 스캐폴드 + motion 히어로 섹션 (API -> fetch -> render 수직 슬라이스)
+- [ ] 03-02-PLAN.md -- 나머지 섹션 컴포넌트 + 스크롤 애니메이션 + 모바일 반응형 완성
 
 ### Phase 4: Commerce
 **Goal**: 토스페이먼츠 결제 기반 구조를 완성하여 다음 마일스톤에서 실결제를 바로 활성화할 수 있는 상태를 만든다

@@ -1,9 +1,17 @@
 import { useState, useEffect } from "react"
 import HeroSection, { LandingSection } from "./HeroSection"
+import FeaturesSection from "./FeaturesSection"
+import TestimonialsSection from "./TestimonialsSection"
+import StatsSection from "./StatsSection"
+import CtaSection from "./CtaSection"
 
-// 섹션 타입별 컴포넌트 맵 (Plan 02에서 추가 섹션 등록)
+// 섹션 타입별 컴포넌트 맵
 const SECTION_COMPONENTS: Record<string, React.ComponentType<{ section: LandingSection }>> = {
   hero: HeroSection,
+  features: FeaturesSection,
+  testimonials: TestimonialsSection,
+  stats: StatsSection,
+  cta: CtaSection,
 }
 
 // 섹션이 없을 때 표시되는 기본 히어로 (기존 home.html.erb fallback 포팅)

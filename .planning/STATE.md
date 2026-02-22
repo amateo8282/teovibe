@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-22)
 
 **Core value:** 사용자가 재방문하고 싶은 수준의 콘텐츠 품질과 UX를 갖춘 커뮤니티 플랫폼
-**Current focus:** Phase 3 - Interactive Landing
+**Current focus:** Phase 4 - Commerce
 
 ## Current Position
 
-Phase: 3 of 5 (Interactive Landing)
-Plan: 2 of 3 in current phase (03-02 완료)
+Phase: 4 of 5 (Commerce)
+Plan: 1 of 3 in current phase (04-01 완료)
 Status: In progress
-Last activity: 2026-02-22 — 03-02 완료: FadeInSection whileInView 스크롤 애니메이션 + Features/Testimonials/Stats/CTA 섹션 React 포팅 완성
+Last activity: 2026-02-22 — 04-01 완료: Order 모델(enum/unique index) + SkillPack price + User payment_customer_key + CheckoutsController 스켈레톤
 
-Progress: [█████░░░░░] 50%
+Progress: [██████░░░░] 60%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 8
+- Total plans completed: 9
 - Average duration: 3 min
-- Total execution time: 27 min
+- Total execution time: 29 min
 
 **By Phase:**
 
@@ -30,9 +30,10 @@ Progress: [█████░░░░░] 50%
 | 01-foundation | 3/3 | 19 min | 6 min |
 | 02-content-experience | 3/3 | 4 min | 1 min |
 | 03-interactive-landing | 2/3 | 4 min | 2 min |
+| 04-commerce | 1/3 | 2 min | 2 min |
 
 **Recent Trend:**
-- Last 5 plans: 1 min, 1 min, 2 min, 2 min, 2 min
+- Last 5 plans: 1 min, 2 min, 2 min, 2 min, 2 min
 - Trend: -
 
 *Updated after each plan completion*
@@ -70,6 +71,10 @@ Recent decisions affecting current work:
 - [03-02]: FadeInSection을 섹션 전체와 개별 카드 양쪽에 적용 (이중 애니메이션 효과)
 - [03-02]: LandingSection 타입은 HeroSection.tsx에서 re-import (Plan 01 패턴 유지, 순환 의존 방지)
 - [03-02]: pricing/faq/custom 섹션 타입은 SECTION_COMPONENTS에 미등록 (null 반환으로 자동 스킵)
+- [04-01]: Order status는 integer enum (pending=0/paid=1/failed=2/refunded=3) — Rails 내장 enum 활용
+- [04-01]: toss_order_id unique index + payment_event_id conditional unique index (WHERE IS NOT NULL) — SQLite partial index 지원
+- [04-01]: User payment_customer_key를 UUID로 자동생성하여 재사용 — 이메일/ID 예측 가능 값 금지 (토스 정책)
+- [04-01]: CheckoutsController success 액션은 Plan 03에서 confirm 로직 추가 예정
 
 ### Pending Todos
 
@@ -82,5 +87,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Completed 03-interactive-landing/03-02-PLAN.md (FadeInSection whileInView 스크롤 애니메이션 + 5개 섹션 React 완성)
+Stopped at: Completed 04-commerce/04-01-PLAN.md (Order 모델 + 결제 DB 스키마 + CheckoutsController 스켈레톤 완성)
 Resume file: None

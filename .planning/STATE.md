@@ -10,27 +10,27 @@ See: .planning/PROJECT.md (updated 2026-02-22)
 ## Current Position
 
 Phase: 1 of 5 (Foundation)
-Plan: 2 of 3 in current phase
-Status: In progress
-Last activity: 2026-02-22 — 01-01 완료: vite_ruby 빌드 파이프라인 전환 (importmap -> vite_rails)
+Plan: 3 of 3 in current phase
+Status: Phase complete
+Last activity: 2026-02-22 — 01-03 완료: ViewComponent 설치 및 React 전용 페이지 마운트 패턴 검증
 
-Progress: [██░░░░░░░░] 13%
+Progress: [███░░░░░░░] 20%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 2
+- Total plans completed: 3
 - Average duration: 6 min
-- Total execution time: 12 min
+- Total execution time: 19 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 01-foundation | 2/3 | 12 min | 6 min |
+| 01-foundation | 3/3 | 19 min | 6 min |
 
 **Recent Trend:**
-- Last 5 plans: 7 min, 5 min
+- Last 5 plans: 7 min, 5 min, 7 min
 - Trend: -
 
 *Updated after each plan completion*
@@ -51,6 +51,9 @@ Recent decisions affecting current work:
 - [01-01]: tailwindcss-rails gem 제거 + @tailwindcss/vite npm으로 일원화 (별도 watch 프로세스 제거, Vite HMR 통합)
 - [01-01]: trix + @rails/actiontext npm 패키지 추가 (Post.has_rich_text :body ActionText 사용 중)
 - [01-01]: tailwindcss npm 패키지 별도 설치 필요 (@tailwindcss/vite가 peer dependency로 요구)
+- [01-03]: turbo:before-render 대신 turbo:before-cache 사용 (캐시 오염 방지, RESEARCH.md 권장)
+- [01-03]: root 레퍼런스를 module 스코프에 저장하여 Turbo Drive 재방문 시 중복 마운트 방지
+- [01-03]: content_for :head 블록으로 페이지별 JS 엔트리포인트 로드 (전역 로드 방지)
 
 ### Pending Todos
 
@@ -64,5 +67,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Completed 01-foundation/01-01-PLAN.md (vite_ruby 빌드 파이프라인 전환)
+Stopped at: Completed 01-foundation/01-03-PLAN.md (ViewComponent + React 전용 페이지 마운트 패턴 — Phase 1 완료)
 Resume file: None

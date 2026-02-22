@@ -13,7 +13,7 @@
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation** - vite_ruby 파이프라인 전환 + SQLite 강화 + ViewComponent 도입으로 이후 모든 작업의 기반 마련 (completed 2026-02-22)
-- [ ] **Phase 2: Content Experience** - rhino-editor 도입, 작성자 프로필 강화, Admin 분석 대시보드로 콘텐츠 품질 완성
+- [x] **Phase 2: Content Experience** - rhino-editor 도입, 작성자 프로필 강화, Admin 분석 대시보드로 콘텐츠 품질 완성 (completed 2026-02-22)
 - [ ] **Phase 3: Interactive Landing** - React 인터랙티브 랜딩페이지로 외부 유입 전환율 개선
 - [ ] **Phase 4: Commerce** - 토스페이먼츠 결제 기반 구조 구축 (Order 모델, 체크아웃 UI, SDK 연동)
 - [ ] **Phase 5: Polish** - 전체 반응형 보완 및 에러 페이지 완성으로 프로덕션 완성도 달성
@@ -106,7 +106,7 @@ Note: Phase 3 depends only on Phase 1 (can begin in parallel with Phase 2 if des
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 3/3 | Complete    | 2026-02-22 |
-| 2. Content Experience | 0/3 | Not started | - |
+| 2. Content Experience | 0/3 | Complete    | 2026-02-22 |
 | 3. Interactive Landing | 0/2 | Not started | - |
 | 4. Commerce | 0/3 | Not started | - |
 | 5. Polish | 0/2 | Not started | - |

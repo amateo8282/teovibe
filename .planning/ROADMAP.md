@@ -107,6 +107,6 @@ Note: Phase 3 depends only on Phase 1 (can begin in parallel with Phase 2 if des
 |-------|----------------|--------|-----------|
 | 1. Foundation | 3/3 | Complete    | 2026-02-22 |
 | 2. Content Experience | 0/3 | Complete    | 2026-02-22 |
-| 3. Interactive Landing | 2/2 | Complete   | 2026-02-22 |
+| 3. Interactive Landing | 2/2 | Complete    | 2026-02-22 |
 | 4. Commerce | 0/3 | Not started | - |
 | 5. Polish | 0/2 | Not started | - |

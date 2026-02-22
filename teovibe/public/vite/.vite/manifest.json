@@ -1,0 +1,54 @@
+{
+  "../../node_modules/.pnpm/@rails+actioncable@8.1.200/node_modules/@rails/actioncable/src/index.js": {
+    "file": "assets/index-lVzqX2jn.js",
+    "name": "index",
+    "src": "../../node_modules/.pnpm/@rails+actioncable@8.1.200/node_modules/@rails/actioncable/src/index.js",
+    "isDynamicEntry": true,
+    "integrity": "sha384-LGPQymS1AJ7O93TbPxsdMJbz8zINZzCHtDpp60Ns40iykBgM3U+lq4u0p3nOnYQ/"
+  },
+  "_client-C8RhVn0h.js": {
+    "file": "assets/client-C8RhVn0h.js",
+    "name": "client",
+    "integrity": "sha384-ez/iH/A9tRfo1kXiA25Og1JtIGsZuttGOV3goTSupyciuKGLi1KBcXXmHkvf1naI"
+  },
+  "entrypoints/application.css": {
+    "file": "assets/application-B7CDZtwL.css",
+    "src": "entrypoints/application.css",
+    "isEntry": true,
+    "integrity": "sha384-bwrAyPYXnFa2UlVApipGRy+rbdsJOLtt9+kAO8f9UwDRHmJ3A06IaGhMw+f3EaRO"
+  },
+  "entrypoints/application.js": {
+    "file": "assets/application-DTjN8zCG.js",
+    "name": "entrypoints/application.js",
+    "src": "entrypoints/application.js",
+    "isEntry": true,
+    "dynamicImports": [
+      "../../node_modules/.pnpm/@rails+actioncable@8.1.200/node_modules/@rails/actioncable/src/index.js"
+    ],
+    "css": [
+      "assets/application-DoA7TFRg.css",
+      "assets/application-B7CDZtwL.css"
+    ],
+    "integrity": "sha384-HUivXvO5Vk2AVPPUEMy6cB7SUzsf/P4smzFhmvG+wL4vzJ24vbs/EJ9DyftSJthm"
+  },
+  "entrypoints/landing.jsx": {
+    "file": "assets/landing-Cw4JUmx0.js",
+    "name": "entrypoints/landing.jsx",
+    "src": "entrypoints/landing.jsx",
+    "isEntry": true,
+    "imports": [
+      "_client-C8RhVn0h.js"
+    ],
+    "integrity": "sha384-ByOFf/XdcQTrlgk9z5plhkloe93CTRXHmAh+QSLx1xhggglMNA5w6KbvckAGV4/L"
+  },
+  "entrypoints/react-demo.jsx": {
+    "file": "assets/react-demo-CicA3d_N.js",
+    "name": "entrypoints/react-demo.jsx",
+    "src": "entrypoints/react-demo.jsx",
+    "isEntry": true,
+    "imports": [
+      "_client-C8RhVn0h.js"
+    ],
+    "integrity": "sha384-ryTej8NOedM7QEjkXcSADvLwqSxetvtMN/2AEhc/9mtfJpktdNiMQncd35OdFunI"
+  }
+}

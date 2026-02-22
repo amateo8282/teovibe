@@ -17,7 +17,16 @@
 
   <div>
     <label for="post_body" class="block text-sm font-bold mb-1">본문</label>
-    <%= f.rich_text_area :body, class: "w-full min-h-[300px] rounded-2xl border border-tv-light-gray/50 focus:border-tv-gold focus:outline-none" %>
+    <%# 기존 ActionText 데이터를 rhino-editor가 이해하는 HTML로 변환 (to_trix_html 필수) %>
+    <%= f.hidden_field :body,
+          id: f.field_id(:body),
+          value: f.object.body.try(:to_trix_html) || f.object.body %>
+    <rhino-editor
+      input="<%= f.field_id(:body) %>"
+      data-blob-url-template="<%= rails_service_blob_url(":signed_id", ":filename") %>"
+      data-direct-upload-url="<%= rails_direct_uploads_url %>"
+      class="w-full min-h-[300px] rounded-2xl border border-tv-light-gray/50 focus:within:border-tv-gold"
+    ></rhino-editor>
   </div>
 
   <div class="flex justify-end gap-3">

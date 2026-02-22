@@ -1,9 +1,15 @@
 <div class="max-w-[800px] mx-auto px-5 py-10">
   <div class="bg-white rounded-card-lg p-8 mb-8">
     <div class="flex items-center gap-6 mb-6">
-      <div class="w-20 h-20 rounded-full bg-tv-gold flex items-center justify-center text-3xl font-black text-tv-black">
-        <%= @user.nickname.first.upcase %>
-      </div>
+      <% if @user.avatar.attached? %>
+        <%= image_tag @user.display_avatar_url(size: 80), class: "w-20 h-20 rounded-full object-cover" %>
+      <% elsif @user.avatar_url.present? %>
+        <%= image_tag @user.avatar_url, class: "w-20 h-20 rounded-full object-cover" %>
+      <% else %>
+        <div class="w-20 h-20 rounded-full bg-tv-gold flex items-center justify-center text-3xl font-black text-tv-black">
+          <%= @user.nickname.first.upcase %>
+        </div>
+      <% end %>
       <div>
         <h1 class="text-2xl font-black"><%= @user.nickname %></h1>
         <p class="text-tv-gray"><%= @user.email_address %></p>
@@ -13,11 +19,31 @@
           <span>글 <%= @user.posts_count %></span>
           <span>댓글 <%= @user.comments_count %></span>
         </div>
+        <% if @user.earned_badges.any? %>
+          <div class="flex flex-wrap gap-2 mt-3">
+            <% @user.earned_badges.each do |badge| %>
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-tv-gold/20 text-tv-black border border-tv-gold/40">
+                <%= badge[:label] %>
+              </span>
+            <% end %>
+          </div>
+        <% end %>
       </div>
     </div>
     <% if @user.bio.present? %>
       <p class="text-base text-tv-gray"><%= @user.bio %></p>
     <% end %>
+    <div class="flex gap-4 mt-3">
+      <% if @user.github_url.present? %>
+        <%= link_to "GitHub", @user.github_url, target: "_blank", rel: "noopener noreferrer", class: "text-sm text-tv-orange hover:underline" %>
+      <% end %>
+      <% if @user.twitter_url.present? %>
+        <%= link_to "Twitter", @user.twitter_url, target: "_blank", rel: "noopener noreferrer", class: "text-sm text-tv-orange hover:underline" %>
+      <% end %>
+      <% if @user.website_url.present? %>
+        <%= link_to "웹사이트", @user.website_url, target: "_blank", rel: "noopener noreferrer", class: "text-sm text-tv-orange hover:underline" %>
+      <% end %>
+    </div>
     <%= link_to "프로필 수정", edit_profile_path, class: "inline-block mt-4 border border-tv-black rounded-pill px-5 py-2 text-sm font-bold hover:bg-tv-black hover:text-white transition-colors" %>
   </div>
 

@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-22)
 ## Current Position
 
 Phase: 3 of 5 (Interactive Landing)
-Plan: 1 of 3 in current phase (03-01 완료)
+Plan: 2 of 3 in current phase (03-02 완료)
 Status: In progress
-Last activity: 2026-02-22 — 03-01 완료: motion stagger 애니메이션 히어로 섹션 + /api/v1/landing_sections JSON API + React 랜딩페이지 스캐폴드
+Last activity: 2026-02-22 — 03-02 완료: FadeInSection whileInView 스크롤 애니메이션 + Features/Testimonials/Stats/CTA 섹션 React 포팅 완성
 
-Progress: [████░░░░░░] 43%
+Progress: [█████░░░░░] 50%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 7
-- Average duration: 4 min
-- Total execution time: 25 min
+- Total plans completed: 8
+- Average duration: 3 min
+- Total execution time: 27 min
 
 **By Phase:**
 
@@ -29,10 +29,10 @@ Progress: [████░░░░░░] 43%
 |-------|-------|-------|----------|
 | 01-foundation | 3/3 | 19 min | 6 min |
 | 02-content-experience | 3/3 | 4 min | 1 min |
-| 03-interactive-landing | 1/3 | 2 min | 2 min |
+| 03-interactive-landing | 2/3 | 4 min | 2 min |
 
 **Recent Trend:**
-- Last 5 plans: 7 min, 1 min, 1 min, 2 min, 2 min
+- Last 5 plans: 1 min, 1 min, 2 min, 2 min, 2 min
 - Trend: -
 
 *Updated after each plan completion*
@@ -67,6 +67,9 @@ Recent decisions affecting current work:
 - [03-01]: motion 패키지명 사용 (`motion/react` import) — 구 `framer-motion`에서 리브랜딩된 최신 패키지
 - [03-01]: SECTION_COMPONENTS 맵 패턴으로 section_type 문자열 -> React 컴포넌트 라우팅 (Plan 02+ 확장 준비)
 - [03-01]: allow_unauthenticated_access를 Api::V1::LandingSectionsController에 적용 (비로그인 랜딩 접근)
+- [03-02]: FadeInSection을 섹션 전체와 개별 카드 양쪽에 적용 (이중 애니메이션 효과)
+- [03-02]: LandingSection 타입은 HeroSection.tsx에서 re-import (Plan 01 패턴 유지, 순환 의존 방지)
+- [03-02]: pricing/faq/custom 섹션 타입은 SECTION_COMPONENTS에 미등록 (null 반환으로 자동 스킵)
 
 ### Pending Todos
 
@@ -79,5 +82,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Completed 03-interactive-landing/03-01-PLAN.md (motion stagger 히어로 섹션 + JSON API + React 랜딩페이지 스캐폴드)
+Stopped at: Completed 03-interactive-landing/03-02-PLAN.md (FadeInSection whileInView 스크롤 애니메이션 + 5개 섹션 React 완성)
 Resume file: None

@@ -30,7 +30,7 @@ Requirements for this milestone. Each maps to roadmap phases.
 - [x] **COMM-01**: Order 모델과 결제 상태 관리 스키마를 구축한다 (pending/paid/failed/refunded)
 - [x] **COMM-02**: 스킬팩 체크아웃 페이지 UI를 구현한다 (상품 정보, 가격, 결제 버튼)
 - [x] **COMM-03**: 토스페이먼츠 SDK 초기화와 결제 위젯 연동 기반을 마련한다
-- [ ] **COMM-04**: 서버사이드 결제 확인(confirm) API 엔드포인트를 구현한다
+- [x] **COMM-04**: 서버사이드 결제 확인(confirm) API 엔드포인트를 구현한다
 
 ### Profile & Content
 
@@ -104,7 +104,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | COMM-01 | Phase 4 | Complete |
 | COMM-02 | Phase 4 | Complete |
 | COMM-03 | Phase 4 | Complete |
-| COMM-04 | Phase 4 | Pending |
+| COMM-04 | Phase 4 | Complete |
 | PROF-01 | Phase 2 | Complete |
 | PROF-02 | Phase 2 | Complete |
 | UIUX-01 | Phase 5 | Pending |

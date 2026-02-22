@@ -1,0 +1,29 @@
+<% content_for :title, "결제 - #{@skill_pack.title}" %>
+
+<%# 페이지별 JS 로드 (content_for :head 패턴, 전역 로드 방지) %>
+<% content_for :head do %>
+  <%= vite_javascript_tag 'checkout' %>
+<% end %>
+
+<div class="max-w-lg mx-auto px-5 py-16">
+  <%# 뒤로가기 %>
+  <div class="mb-8">
+    <%= link_to "< 스킬팩으로 돌아가기", skill_pack_path(@skill_pack), class: "text-tv-gray hover:text-tv-orange transition-colors" %>
+  </div>
+
+  <h1 class="text-2xl font-black mb-8">결제</h1>
+
+  <%# React 마운트 포인트 + data attributes로 props 전달 %>
+  <%#
+    successUrl/failUrl은 _url 헬퍼 사용 (절대 URL 필수, RESEARCH.md Pitfall 4)
+  %>
+  <div id="checkout-root"
+    data-client-key="<%= @client_key %>"
+    data-customer-key="<%= @customer_key %>"
+    data-order-id="<%= @order.toss_order_id %>"
+    data-order-name="<%= @skill_pack.title %>"
+    data-amount="<%= @order.amount %>"
+    data-success-url="<%= checkout_success_skill_pack_url(@skill_pack) %>"
+    data-fail-url="<%= checkout_fail_skill_pack_url(@skill_pack) %>">
+  </div>
+</div>

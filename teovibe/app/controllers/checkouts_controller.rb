@@ -28,21 +28,13 @@ class CheckoutsController < ApplicationController
   end
 
   def success
-    payment_key = params[:paymentKey]
-    order_id = params[:orderId]
-    amount = params[:amount].to_i
-
     # Plan 03에서 confirm 로직 추가 예정
-    # 현재는 안내 메시지만 표시
-    flash[:notice] = "결제 확인 처리 중입니다. (orderId: #{order_id})"
-    redirect_to skill_pack_path(@skill_pack)
+    # 현재는 success.html.erb에서 안내 메시지만 표시
+    # params[:paymentKey], params[:orderId], params[:amount]는 뷰에서 사용
   end
 
   def fail
-    code = params[:code]
-    message = params[:message]
-    flash[:alert] = "결제에 실패했습니다. [#{code}] #{message}"
-    redirect_to skill_pack_checkout_path(@skill_pack)
+    # fail.html.erb에서 params[:code], params[:message] 표시
   end
 
   private

@@ -1,0 +1,33 @@
+<% content_for :title, "결제 실패 - #{@skill_pack.title}" %>
+
+<div class="max-w-lg mx-auto px-5 py-16 text-center">
+  <div class="bg-white rounded-2xl shadow-sm p-10">
+    <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+      <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+      </svg>
+    </div>
+
+    <h1 class="text-2xl font-black text-gray-900 mb-4">결제에 실패했습니다</h1>
+
+    <% if params[:message].present? %>
+      <p class="text-gray-600 mb-2"><%= params[:message] %></p>
+    <% else %>
+      <p class="text-gray-600 mb-2">결제 처리 중 오류가 발생했습니다.</p>
+    <% end %>
+
+    <% if params[:code].present? %>
+      <p class="text-sm text-gray-400 mb-8">에러 코드: <%= params[:code] %></p>
+    <% end %>
+
+    <div class="flex flex-col gap-3">
+      <%# 다시 시도 버튼 %>
+      <%= link_to "다시 시도", checkout_skill_pack_path(@skill_pack),
+        class: "inline-block bg-tv-orange text-white rounded-lg px-8 py-3 font-semibold hover:bg-orange-600 transition-colors" %>
+
+      <%# 스킬팩 목록으로 돌아가기 %>
+      <%= link_to "스킬팩 목록으로", skill_packs_path,
+        class: "inline-block text-tv-gray hover:text-tv-orange transition-colors py-3" %>
+    </div>
+  </div>
+</div>

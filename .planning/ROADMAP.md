@@ -91,11 +91,11 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. 네비게이션, 사이드바, 게시판 카드가 모바일(375px)에서 깨짐 없이 표시된다
   2. 커스텀 404 페이지와 500 페이지가 브랜드에 맞게 렌더링된다
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 05-01: 전체 레이아웃 모바일 반응형 보완 (네비게이션, 사이드바, 카드)
-- [ ] 05-02: 커스텀 404/500 에러 페이지
+- [ ] 05-01-PLAN.md -- 전체 레이아웃 모바일 반응형 보완 (Navbar 모바일 메뉴 + Admin 사이드바 off-canvas)
+- [ ] 05-02-PLAN.md -- 커스텀 404/500/422 에러 페이지 (exceptions_app + ErrorsController)
 
 ## Progress
 

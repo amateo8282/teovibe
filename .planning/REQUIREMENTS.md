@@ -9,7 +9,7 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### Infrastructure
 
-- [ ] **INFRA-01**: ImportMap에서 vite_ruby로 JavaScript 빌드 파이프라인을 전환하여 JSX/React/npm 패키지를 사용할 수 있다
+- [x] **INFRA-01**: ImportMap에서 vite_ruby로 JavaScript 빌드 파이프라인을 전환하여 JSX/React/npm 패키지를 사용할 수 있다
 - [x] **INFRA-02**: SQLite WAL 모드를 활성화하고 Solid Queue/Cache/Cable이 별도 DB 파일을 사용하도록 구성한다
 - [ ] **INFRA-03**: ViewComponent gem을 도입하여 재사용 가능한 UI 컴포넌트 구조를 마련한다
 
@@ -92,7 +92,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| INFRA-01 | Phase 1 | Pending |
+| INFRA-01 | Phase 1 | Complete |
 | INFRA-02 | Phase 1 | Complete |
 | INFRA-03 | Phase 1 | Pending |
 | EDIT-01 | Phase 2 | Pending |

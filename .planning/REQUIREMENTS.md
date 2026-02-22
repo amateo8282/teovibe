@@ -44,7 +44,7 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### Admin
 
-- [ ] **ADMN-01**: Admin 대시보드에 기본 콘텐츠 분석을 표시한다 (조회수 상위 게시글, 좋아요 통계, 회원가입 추이)
+- [x] **ADMN-01**: Admin 대시보드에 기본 콘텐츠 분석을 표시한다 (조회수 상위 게시글, 좋아요 통계, 회원가입 추이)
 
 ## v2 Requirements
 
@@ -109,7 +109,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PROF-02 | Phase 2 | Complete |
 | UIUX-01 | Phase 5 | Pending |
 | UIUX-02 | Phase 5 | Pending |
-| ADMN-01 | Phase 2 | Pending |
+| ADMN-01 | Phase 2 | Complete |
 
 **Coverage:**
 - v1 requirements: 18 total

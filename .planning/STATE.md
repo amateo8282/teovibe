@@ -5,33 +5,33 @@
 See: .planning/PROJECT.md (updated 2026-02-22)
 
 **Core value:** 사용자가 재방문하고 싶은 수준의 콘텐츠 품질과 UX를 갖춘 커뮤니티 플랫폼
-**Current focus:** Phase 2 - Content Experience
+**Current focus:** Phase 2 - Content Experience (완료)
 
 ## Current Position
 
 Phase: 2 of 5 (Content Experience)
-Plan: 2 of 3 in current phase
-Status: In progress
-Last activity: 2026-02-22 — 02-02 완료: Active Storage 아바타, 소셜링크, Badgeable concern으로 프로필 강화
+Plan: 3 of 3 in current phase (Phase 2 완료)
+Status: Phase 2 complete
+Last activity: 2026-02-22 — 02-03 완료: chartkick + groupdate로 Admin 대시보드 콘텐츠 분석 차트 추가
 
-Progress: [████░░░░░░] 33%
+Progress: [████░░░░░░] 40%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 5
-- Average duration: 5 min
-- Total execution time: 21 min
+- Total plans completed: 6
+- Average duration: 4 min
+- Total execution time: 23 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-foundation | 3/3 | 19 min | 6 min |
-| 02-content-experience | 2/3 | 2 min | 1 min |
+| 02-content-experience | 3/3 | 4 min | 1 min |
 
 **Recent Trend:**
-- Last 5 plans: 7 min, 5 min, 7 min, 1 min, 1 min
+- Last 5 plans: 5 min, 7 min, 1 min, 1 min, 2 min
 - Trend: -
 
 *Updated after each plan completion*
@@ -61,6 +61,8 @@ Recent decisions affecting current work:
 - [02-02]: Active Storage 아바타 추가 시 기존 avatar_url 컬럼 유지 (OAuth 아바타 폴백 보존)
 - [02-02]: 소셜링크를 JSON 단일 컬럼 아닌 3개 별도 string 컬럼으로 구현 (파싱 복잡도 회피)
 - [02-02]: 뱃지 로직을 별도 gem 없이 Badgeable concern으로 직접 구현 (4개 뱃지에 gem은 과도)
+- [02-03]: chartkick:install 제너레이터 미실행 (importmap 전용, Vite에서는 npm import만 사용)
+- [02-03]: chartkick gem(서버사이드 헬퍼) + chartkick npm(Chart.js 클라이언트 어댑터)으로 역할 분리
 
 ### Pending Todos
 
@@ -68,11 +70,10 @@ None yet.
 
 ### Blockers/Concerns
 
-- [Phase 2]: rhino-editor Shadow DOM과 Tailwind CSS 4 클래스 충돌 가능성 — Phase 2 플래닝 시 조사 필요
 - [Phase 4]: 토스페이먼츠 웹훅 서명 검증 HMAC 알고리즘 세부 사항 — Phase 4 플래닝 시 공식 문서 확인 필요
 
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Completed 02-content-experience/02-01-PLAN.md (rhino-editor 0.17.x 도입, Trix 에디터 대체, 이미지 업로드/버블 메뉴 활성화)
+Stopped at: Completed 02-content-experience/02-03-PLAN.md (chartkick + groupdate로 Admin 대시보드 콘텐츠 분석 차트 추가)
 Resume file: None

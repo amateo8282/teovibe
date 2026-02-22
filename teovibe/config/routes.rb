@@ -93,6 +93,13 @@ Rails.application.routes.draw do
     end
   end
 
+  # API
+  namespace :api do
+    namespace :v1 do
+      resources :landing_sections, only: [:index]
+    end
+  end
+
   # React 데모 (ViewComponent + React 마운트 패턴 검증)
   get "demo/react", to: "demo#react"
 

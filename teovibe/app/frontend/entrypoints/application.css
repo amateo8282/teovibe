@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+/* Rails 뷰 파일에서 Tailwind 클래스 스캔 */
+@source "../../../app/views/**/*.erb";
+@source "../../../app/frontend/**/*.js";
+@source "../../../app/frontend/**/*.jsx";
+@source "../../../app/frontend/**/*.ts";
+@source "../../../app/frontend/**/*.tsx";
+
 /* TeoVibe 디자인 시스템 - memoir 톤앤매너 기반 */
 @theme {
   /* Primary */

@@ -1,4 +1,4 @@
-require_relative "../../lib/omniauth/strategies/kakao"
+require_relative "../../lib/omniauth_kakao_strategy"
 
 Rails.application.config.middleware.use OmniAuth::Builder do
   if ENV["GOOGLE_CLIENT_ID"].present?

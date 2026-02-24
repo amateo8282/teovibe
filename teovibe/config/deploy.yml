@@ -48,7 +48,7 @@ volumes:
   - "teovibe_storage:/rails/storage"
 
 # 에셋 브릿지
-asset_path: /rails/public/assets
+asset_path: /rails/public/vite
 
 # 빌드 설정 — 로컬 Docker 없이 서버에서 원격 빌드
 builder:

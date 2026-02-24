@@ -10,7 +10,7 @@
 | 데이터베이스 | SQLite (WAL 모드) + FTS5 전문 검색 |
 | 프론트엔드 | Hotwire (Turbo + Stimulus) |
 | CSS | Tailwind CSS v4 (tailwindcss-rails) |
-| 에셋 | Propshaft + Import Maps |
+| 에셋 | Vite (vite_rails) |
 | 인증 | Rails 빌트인 인증 + OmniAuth (Google, Kakao) |
 | 리치 텍스트 | ActionText |
 | 파일 업로드 | Active Storage |

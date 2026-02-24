@@ -58,6 +58,9 @@ gem "thruster", require: false
 gem "image_processing", "~> 1.2"
 
 group :development, :test do
+  # .env 파일에서 환경변수 자동 로드
+  gem "dotenv-rails"
+
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
 

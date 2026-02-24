@@ -7,7 +7,7 @@ Rails.application.config.middleware.use OmniAuth::Builder do
   end
 
   if ENV["KAKAO_CLIENT_ID"].present?
-    provider :kakao,
+    provider :kakao_oauth2,
       ENV["KAKAO_CLIENT_ID"],
       ENV["KAKAO_CLIENT_SECRET"]
   end
@@ -30,8 +30,8 @@ if Rails.env.development?
     credentials: { token: "mock-google-token" }
   })
 
-  OmniAuth.config.mock_auth[:kakao] = OmniAuth::AuthHash.new({
-    provider: "kakao",
+  OmniAuth.config.mock_auth[:kakao_oauth2] = OmniAuth::AuthHash.new({
+    provider: "kakao_oauth2",
     uid: "mock-kakao-uid-67890",
     info: {
       email: "testuser@kakao.com",

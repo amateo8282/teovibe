@@ -23,7 +23,7 @@ gem "bcrypt", "~> 3.1.7"
 # 인증 (소셜 로그인)
 gem "omniauth"
 gem "omniauth-google-oauth2"
-gem "omniauth-kakao"
+gem "omniauth-kakao-oauth2"
 gem "omniauth-rails_csrf_protection"
 
 # 페이지네이션

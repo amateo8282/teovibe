@@ -83,8 +83,8 @@ TeoVibe는 Google과 Kakao 소셜 로그인을 지원합니다.
 
 1. **제품 설정** > **카카오 로그인** > **활성화 설정** ON
 2. **Redirect URI** 등록:
-   - 개발: `http://localhost:3000/auth/kakao/callback`
-   - 프로덕션: `https://jaeho.im/auth/kakao/callback`
+   - 개발: `http://localhost:3000/auth/kakao_oauth2/callback`
+   - 프로덕션: `https://jaeho.im/auth/kakao_oauth2/callback`
 
 ### 2.4 동의 항목 설정
 
@@ -184,7 +184,7 @@ bin/rails server
 ### 5.1 배포 전 체크리스트
 
 - [ ] Google Cloud Console에서 프로덕션 Redirect URI 등록 (`https://jaeho.im/auth/google_oauth2/callback`)
-- [ ] Kakao Developers에서 프로덕션 Redirect URI 등록 (`https://jaeho.im/auth/kakao/callback`)
+- [ ] Kakao Developers에서 프로덕션 Redirect URI 등록 (`https://jaeho.im/auth/kakao_oauth2/callback`)
 - [ ] Kakao 플랫폼에 프로덕션 도메인 등록 (`https://jaeho.im`)
 - [ ] `.kamal/secrets`에 OAuth 환경변수 추가
 - [ ] `config/deploy.yml`에 secret 환경변수 등록
@@ -216,7 +216,7 @@ kamal app logs -f
 OAuth 제공자에 등록한 Redirect URI와 실제 콜백 URL이 다를 때 발생합니다.
 
 - Google: `https://jaeho.im/auth/google_oauth2/callback` (정확히 일치해야 함)
-- Kakao: `https://jaeho.im/auth/kakao/callback`
+- Kakao: `https://jaeho.im/auth/kakao_oauth2/callback`
 - 후행 슬래시(`/`) 유무도 일치해야 합니다
 
 ### "소셜 로그인에 실패했습니다" 메시지

@@ -10,7 +10,8 @@ module OmniAuth
       option :client_options,
              site: "https://kauth.kakao.com",
              authorize_url: "/oauth/authorize",
-             token_url: "/oauth/token"
+             token_url: "/oauth/token",
+             auth_scheme: :request_body
 
       uid { raw_info["id"].to_s }
 

@@ -1,3 +1,5 @@
+require_relative "../../lib/omniauth/strategies/kakao"
+
 Rails.application.config.middleware.use OmniAuth::Builder do
   if ENV["GOOGLE_CLIENT_ID"].present?
     provider :google_oauth2,

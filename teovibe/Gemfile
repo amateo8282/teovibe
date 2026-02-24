@@ -23,7 +23,8 @@ gem "bcrypt", "~> 3.1.7"
 # 인증 (소셜 로그인)
 gem "omniauth"
 gem "omniauth-google-oauth2"
-gem "omniauth-kakao-oauth2"
+# Kakao OAuth2 strategy는 lib/omniauth/strategies/kakao.rb에 직접 구현
+# omniauth-kakao gem은 v0.0.1이 불완전, omniauth-kakao-oauth2는 의존성 충돌
 gem "omniauth-rails_csrf_protection"
 
 # 페이지네이션

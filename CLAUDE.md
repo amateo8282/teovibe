@@ -172,6 +172,31 @@ project/
 - 완료된 태스크 비율로 전체 진행도 추적
 - 모든 태스크 완료 시 최종 통합 테스트 후 푸시
 
+## OmniAuth 소셜 로그인 (트러블슈팅 기록)
+
+### Kakao OAuth
+- **omniauth-kakao gem (v0.0.1)은 사용 금지**: strategy 파일이 누락된 불완전한 gem. 개발 Mock 모드에서만 동작하고 프로덕션에서 LoadError 발생
+- **omniauth-kakao-oauth2 gem도 사용 금지**: omniauth v1.x 의존성을 강제하여 omniauth-rails_csrf_protection이 0.1.2로 다운그레이드됨. 이로 인해 CSRF 토큰 검증 실패 (authenticity_error)
+- **해결**: `config/omniauth_kakao_strategy.rb`에 커스텀 strategy 직접 구현
+- **핵심 설정**: `auth_scheme: :request_body` 필수 (카카오 API는 client_id를 header가 아닌 body로 요구)
+- **Zeitwerk 주의**: `lib/omniauth/strategies/` 경로에 두면 Zeitwerk가 `Omniauth::Strategies::Kakao`로 autoload 시도하여 NameError. `config/` 디렉토리에 배치하고 `require_relative`로 로드
+
+### OmniAuth + Turbo 호환성
+- `button_to`로 소셜 로그인 POST 시 반드시 `data: { turbo: false }` 추가
+- Turbo가 OmniAuth POST를 가로채면 CSRF 토큰이 제대로 전달되지 않아 authenticity_error 발생
+
+### Kamal 배포 시 환경변수
+- `.env` 파일의 OAuth 키는 `.kamal/secrets`에서 `$ENV_VAR` 형태로 참조
+- 배포 전 `export $(cat .env | grep -v '^#' | grep -v '^$' | xargs)` 실행 필요
+- `dotenv-rails` gem은 development/test 그룹에만 설치 (프로덕션 Docker에서는 Kamal이 env 주입)
+
+### 관련 파일
+- `config/omniauth_kakao_strategy.rb` - Kakao OAuth2 strategy (커스텀)
+- `config/initializers/omniauth.rb` - OmniAuth 미들웨어 설정
+- `app/views/shared/_auth_social.html.erb` - 소셜 로그인 버튼
+- `app/controllers/omniauth/sessions_controller.rb` - OAuth 콜백 처리
+- `docs/OAUTH_SETUP_GUIDE.md` - OAuth 설정 매뉴얼
+
 ## 작업 흐름
 
 1. 기능 요구사항 확인 및 도메인 모델 설계

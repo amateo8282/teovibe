@@ -27,6 +27,10 @@ registry:
 env:
   secret:
     - RAILS_MASTER_KEY
+    - GOOGLE_CLIENT_ID
+    - GOOGLE_CLIENT_SECRET
+    - KAKAO_CLIENT_ID
+    - KAKAO_CLIENT_SECRET
   clear:
     SOLID_QUEUE_IN_PUMA: true
     WEB_CONCURRENCY: 2

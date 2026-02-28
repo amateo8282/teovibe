@@ -1,216 +1,263 @@
 # Project Research Summary
 
-**Project:** TeoVibe — Rails 8.1 creator-led blog community platform enhancement
-**Domain:** Creator platform with digital content sales (Rails monolith, subsequent milestone)
-**Researched:** 2026-02-22
-**Confidence:** MEDIUM
+**Project:** TeoVibe v1.1 Admin 고도화
+**Domain:** Rails 모놀리스 CMS — 동적 카테고리, AI 초안 작성, 예약 발행
+**Researched:** 2026-02-28
+**Confidence:** HIGH
 
 ## Executive Summary
 
-TeoVibe is a creator-admin community platform built on Rails 8.1 — closer in concept to a high-quality personal brand site with community engagement than a multi-creator marketplace. The existing monolith already has core features (auth, multi-category board, ActionText, comments, likes, points, notifications, search, admin CMS, Kamal deployment). This milestone adds four capability layers: a richer text editing experience, React-driven interactive UI for the landing page, payment infrastructure scaffolding via Toss Payments, and UI/UX polish through ViewComponent and Flowbite. Ghost is the closest competitive analog; TeoVibe's differentiators are Korea-specific (Toss Payments direct integration, Kakao login) and a creator-admin publishing model with zero platform fee.
+TeoVibe v1.1은 기존에 검증된 Rails 8.1 + Hotwire + Solid Queue 스택 위에 세 가지 운영 효율화 기능을 추가하는 밀스톤이다. 핵심 도전은 기술적 난이도보다 안전한 데이터 이관에 있다. 현재 `posts.category`와 `skill_packs.category`가 정수형 enum으로 하드코딩되어 있으며, 이를 동적 `Category` DB 모델로 전환하는 것이 모든 v1.1 기능의 선행 조건이자 최대 위험 지점이다. 이 마이그레이션을 잘못 처리하면 모든 게시판 라우팅과 기존 게시글 카테고리 분류가 동시에 파괴된다.
 
-The recommended technical approach is to migrate the JavaScript pipeline from ImportMap to vite_ruby (Vite-based bundler) first, since this is a prerequisite for both React components and the Toss Payments SDK. On top of Vite, rhino-editor replaces Trix as the rich text editor — it is the only option that maintains ActionText compatibility without a data migration. React is embedded as islands in ERB views via vite_ruby's component helpers, reserved only for the landing page and highly interactive UI. Toss Payments v2 SDK handles the frontend payment widget client-side; a thin Rails PaymentService calls the Toss Confirm API server-side using Faraday. ViewComponent 4.x + Flowbite provide reusable, testable view components with pre-built Tailwind CSS 4 interactive patterns.
+AI 초안 기능은 Anthropic 공식 Ruby SDK(`anthropic` gem v1.23.0)를 사용하여 2단계 생성(개요 → 본문) 패턴으로 구현한다. Puma 스레드 점유 문제를 피하기 위해 `AiDraftJob`(ActiveJob) + `Turbo::StreamsChannel.broadcast_append_to` 방식의 비동기 스트리밍을 채택한다. 예약 발행은 이미 설치된 Solid Queue의 `set(wait_until:).perform_later` 패턴으로 처리하며 신규 인프라가 전혀 필요 없다. 두 기능 모두 Category 모델 전환 완료 후 독립적으로 병렬 구현 가능하다.
 
-The top risks are: (1) the vite_ruby migration from ImportMap is a high-impact breaking change to the entire JS pipeline and must be verified before other work proceeds; (2) the wrong rich text editor choice can silently corrupt existing post data; (3) payment infrastructure without idempotency keys creates double-charge risk in production; (4) SQLite write lock contention under Solid Queue background jobs is a latent production hazard that worsens as background job volume grows.
+주요 위험은 세 가지다. (1) enum → FK 마이그레이션의 데이터 매핑 오류로 기존 게시글 카테고리 전체 손상, (2) Anthropic API의 동기 호출이 Puma 스레드를 15-60초 블로킹, (3) 예약 발행 잡의 멱등성 미확보로 중복 발행 또는 영구 미발행. 각 위험은 명확한 예방 패턴이 연구 과정에서 확인되었으며, Phase 1에서 마이그레이션 전략을 충분히 검증하는 것이 v1.1 전체 성공의 관건이다.
+
+---
 
 ## Key Findings
 
 ### Recommended Stack
 
-The existing Rails 8.1 app with Hotwire, Tailwind CSS 4.4, Propshaft, and SQLite is a solid foundation. The milestone requires four targeted additions: vite_ruby replaces ImportMap as the JS bundler (required for JSX and TypeScript), rhino-editor replaces Trix in ActionText forms, Toss Payments v2 SDK is integrated via JavaScript entrypoint, and ViewComponent 4.4 adds a structured component layer. No new gems are needed for payments — Faraday (already in Gemfile) handles the Toss Confirm API call.
+기존 스택(Rails 8.1.2, Hotwire, Solid Queue 1.3.1, vite_ruby + React 19)은 변경 없이 유지한다. v1.1에서 추가되는 의존성은 최소화되어 있으며 모두 기존 스택과 호환이 확인된 패키지다.
 
-**Core technologies:**
-- **vite_ruby ~3.x (gem) + @vitejs/plugin-react ~4.x**: Replaces ImportMap — the only Rails-native bundler that supports JSX+TypeScript, is Propshaft-compatible, and allows mixing Stimulus with React islands
-- **rhino-editor ~0.18.x (vendor bundle via curl)**: TipTap-based Trix replacement; only option that maintains ActionText storage format without data migration. ImportMap-compatible via vendor bundle.
-- **react 18.x + react-dom 18.x**: React islands for landing page — interactive animated sections, hero, CTA. React is isolated to non-form contexts only.
-- **@tosspayments/tosspayments-sdk v2 (via npm/Vite)**: Official Toss Payments frontend widget. Backend confirmation uses Faraday (already present) calling Toss REST API directly — no Ruby gem needed.
-- **view_component ~4.4 (gem)**: Encapsulated, testable Rails view components for all new UI elements. Rails 8.1 support confirmed in February 2026 changelog.
-- **flowbite ~3.x (CDN or npm via Vite)**: Pre-built Tailwind CSS 4 interactive component patterns (dropdowns, modals, tabs). No new CSS framework required.
+**신규 Gem:**
+- `anthropic ~> 1.23` — Anthropic Claude API 공식 Ruby 클라이언트. Ruby 3.2+ 요구(프로젝트 3.3.10 충족), SSE 스트리밍/재시도/타임아웃 내장, 2026-02-19 릴리즈
+- `acts_as_list ~> 1.2` — Category 모델 position 기반 순서 관리. Rails 8.1.2 호환(activerecord >= 6.1), v1.2.6(2025-10-21 릴리즈)
 
-**Critical version requirement:** vite_ruby requires migrating away from all `config/importmap.rb` pins. All existing Stimulus controller imports must be migrated to Vite entrypoints. This is a one-time breaking change; test Stimulus and Turbo carefully afterward.
+**신규 npm 패키지:**
+- `sortablejs ^1.15` — 카테고리 드래그앤드롭 UI. Stimulus Controller와 연동, jQuery 불필요, ESM import 지원
+- `@types/sortablejs ^1.15` — vite_ruby TypeScript 환경 타입 정의
+
+**신규 DB 마이그레이션:**
+- `create_categories` — 통합 카테고리 모델(`record_type` enum으로 post/skillpack 구분)
+- `add_category_id_to_posts` — 기존 enum 정수값 → Category FK 이관 포함
+- `add_category_id_to_skill_packs` — 기존 enum 정수값 → Category FK 이관 포함
+- `add_publish_at_to_posts` + `add_published_at_to_posts` — 예약 발행 datetime (두 컬럼 동시 추가)
+
+**AI 모델 선택:** `claude-haiku-4-5-20251001` 기본값. `ENV["ANTHROPIC_MODEL"]`로 분리하여 운영 중 `claude-sonnet-4-6`로 교체 가능.
+
+**추가하지 않을 것:**
+- `sidekiq` + Redis — Solid Queue로 완전히 대체 가능, SQLite 스택과 불일치
+- `whenever` gem — 개별 post 예약에 부적합한 cron 패턴
+- `ruby_llm` gem — 다중 LLM 추상화 불필요, Anthropic 단독 사용
+- ActionController::Live SSE (스트리밍) — Puma 스레드 점유. Action Cable 방식이 더 Rails 관용적
 
 ### Expected Features
 
-The milestone targets enhancement of an already-functional platform. The gap analysis against Ghost (closest analog) shows the main deficits: weak editor UX, no interactive landing page, no payment capability, and partial mobile responsiveness.
+**Must Have (Table Stakes) — v1.1 이번 밀스톤 P1:**
+- 카테고리 CRUD (생성/수정/삭제/순서) — 모든 CMS 기본. 하드코딩 enum은 배포 없이 변경 불가
+- 카테고리별 관리자 전용 작성 토글 (`admin_only` boolean) — "공지" 등 보호 카테고리 지원
+- 스킬팩 카테고리 동적 관리 — 게시판과 동일 패턴, 독립 구현
+- 게시글 예약 발행 (날짜/시간 지정) — Ghost, WordPress 등 모든 블로그 플랫폼이 지원하는 표 스테이크
+- AI 초안 2단계 생성 (주제 → 개요 → 본문) — 1인 운영자 콘텐츠 생산 효율화, 경쟁 차별점
 
-**Must have (table stakes — P1 this milestone):**
-- Enhanced rich text editor (rhino-editor) — Trix UX is visibly weaker than any modern writing platform
-- Responsive mobile layout fixes — 60%+ of content consumption is mobile; broken layout signals an unfinished product
-- Navigation UX polish (logged-in vs guest state clarity, mobile hamburger menu) — fundamental for any community platform
-- Loading states via Turbo frame indicators — native Turbo feature; blank-screen-on-load signals failures
-- Author profile page (bio, avatar, social links, post list) — table stakes for a creator platform; creators need a shareable page
-- Interactive landing page (React hero + CTA sections) — static ERB landing pages do not convert; admin CMS sections exist but are static
-- Skill pack payment scaffolding (Order model + checkout page stub + Toss SDK init) — required to enable next milestone actual payments
-- Related posts widget — session depth improvement, zero-dependency starting point using existing categories
+**Should Have (Competitive) — v1.1 여유 시 추가 또는 v1.x:**
+- 카테고리 드래그앤드롭 순서 변경 — UX 품질 차별화 (버튼 방식으로 먼저 출시 가능)
+- AI 스트리밍 응답 (실시간 타이핑 효과) — UX 개선. 기능 자체는 비스트리밍으로도 동작
 
-**Should have (competitive advantage — P2 this milestone):**
-- Skill pack preview content — "buy blind" digital products convert poorly; Ghost and Gumroad both show previews
-- Admin content analytics (view counter + top posts table) — creators need data to guide content strategy
-- Email notification preferences — required before any new notification triggers are added
-- Gamification display on profiles (level badge, point count) — UI-only on top of existing points/levels data
+**Defer (v2+):**
+- 태그 기반 콘텐츠 분류 — 카테고리 안정화 후
+- AI 초안 스타일/톤 선택 — 기본 동작 후 확장
+- 게시글 예약 달력 뷰 — 규모 성장 후
+- 카테고리 계층 구조 — 현재 요구사항 대비 과도한 복잡도 (Ancestry gem 필요)
+- 사용자별 카테고리 구독/필터링 — 별도 마일스톤 수준 작업
 
-**Defer (v2+ or next milestone — P3):**
-- Full Toss Payments charge flow — separate milestone per PROJECT.md; scaffolding only now
-- AI content recommendations — only relevant at higher traffic volumes
-- PWA manifest — not conversion-critical at current stage
-- Real-time chat/DMs — operational trap for a 1-person platform; threaded comments are sufficient
-- PostgreSQL migration — SQLite with WAL handles thousands of users; no current benefit
+**Anti-Features (구현 금지):**
+- 반복 발행 스케줄 (cron 패턴) — 단건 예약으로 충분
+- AI 자동 발행 (관리자 검토 없음) — 브랜드 리스크, 1인 운영 철학에 어긋남
+- Google Indexing API 자동 제출 — 스팸 정책 위반 가능성
 
 ### Architecture Approach
 
-The existing monolith follows a standard Rails MVC + service layer pattern (PointService, NotificationService already exist). This milestone adds three new subsystems that each integrate with Rails differently: React islands mount client-side via vite_ruby entrypoints within ERB views; Tiptap/rhino-editor syncs to ActionText hidden inputs on form submit; Toss Payments Widget runs entirely client-side and redirects to a Rails controller for server-side confirmation. The key architectural constraint is that React must NOT be mixed into Turbo form flows — the Stimulus controller pattern keeps the rich text editor within the existing form submission pipeline.
+단일 `Category` 모델(`record_type` enum으로 post/skillpack 구분)을 중심으로 기존 Rails 모놀리스 아키텍처를 확장한다. AI 초안 로직은 `AiDraftService` 서비스 객체로 분리하고 `Admin::AiDraftsController`가 Turbo Stream 응답을 담당한다. 예약 발행은 `Post#after_save` 콜백 → `PublishPostJob` 패턴으로 처리한다.
 
-**Major components:**
-1. **vite_ruby entrypoints + React components (app/javascript/components/landing/)** — landing page islands; props passed from Rails controller via ERB; React state is local and ephemeral
-2. **rhino-editor (Web Component, vendor bundle)** — replaces Trix in post forms; keeps ActionText data model intact; no Stimulus controller needed
-3. **PaymentsController + PaymentService + Order/Payment models** — two-phase payment commit: client widget initiates, server confirms with Toss API before marking Order paid
-4. **ViewComponent 4.x (app/components/)** — reusable UI components replacing duplicated ERB partials; Card, Button, Alert, etc.
-5. **Flowbite (CDN or npm)** — interactive UI patterns (dropdowns, modals, tabs) on top of existing Tailwind CSS 4
+**주요 컴포넌트:**
+1. `Category` 모델 — `record_type`, `name`, `slug`, `position`, `admin_only` 컬럼. 기존 `LandingSection#move_up/move_down` 패턴 직접 재사용
+2. `Admin::CategoriesController` — CRUD + 순서 변경. Admin 네임스페이스 내 표준 패턴
+3. `AiDraftService` — Anthropic SDK 래퍼. 2단계 프롬프트 관리, `ApiError` 커스텀 예외. 서비스 객체로 분리하여 API 키를 단일 위치에서 관리
+4. `Admin::AiDraftsController` — Turbo Stream 응답 전용 단일 액션 컨트롤러 (PostsController와 AI 로직 분리)
+5. `PublishPostJob` — 멱등성 보장 예약 발행 Job. `draft?` 재확인 + `with_lock` + `return if published?`
+6. `ai_draft_controller.js` (Stimulus) — Fetch + `Turbo.renderStreamMessage` + rhino-editor 삽입
 
-**Key architectural rule:** Toss secret key lives only in PaymentService (server-side via Rails credentials). The widget client key is the only Toss key that goes to JavaScript. Never expose the secret key in any client-facing code.
+**핵심 아키텍처 결정:**
+- **Category 단일 모델** (`record_type` 구분): PostCategory + SkillPackCategory 분리보다 LandingSection 패턴과 일관성 유지
+- **AI 초안: Turbo Stream 비동기** (Stimulus Fetch → AiDraftJob → `broadcast_append_to`): 전체 페이지 재렌더링 없이 결과 영역만 업데이트. Action Cable 방식으로 스트리밍 구현
+- **예약 발행: `wait_until` 개별 잡** (recurring cron 폴링 대신): 정확한 시각 실행, Solid Queue Dispatcher가 처리
+
+**데이터 이관 전략 (가장 중요):**
+- 마이그레이션 4단계: nullable FK 추가 → 명시적 SQL 백필 (`UPDATE posts SET category_id = (SELECT id FROM categories WHERE slug = old_slug_name)`) → NOT NULL 제약 → 구 컬럼 삭제
+- 기존 6개 게시판 라우팅 유지 (BlogsController 등). SEO URL 파괴 금지. 신규 동적 카테고리는 제네릭 `/:category_slug` 라우트 추가
+
+**빌드 순서 (아키텍처 의존성):**
+```
+Phase 1: Category 모델 + 마이그레이션 (필수 선행)
+    ↓
+Phase 2: Admin 카테고리 UI   Phase 3: 예약 발행   Phase 4: AI 초안
+     (Phase 1 완료 후 독립적 병렬 가능)
+```
 
 ### Critical Pitfalls
 
-1. **JSX + ImportMap incompatibility** — ImportMap cannot transpile JSX; React components fail silently or throw "Unexpected token '<'" in production. Prevention: migrate to vite_ruby as the very first task before writing any component code. Verify with `rails assets:precompile`.
+1. **enum integer → Category FK 마이그레이션 데이터 손상** — auto-increment ID가 enum 정수와 일치한다는 가정 절대 금지. `blog=0`이 `category_id=1`에 매핑되리라는 보장 없음. 명시적 slug 기반 SQL 매핑 사용. 마이그레이션 전 스테이징 DB 복사본에서 행 수 일치 검증 필수.
 
-2. **Rich text editor data corruption** — Installing RicherText (not rhino-editor) or raw TipTap against existing ActionText columns will produce mixed-format records that render broken HTML for existing posts. Prevention: use rhino-editor only; audit 20+ existing posts in staging before deploying; take database backup before any editor migration.
+2. **하드코딩 카테고리 라우팅 파괴** — 현재 6개 서브컨트롤러(BlogsController 등)와 named route가 enum에 의존. 동적 slug가 `polymorphic_path`에서 `NoMethodError: undefined method 'vibe_coding_path'` 발생. Option A 채택: 기존 6개 라우트 유지 + 신규 동적 카테고리는 제네릭 라우트.
 
-3. **React + Turbo Drive memory leaks** — Without explicit unmount handling, React component instances accumulate on each Turbo navigation. Prevention: add `turbo:before-render` listener calling unmount handler immediately after React integration; verify with DevTools memory profiling.
+3. **Anthropic API Puma 스레드 블로킹** — 컨트롤러에서 `messages.create`(blocking) 직접 호출 시 15-60초 스레드 점유. Puma 5 스레드 환경에서 동시 AI 요청 2개면 서버 전체 응답 저하. 반드시 `AiDraftJob` 비동기 처리.
 
-4. **Payment without idempotency = double charges** — Toss Payments webhooks deliver on at-least-once guarantee; a naive controller processes the same event twice. Prevention: add `payment_event_id` unique index on Order model before any payment integration begins; webhook handler returns 200 immediately and delegates to background job.
+4. **예약 발행 잡 중복 실행** — `after_save` 콜백이 `publish_at` 변경마다 새 잡 등록. Solid Queue 잡 취소 공식 API 없음. 멱등성 확보 (`return if post.published?`), `with_lock`, `saved_change_to_publish_at?` 조건으로 방지.
 
-5. **SQLite write lock under Solid Queue** — Concurrent web writes and background job polling contend on the same SQLite lock. Prevention: configure separate `queue.sqlite3`, `cache.sqlite3`, `cable.sqlite3` databases in `database.yml`; enable WAL mode and `busy_timeout=5000` in an initializer.
+5. **Anthropic API 키 로그 유출** — `filter_parameters`에 추가 필수. `AiDraftService` 서비스 객체로 키 참조 단일 위치 격리. 컨트롤러에서 직접 `Anthropic::Client.new` 호출 금지.
+
+6. **`published_at` 누락으로 공개 피드 정렬 오류** — 예약 발행 후 `created_at` 기준 정렬이면 발행 전 게시글이 공개 피드에 노출. `publish_at` 컬럼과 함께 `published_at` 컬럼 반드시 동시 추가. 공개 스코프에 `where("published_at <= ?", Time.current)` 조건 포함.
+
+---
 
 ## Implications for Roadmap
 
-Based on dependency analysis across all research files, the following phase structure is recommended. The critical constraint is that vite_ruby migration must come first — it is a prerequisite for React, Toss Payments SDK, and Flowbite npm integration.
+### Phase 1: Category 모델 기반 구축
 
-### Phase 1: JavaScript Pipeline Migration (vite_ruby)
-**Rationale:** ImportMap cannot handle JSX or the Toss Payments SDK npm package. This is the single most blocking dependency in the entire milestone. Everything downstream (React landing, Toss widget, Flowbite npm) depends on Vite being in place. Doing this first also forces verification that existing Stimulus controllers and Turbo still work before other changes layer on top.
-**Delivers:** Vite-based JS bundler replacing ImportMap; all existing Stimulus/Turbo behavior preserved; foundation for React and npm packages
-**Addresses:** FEATURES.md — enables interactive landing page and payment widget
-**Avoids:** PITFALLS.md Pitfall 2 (JSX + ImportMap incompatibility)
-**Stack elements:** vite_ruby ~3.x gem, @vitejs/plugin-react ~4.x
-**No deeper research needed** — official vite-ruby docs and Rails 8.1 community articles are thorough
+**Rationale:** 모든 v1.1 기능의 선행 조건이자 가장 위험한 단계. Category 모델 없이는 Admin 카테고리 UI, Post 작성 폼, 공개 게시판 라우팅 수정이 모두 불가. 데이터 마이그레이션이 여기에 집중되므로 완전히 독립 검증 후 다음 단계로 진행해야 한다. 스테이징에서 마이그레이션 SQL 검증이 필수.
 
-### Phase 2: Infrastructure Hardening (SQLite + ViewComponent)
-**Rationale:** Before adding background-job-heavy features (notifications, payment jobs), SQLite multi-DB configuration must be in place. ViewComponent installation is low-risk and unblocks UI work in subsequent phases. This phase has no dependencies on Phase 1.
-**Delivers:** Separate SQLite databases for queue/cache/cable; WAL mode + busy_timeout; ViewComponent 4.x installed and first 2-3 partials extracted as components
-**Addresses:** FEATURES.md — foundation for all UI/UX polish features
-**Avoids:** PITFALLS.md Pitfall 5 (SQLite write lock)
-**Stack elements:** view_component ~4.4 gem, SQLite config in database.yml
-**No deeper research needed** — ViewComponent docs are authoritative; SQLite multi-DB is well-documented in Rails 8 guides
+**Delivers:**
+- `categories` 테이블 + `Category` 모델 (`record_type`, `name`, `slug`, `position`, `admin_only`)
+- Post enum 제거 + `belongs_to :category` 전환 (기존 6개 카테고리 데이터 행 수 보존 검증)
+- SkillPack enum 제거 + `belongs_to :category` 전환 (`by_category` scope 업데이트)
+- `PostsBaseController` 쿼리 교체 (`joins(:category).where(categories:{slug:})`)
+- 기존 6개 게시판 라우팅 유지 확인 (BlogsController 등 6개 서브컨트롤러 200 응답)
+- Category 시드 데이터 (Post 6개 + SkillPack 4개, `admin_only` 기본값 `false`)
 
-### Phase 3: Rich Text Editor Upgrade (rhino-editor)
-**Rationale:** The editor upgrade has no dependency on Vite (rhino-editor uses vendor bundle via ImportMap or Vite; works with either). However, it is a high-risk operation (data compatibility) and should be isolated from the React work. The editor decision gates all content creation UX improvements.
-**Delivers:** rhino-editor replacing Trix in all post forms; TipTap extension ecosystem available; existing ActionText data intact
-**Addresses:** FEATURES.md — enhanced rich text editor (P1 table stakes); image upload UX improvement
-**Avoids:** PITFALLS.md Pitfall 3 (rich text data corruption); must run staging audit of 20+ posts before deploying
-**Stack elements:** rhino-editor ~0.18.x (vendor bundle via curl from unpkg)
-**May need phase research** — rhino-editor is a niche gem; Shadow DOM styling in Tailwind CSS 4 context may require investigation
+**Features Addressed:** 카테고리 CRUD 기반, 관리자 전용 토글 기반, 스킬팩 카테고리 기반
+**Pitfalls to Avoid:** Pitfall 1(enum → FK 데이터 손상), Pitfall 2(라우팅 파괴), admin_only 기본값 false 강제, SkillPack `by_category` scope 파괴
 
-### Phase 4: React Landing Page (Interactive UI)
-**Rationale:** Depends on Phase 1 (vite_ruby) being complete. React islands for the landing page are isolated from the editor and payment flows. This phase delivers the highest-visibility conversion improvement.
-**Delivers:** Interactive animated landing page hero section; feature showcase; CTA sections; React component architecture established
-**Addresses:** FEATURES.md — interactive landing page (P1 differentiator); loading states; navigation UX polish
-**Avoids:** PITFALLS.md Pitfall 1 (React + Turbo memory leaks — must implement unmount handler from day one)
-**Stack elements:** react 18.x, react-dom 18.x, Flowbite 3.x
-**Architecture component:** React islands pattern (vite_ruby entrypoints + ERB react mount points)
-**No deeper research needed** — pattern is well-documented; vite_ruby + React integration is confirmed
+---
 
-### Phase 5: Author Profile + Content Discovery
-**Rationale:** Depends on React/Vite (Phase 4) being stable. User model migrations (bio, avatar, social links) are isolated from payment infrastructure. This phase addresses table stakes (profile page) and session-depth improvements (related posts).
-**Delivers:** Full author profile page (bio, avatar, social links, authored post list, gamification display); related posts widget; error pages (404, 500)
-**Addresses:** FEATURES.md — author profile page (P1), related posts widget (P1), gamification display (P2)
-**Avoids:** PITFALLS.md — N+1 on post index with user avatars (add .includes(:user) before shipping)
-**Stack elements:** Active Storage (existing) for avatar; ViewComponent for profile card
-**No deeper research needed** — standard Rails patterns
+### Phase 2: Admin 카테고리 동적 관리 UI
 
-### Phase 6: Payment Infrastructure Scaffolding (Toss Payments)
-**Rationale:** Payment models (Order, Payment) have no React dependency and can be designed in parallel with Phase 4/5, but the checkout page and Toss widget require Vite (Phase 1). The idempotency key and SQLite hardening (Phase 2) must be in place before any payment code ships. Keeping this as a late phase ensures the infrastructure foundations are solid.
-**Delivers:** Order model with payment_event_id unique index; Payment model (immutable audit record); PaymentsController skeleton; TossPaymentsService (Faraday confirm); checkout page with Toss v2 widget rendering in test mode; order status page
-**Addresses:** FEATURES.md — skill pack payment scaffolding (P1); skill pack preview content (P2)
-**Avoids:** PITFALLS.md Pitfall 4 (payment idempotency); security mistake of exposing secret key client-side; PITFALLS.md — rate limiting on payment initiation (Rack::Attack rule)
-**Stack elements:** @tosspayments/tosspayments-sdk v2 (via Vite/npm); Faraday (existing gem); Rails credentials for Toss keys
-**May need phase research** — Toss Payments webhook signature verification specifics; Rack::Attack config for payment endpoints
+**Rationale:** Phase 1 완료 후 즉시 시작 가능. Phase 3, 4와 독립적 — 병렬 진행 가능. 관리자가 카테고리를 런타임에 생성/수정/삭제/순서변경할 수 있는 UI를 제공해야 "동적 카테고리" 기능이 완성된다. LandingSection 패턴을 그대로 재사용하므로 구현 위험이 낮다.
 
-### Phase 7: UI/UX Polish + Mobile Responsive Fixes
-**Rationale:** Depends on ViewComponent (Phase 2) being installed. This phase is a consolidation pass that addresses all remaining table stakes: responsive layout, loading states, navigation clarity. Best done after core features are in place so there is full context for what needs polish.
-**Delivers:** Responsive mobile layout fixes across all board categories; Turbo progress bar styling; skeleton loading states; navigation UX (logged-in/guest clarity, hamburger menu); custom 404/500 error pages; Flowbite interactive patterns (dropdowns, modals, tabs)
-**Addresses:** FEATURES.md — all P1 table stakes around UX completeness
-**Avoids:** PITFALLS.md — rich text editor bundle lazy-loading (load rhino-editor JS only on edit/new routes)
-**Stack elements:** Flowbite 3.x (CDN or npm), ViewComponent, Turbo built-in progress bar, Tailwind CSS 4 responsive classes
-**No deeper research needed** — well-documented Tailwind + Hotwire patterns
+**Delivers:**
+- `Admin::CategoriesController` CRUD (index/new/create/edit/update/destroy)
+- `move_up` / `move_down` 순서 변경 액션 (LandingSection 패턴 재사용)
+- Admin 카테고리 목록/폼 뷰 (LandingSection 뷰 구조 참조)
+- 관리자 전용 작성 토글 UI (inline Turbo Stream 업데이트)
+- 카테고리 삭제 시 게시글 보호 로직 (게시글 있으면 삭제 거부)
+- Admin 게시글/스킬팩 폼의 카테고리 select 소스 교체 (`Category.for_posts` / `Category.for_skill_packs`)
+- (P2) 드래그앤드롭 순서 변경: `sortablejs` + Stimulus Controller
+
+**Uses:** `acts_as_list ~> 1.2`, `sortablejs ^1.15` (P2)
+**Architecture Component:** `Admin::CategoriesController`, `Category#move_up/move_down`
+
+---
+
+### Phase 3: 게시글 예약 발행
+
+**Rationale:** Phase 1 완료 후 즉시 시작 가능 (Phase 2와 병렬). Post 모델에 `publish_at`, `published_at` 컬럼을 추가하고 Solid Queue 잡을 연결하는 독립 기능. 이미 설치된 Solid Queue와 `config/queue.yml`을 그대로 활용하므로 추가 인프라가 없다. `published_at`과 `publish_at`은 반드시 같은 마이그레이션에서 동시에 추가해야 한다.
+
+**Delivers:**
+- `publish_at: datetime` + `published_at: datetime` 컬럼 추가 (동일 마이그레이션)
+- `Post.status` `:scheduled` 추가 (`draft → scheduled → published` 상태 흐름)
+- `PublishPostJob` (멱등성 보장: `return if published?`, `with_lock`)
+- `Post#after_save :schedule_publish` 콜백 (`saved_change_to_publish_at?` 조건)
+- Admin 폼 `datetime_local_field` + flatpickr Stimulus 컨트롤러 (KST 표시, UTC 저장)
+- 공개 스코프 `where("published_at <= ?", Time.current)` 업데이트
+- RSS 피드 / 사이트맵 `published_at` 기준 정렬 업데이트
+- Admin 게시글 목록 "예약됨" 배지 + 예정 시각 표시
+
+**Uses:** Solid Queue `set(wait_until:).perform_later` (기존 설치), flatpickr (npm, 별도 설치)
+**Pitfalls to Avoid:** 잡 중복 실행(with_lock + 멱등성), `published_at` vs `created_at` 정렬 혼선
+
+---
+
+### Phase 4: AI 초안 작성 (2단계 생성)
+
+**Rationale:** Phase 1 완료 후 시작 가능. Phase 2, 3과 독립적이나 개발 집중도를 위해 Phase 2, 3 완료 후 진행 권장. Anthropic API 키 환경변수 설정이 선행 필요. STACK.md의 `anthropic` gem 방식과 ARCHITECTURE.md의 Faraday 직접 호출 방식 중 `anthropic` gem 방식으로 통일.
+
+**Delivers:**
+- `AiDraftService` — `anthropic` gem 래퍼, 2단계 프롬프트(개요/본문), `ApiError` 커스텀 예외
+- `AiDraftJob` — 비동기 스트리밍 (`Turbo::StreamsChannel.broadcast_append_to`, `broadcast_append_to "ai_draft_#{draft_id}"`)
+- `Admin::AiDraftsController` — Turbo Stream 응답 전용 (`create` 액션)
+- `ai_draft_controller.js` (Stimulus) — Fetch + `Turbo.renderStreamMessage` + rhino-editor 삽입
+- Admin 게시글 폼 AI 초안 UI (주제 입력 → 개요 표시 → 본문 생성 → 에디터 적용)
+- SEO/AEO 시스템 프롬프트 (H2/H3 구조, FAQ 섹션, 40-60자 직접 답변, 한국어 특화)
+- `filter_parameters`에 `ANTHROPIC_API_KEY` 추가
+- `ENV["ANTHROPIC_MODEL"]`로 모델 교체 가능 구조
+
+**Uses:** `anthropic ~> 1.23` (Gem), `claude-haiku-4-5-20251001` (기본)
+**Pitfalls to Avoid:** Puma 스레드 블로킹 (반드시 Job 비동기), API 키 유출 (서비스 객체 격리 + filter_parameters)
+
+---
 
 ### Phase Ordering Rationale
 
-- **Phase 1 before all others** — vite_ruby migration is the single hardest dependency; resolves the ImportMap/JSX blocker before any React or npm-based work begins
-- **Phase 2 in parallel with Phase 1** — SQLite/ViewComponent has zero overlap with Vite work; can run concurrently to save time
-- **Phase 3 isolated** — editor upgrade is high-risk (data compatibility); isolating it prevents regression correlation confusion
-- **Phase 4 after Phase 1** — React islands require Vite; this is a hard technical dependency
-- **Phase 5 after Phase 4** — profile work is low-risk but benefits from the ViewComponent and React patterns being established
-- **Phase 6 late but high value** — payment models can be designed early but widget integration requires Vite (Phase 1) and SQLite hardening (Phase 2) before shipping
-- **Phase 7 last** — polish pass makes most sense after all features exist; avoids reworking components as features are added
+- **Phase 1이 유일한 blocking 의존성:** Post/SkillPack 모델 변경이 모든 하위 작업의 전제 조건. 가장 위험하므로 스테이징 검증 후 프로덕션 적용.
+- **Phase 2, 3, 4는 상호 독립:** 모두 Phase 1 완료 후 병렬 시작 가능. 1인 개발 제약상 Phase 2 → Phase 3 → Phase 4 순차 진행이 현실적.
+- **Phase 3의 `published_at`은 독자 가시성에 직접 영향:** 카테고리 UI가 내부 Admin 기능인 반면 예약 발행은 독자에게 즉각 영향. 두 기능 중 어느 것을 먼저 해도 무방.
+- **Phase 4는 외부 API 의존성:** Anthropic API 키 발급/검증 시간이 필요. 먼저 `.env`에 키 설정 후 진행.
+
+---
 
 ### Research Flags
 
-Phases likely needing deeper research during planning:
-- **Phase 3 (rhino-editor):** Shadow DOM styling with Tailwind CSS 4; rhino-editor v0.18.x custom extension API; Active Storage direct upload integration with rhino-editor (blob URLs in the new Web Component)
-- **Phase 6 (Toss Payments):** Webhook signature verification using HMAC-SHA256 with TossPayments secret key; Rack::Attack configuration for Korean payment endpoints; Solid Queue background job pattern for payment confirmation
+**Phase 1에서 깊은 검증 필요 (가장 중요):**
+- enum → FK 마이그레이션 SQL 매핑 스크립트를 스테이징 DB 복사본에서 먼저 검증 (행 수 일치 확인)
+- `PostsBaseController` 6개 서브컨트롤러 라우팅 변경 후 전체 게시판 URL 200 응답 확인
+- SkillPack `by_category` scope 수정 후 `SkillPack.by_category("template").count > 0` 검증
 
-Phases with standard patterns (skip research-phase):
-- **Phase 1 (vite_ruby):** Official docs and Rails 8 community articles are comprehensive; implementation is mechanical
-- **Phase 2 (infrastructure):** SQLite multi-DB is well-documented in Rails 8 official guides; ViewComponent 4.x docs are authoritative
-- **Phase 4 (React landing):** vite_ruby + React pattern is well-established; no novel integration required
-- **Phase 5 (profile/discovery):** Pure Rails patterns (model migration, partials, scopes)
-- **Phase 7 (UI polish):** Tailwind + Hotwire responsive patterns are thoroughly documented
+**Phase 4에서 사전 확인 필요:**
+- `ANTHROPIC_API_KEY` `.env` 및 `.kamal/secrets` 등록 후 시작
+- Action Cable 청크 순서 보장: 개발 환경에서 스트리밍 청크가 올바른 순서로 append되는지 초기 검증
+- `anthropic` gem vs ARCHITECTURE.md Faraday 방식 불일치: `anthropic` gem 방식으로 통일 결정 필요
+
+**표준 패턴으로 추가 리서치 불필요:**
+- Phase 2: LandingSection 패턴 직접 재사용 (기존 코드베이스 내 검증된 패턴)
+- Phase 3: Solid Queue `set(wait_until:)` — Rails 8.1 기본 내장 ActiveJob 기능, 추가 설정 불필요
+
+---
 
 ## Confidence Assessment
 
 | Area | Confidence | Notes |
 |------|------------|-------|
-| Stack | MEDIUM | Core choices (vite_ruby, rhino-editor, ViewComponent) are HIGH; Toss Payments Ruby integration is MEDIUM (no official gem, direct HTTP pattern confirmed but not tested against Rails 8.1 specifically); vite_ruby/Propshaft exact compatibility is MEDIUM (community-confirmed, not officially documented) |
-| Features | MEDIUM-HIGH | Feature list verified against Ghost/Substack/Circle; existing codebase features well-documented; competitor analysis sourced from official sites |
-| Architecture | HIGH | React islands pattern, Stimulus-controller-for-Tiptap, and payment two-phase commit are all well-documented patterns with multiple confirmed Rails 8 implementations |
-| Pitfalls | MEDIUM | React/Turbo lifecycle and SQLite lock issues are confirmed via GitHub issues and production incident reports; rhino-editor ActionText compatibility confirmed via official docs; payment idempotency is general best practice confirmed by multiple payment engineering sources |
+| Stack | HIGH | 공식 GitHub 릴리즈 + RubyGems 버전 직접 확인. `anthropic` gem 1.23.0(2026-02-19), `acts_as_list` 1.2.6(2025-10-21). Rails 8.1.2/Ruby 3.3.10 호환 확인. Solid Queue 1.3.1 이미 프로젝트에 설치 확인 |
+| Features | MEDIUM-HIGH | 기존 코드베이스 분석 + Ghost/WordPress 기능 비교 기반. SEO/AEO 효과는 운영 후 실측 필요. 표 스테이크 분류는 경쟁 분석으로 검증됨 |
+| Architecture | HIGH | 기존 코드베이스 직접 분석(models, controllers, routes, queue.yml, schema.rb). LandingSection 패턴 재사용 확인. Solid Queue scheduled_executions 테이블 동작 원리 공식 문서로 검증 |
+| Pitfalls | HIGH | 코드베이스 검증(enum 선언 위치, 라우팅 구조) + Solid Queue GitHub Issues 직접 확인(#429, #651) + 공식 Anthropic 문서 기반. 실제 코드 구조에서 파생된 위험이므로 신뢰도 높음 |
 
-**Overall confidence:** MEDIUM
+**Overall confidence:** HIGH
 
 ### Gaps to Address
 
-- **rhino-editor Tailwind CSS 4 Shadow DOM styling:** rhino-editor uses Shadow DOM (Web Components). Tailwind CSS 4 utility classes do not penetrate Shadow DOM boundaries. Custom CSS variables or ::part() selectors will be needed. Verify in Phase 3 planning.
-- **vite_ruby exact version for Rails 8.1.2 + Propshaft 1.3.1:** Check RubyGems at install time; the ~3.x pin is community-confirmed but not officially documented by the Rails core team. Run `bundle update vite_rails` and test immediately.
-- **Toss Payments webhook signature verification:** The PITFALLS file confirms this is a security requirement; the exact HMAC algorithm and header name used by Toss Payments was not retrieved. Verify against official Toss docs during Phase 6 planning.
-- **FTS5 index and ActionText sync (existing tech debt):** PITFALLS.md references a CONCERNS.md note that FTS5 is indexed on `posts.body` but content lives in `action_text_rich_texts.body`. This means search does not find new posts. This must be fixed alongside the editor upgrade (Phase 3) — it is existing debt that the editor change will make more visible.
-- **Active Storage production disk vs S3:** PITFALLS.md flags that `disk` service in production generates localhost URLs. If the current deployment uses `disk` service, this needs to be addressed before skill pack downloads go live. Verify `config/storage.yml` against Kamal deployment config.
+- **`anthropic` gem vs Faraday 방식 불일치:** ARCHITECTURE.md는 Faraday 직접 호출 패턴으로 작성되었으나 STACK.md는 공식 `anthropic` gem 사용 권장. Phase 4 시작 전 `anthropic` gem 방식으로 통일 결정 필요. (STACK.md 기준이 최신 연구 결과)
+- **Action Cable 청크 순서 보장 이슈:** STACK.md에서 "Action Cable은 스레드 풀로 인해 청크 순서 보장 없음"으로 명시됨. append 방식으로만 처리하면 실용적으로 문제없으나, Phase 4 초기 개발 환경 검증 필요.
+- **rhino-editor 외부 HTML 삽입 검증:** AI 생성 Markdown을 rhino-editor hidden input에 삽입 시 `dispatchEvent(new Event("change"))`가 에디터 콘텐츠를 업데이트하는지 현재 설치 버전에서 확인 필요.
+- **flatpickr 한국어 로케일 패키지:** `flatpickr/dist/l10n/ko.js` import 경로가 pnpm + vite_ruby 환경에서 동작하는지 확인 필요.
+
+---
 
 ## Sources
 
 ### Primary (HIGH confidence)
-- viewcomponent.org — v4.4.0 released 2026-02-13, Rails 8.1 support confirmed
-- Context7 /konnorrogers/rhino-editor — ImportMap installation, ERB form integration, ActionText compatibility
-- Context7 /ueberdosis/tiptap-docs — TipTap core API, Stimulus controller integration
-- Context7 /shakacode/react_on_rails — react_on_rails setup, Vite integration patterns
-- flowbite.com/docs/getting-started/rails/ — Tailwind CSS 4 compatibility confirmed
-- docs.tosspayments.com — v2 SDK widget flow, confirm API endpoint, Basic auth pattern
-- rhino-editor.vercel.app — official site, version confirmation, ActionText compatibility rationale
-- react-rails GitHub Issues #1028, #1184, #884 — Turbo Drive unmount lifecycle confirmed broken; workarounds documented
+- [anthropics/anthropic-sdk-ruby GitHub](https://github.com/anthropics/anthropic-sdk-ruby) — SDK 버전, 스트리밍 패턴, Ruby 3.2+ 요구사항
+- [rubygems.org/gems/anthropic](https://rubygems.org/gems/anthropic) — v1.23.0 릴리즈 날짜(2026-02-19) 확인
+- [Anthropic Models Overview](https://platform.claude.com/docs/en/about-claude/models/overview) — 모델 ID 및 가격표
+- [rubygems.org/gems/acts_as_list](https://rubygems.org/gems/acts_as_list) — v1.2.6(2025-10-21), activerecord >= 6.1 의존 확인
+- [rails/solid_queue GitHub](https://github.com/rails/solid_queue) — `scheduled_executions` 테이블, `perform_at` 패턴, Dispatcher 설정
+- 기존 코드베이스 직접 분석 — `app/models/post.rb`, `app/controllers/posts_base_controller.rb`, `config/routes.rb`, `config/queue.yml`, `db/schema.rb`
 
 ### Secondary (MEDIUM confidence)
-- vite-ruby.netlify.app — Rails integration guide, Propshaft compatibility
-- railsdrop.com (2025) — React + Rails 8 + ESBuild guide, practical integration steps
-- fractaledmind.com — SQLite on Rails concurrency; WAL mode + busy_timeout configuration
-- a1w.ca — SQLite database is locked in Rails 8 production confirmation
-- maxencemalbois.medium.com — Trix-to-TipTap migration in Rails 7 + Stimulus
-- evilmartians.com/chronicles/viewcomponent-in-the-wild — ViewComponent best practices
-- circle.so/blog — Community platform comparison, feature expectations
-- ghost.org — Feature comparison, creator platform patterns
-- baymard.com — Checkout UX best practices
+- [AppSignal: Deep Dive into Solid Queue (2025)](https://blog.appsignal.com/2025/06/18/a-deep-dive-into-solid-queue-for-ruby-on-rails.html) — Dispatcher polling 동작 원리 확인
+- [npmjs.com/package/sortablejs](https://www.npmjs.com/package/sortablejs) — v1.15.x ESM 지원 확인
+- [Aha! Engineering: Streaming LLM Responses with Rails](https://www.aha.io/engineering/articles/streaming-llm-responses-rails-sse-turbo-streams) — SSE vs Turbo Streams 비교
+- [evilmartians: AnyCable and LLM streaming pitfalls](https://evilmartians.com/chronicles/anycable-rails-and-the-pitfalls-of-llm-streaming) — Action Cable 순서 보장 이슈
+- [Solid Queue GitHub Issues #429, #651](https://github.com/rails/solid_queue/issues/429) — recurring tasks 미등록 이슈 확인
+- [flatpickr 공식 문서](https://flatpickr.js.org/) — enableTime, altInput, locale 설정
 
 ### Tertiary (LOW confidence)
-- WebSearch "react-rails gem 2025 Rails 8" — General community direction; no authoritative single source
-- WebSearch "vite_ruby Rails 8 Propshaft 2025" — Community articles confirming compatibility; not official docs
+- [GoRails 예약 발행 패턴](https://gorails.com/forum/following-scheduling-post-episode-with-background-jobs) — 커뮤니티 포럼, 보조 참고만
+- [FAQPage 스키마 + AI 검색 인용률](https://www.frase.io/blog/faq-schema-ai-search-geo-aeo) — 단일 출처, SEO/AEO 효과는 운영 후 실측 필요
 
 ---
-*Research completed: 2026-02-22*
+
+*Research completed: 2026-02-28*
 *Ready for roadmap: yes*

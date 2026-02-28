@@ -5,12 +5,11 @@
       TeoVibe
     <% end %>
 
-    <%# 데스크톱 네비게이션 %>
+    <%# 데스크톱 네비게이션 — visible_in_nav=true 카테고리 동적 표시 %>
     <div class="hidden md:flex items-center gap-8">
-      <%= link_to "블로그", blogs_path, class: "text-base font-medium text-tv-black hover:text-tv-orange transition-colors" %>
-      <%= link_to "튜토리얼", tutorials_path, class: "text-base font-medium text-tv-black hover:text-tv-orange transition-colors" %>
-      <%= link_to "커뮤니티", free_boards_path, class: "text-base font-medium text-tv-black hover:text-tv-orange transition-colors" %>
-      <%= link_to "Q&A", qnas_path, class: "text-base font-medium text-tv-black hover:text-tv-orange transition-colors" %>
+      <% Category.for_posts.visible_in_nav.ordered.each do |cat| %>
+        <%= link_to cat.name, category_posts_path(category_slug: cat.slug), class: "text-base font-medium text-tv-black hover:text-tv-orange transition-colors" %>
+      <% end %>
       <%= link_to "스킬팩", skill_packs_path, class: "text-base font-medium text-tv-black hover:text-tv-orange transition-colors" %>
     </div>
 
@@ -89,13 +88,12 @@
     </button>
   </div>
 
-  <%# 모바일 메뉴 %>
+  <%# 모바일 메뉴 — visible_in_nav=true 카테고리 동적 표시 %>
   <div data-mobile-menu-target="menu" class="hidden md:hidden bg-white border-t">
     <div class="px-5 py-4 space-y-3">
-      <%= link_to "블로그", blogs_path, class: "block text-lg font-medium" %>
-      <%= link_to "튜토리얼", tutorials_path, class: "block text-lg font-medium" %>
-      <%= link_to "커뮤니티", free_boards_path, class: "block text-lg font-medium" %>
-      <%= link_to "Q&A", qnas_path, class: "block text-lg font-medium" %>
+      <% Category.for_posts.visible_in_nav.ordered.each do |cat| %>
+        <%= link_to cat.name, category_posts_path(category_slug: cat.slug), class: "block text-lg font-medium" %>
+      <% end %>
       <%= link_to "스킬팩", skill_packs_path, class: "block text-lg font-medium" %>
       <hr class="border-tv-cream">
       <% if Current.user %>

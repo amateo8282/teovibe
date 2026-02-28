@@ -7,13 +7,13 @@
         <p class="text-sm leading-relaxed">바이브코딩으로 사업화하는 과정을<br>기록하고 공유하는 커뮤니티</p>
       </div>
 
-      <%# 링크 %>
+      <%# 링크 — visible_in_nav=true 카테고리 동적 표시 %>
       <div>
         <h4 class="text-white text-sm font-bold uppercase mb-4">Links</h4>
         <div class="space-y-2">
-          <%= link_to "블로그", blogs_path, class: "block text-sm hover:text-white transition-colors" %>
-          <%= link_to "튜토리얼", tutorials_path, class: "block text-sm hover:text-white transition-colors" %>
-          <%= link_to "커뮤니티", free_boards_path, class: "block text-sm hover:text-white transition-colors" %>
+          <% Category.for_posts.visible_in_nav.ordered.each do |cat| %>
+            <%= link_to cat.name, category_posts_path(category_slug: cat.slug), class: "block text-sm hover:text-white transition-colors" %>
+          <% end %>
           <%= link_to "소개", about_path, class: "block text-sm hover:text-white transition-colors" %>
         </div>
       </div>

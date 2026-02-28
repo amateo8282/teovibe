@@ -39,15 +39,15 @@
 
 ### Active
 
-<!-- 다음 마일스톤에서 구현할 목표 -->
+## Current Milestone: v1.1 Admin 고도화
 
-- [ ] 슬래시 커맨드로 블록 삽입 (코드블록, 인용, 구분선 등)
-- [ ] 글 하단 관련/최신 글 추천 섹션
-- [ ] 태그 기반 콘텐츠 분류 및 필터링
-- [ ] 이메일 알림 발송 (댓글, 좋아요 등)
-- [ ] 토스페이먼츠 웹훅 처리 (결제 완료/취소 비동기 확인)
-- [ ] 스킬팩 미리보기 콘텐츠 제공
-- [ ] Admin 콘텐츠 분석 고도화 (차트, 기간별 필터, 내보내기)
+**Goal:** Admin 카테고리 동적 관리, AI 초안 작성, 예약 발행으로 운영 효율성 극대화
+
+**Target features:**
+- 게시판 카테고리 동적 CRUD + 관리자 전용 작성 토글
+- 스킬팩 카테고리 동적 CRUD + 순서 변경
+- Anthropic API 기반 AI 초안 작성 (주제 → 개요 → 본문 2단계, SEO/AEO 시스템 프롬프트)
+- 게시글 예약 발행 (날짜/시간 지정, Solid Queue 크론잡)
 
 ### Out of Scope
 
@@ -92,5 +92,15 @@
 | ErrorsController < ActionController::Base | ApplicationController의 DB 의존성 우회, 500 에러 안전 렌더링 | ✓ Good |
 | Tailwind v4 @source 디렉티브 | @tailwindcss/vite가 .erb 파일 자동 스캔 안 함, 명시적 추가 필요 | ✓ Good |
 
+### Future (deferred from v1.1)
+
+- 슬래시 커맨드로 블록 삽입 (코드블록, 인용, 구분선 등)
+- 글 하단 관련/최신 글 추천 섹션
+- 태그 기반 콘텐츠 분류 및 필터링
+- 이메일 알림 발송 (댓글, 좋아요 등)
+- 토스페이먼츠 웹훅 처리 (결제 완료/취소 비동기 확인)
+- 스킬팩 미리보기 콘텐츠 제공
+- Admin 콘텐츠 분석 고도화 (차트, 기간별 필터, 내보내기)
+
 ---
-*Last updated: 2026-02-22 after v1.0 milestone*
+*Last updated: 2026-02-28 after v1.1 milestone started*

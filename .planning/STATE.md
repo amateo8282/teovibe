@@ -1,3 +1,16 @@
+---
+gsd_state_version: 1.0
+milestone: v1.1
+milestone_name: Admin 고도화
+status: unknown
+last_updated: "2026-02-28T14:15:53.364Z"
+progress:
+  total_phases: 1
+  completed_phases: 0
+  total_plans: 4
+  completed_plans: 2
+---
+
 # Project State
 
 ## Project Reference
@@ -10,9 +23,9 @@ See: .planning/PROJECT.md (updated 2026-02-28)
 ## Current Position
 
 Phase: 6 of 8 (카테고리 동적 관리)
-Plan: 1 of 4 in current phase
+Plan: 2 of 4 in current phase
 Status: Executing
-Last activity: 2026-02-28 — 06-01 완료 (Category 모델 + enum→FK 마이그레이션)
+Last activity: 2026-02-28 — 06-02 완료 (Admin 카테고리 CRUD UI + Sortable DnD + Turbo Stream 토글)
 
 Progress: [█░░░░░░░░░] 10% (v1.1 기준)
 
@@ -28,7 +41,7 @@ Progress: [█░░░░░░░░░] 10% (v1.1 기준)
 | Phase | Plans | Status |
 |-------|-------|--------|
 | 1-5 (v1.0) | 13/13 | Complete |
-| 6 (v1.1) | 1/4 | In Progress |
+| 6 (v1.1) | 2/4 | In Progress |
 | 7 (v1.1) | 0/TBD | Not started |
 | 8 (v1.1) | 0/TBD | Not started |
 
@@ -42,6 +55,8 @@ Progress: [█░░░░░░░░░] 10% (v1.1 기준)
 - Phase 6 (06-01): PostsBaseController 서브클래스는 category_record 메서드로 Category AR 객체 반환 패턴 채택
 - Phase 8: Anthropic API는 `AiDraftJob` 비동기 처리 필수 — Puma 스레드 블로킹 방지
 - Phase 8: `anthropic` gem v1.23.0 사용 (Faraday 직접 호출 방식 대신)
+- [Phase 06-category-management]: Phase 6 (06-02): Turbo Frame + Turbo Stream 조합으로 토글 인라인 업데이트 (turbo_stream.replace로 버튼 단위 교체)
+- [Phase 06-category-management]: Phase 6 (06-02): Sortable.js handle 방식 채택 (data-sortable-handle 아이콘)으로 명시적 DnD UX
 
 ### Pending Todos
 
@@ -55,5 +70,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-28
-Stopped at: 06-01 완료. Category 모델, 마이그레이션, 모델/뷰/헬퍼 enum 참조 제거 완료
+Stopped at: 06-02 완료. Admin 카테고리 CRUD UI, Sortable.js DnD, Turbo Stream 인라인 토글 구현 완료
 Resume file: None

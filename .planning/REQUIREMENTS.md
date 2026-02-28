@@ -9,12 +9,12 @@ Requirements for v1.1 Admin 고도화. Each maps to roadmap phases.
 
 ### 카테고리 관리
 
-- [ ] **CATM-01**: Admin이 게시판 카테고리를 생성할 수 있다 (이름, 슬러그, 설명)
-- [ ] **CATM-02**: Admin이 게시판 카테고리를 수정/삭제할 수 있다
-- [ ] **CATM-03**: Admin이 게시판 카테고리 순서를 드래그앤드롭으로 변경할 수 있다
-- [ ] **CATM-04**: Admin이 카테고리별 '관리자 전용 작성' 토글을 설정할 수 있다
+- [x] **CATM-01**: Admin이 게시판 카테고리를 생성할 수 있다 (이름, 슬러그, 설명)
+- [x] **CATM-02**: Admin이 게시판 카테고리를 수정/삭제할 수 있다
+- [x] **CATM-03**: Admin이 게시판 카테고리 순서를 드래그앤드롭으로 변경할 수 있다
+- [x] **CATM-04**: Admin이 카테고리별 '관리자 전용 작성' 토글을 설정할 수 있다
 - [ ] **CATM-05**: 관리자 전용 카테고리는 일반 사용자 게시글 작성 시 선택지에서 숨겨진다
-- [ ] **CATM-06**: Admin이 스킬팩 카테고리를 CRUD + 순서 변경할 수 있다
+- [x] **CATM-06**: Admin이 스킬팩 카테고리를 CRUD + 순서 변경할 수 있다
 
 ### AI 초안 작성
 
@@ -68,12 +68,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CATM-01 | Phase 6 | Pending |
-| CATM-02 | Phase 6 | Pending |
-| CATM-03 | Phase 6 | Pending |
-| CATM-04 | Phase 6 | Pending |
+| CATM-01 | Phase 6 | Complete |
+| CATM-02 | Phase 6 | Complete |
+| CATM-03 | Phase 6 | Complete |
+| CATM-04 | Phase 6 | Complete |
 | CATM-05 | Phase 6 | Pending |
-| CATM-06 | Phase 6 | Pending |
+| CATM-06 | Phase 6 | Complete |
 | AIDR-01 | Phase 8 | Pending |
 | AIDR-02 | Phase 8 | Pending |
 | AIDR-03 | Phase 8 | Pending |

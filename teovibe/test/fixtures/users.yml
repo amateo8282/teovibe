@@ -4,8 +4,19 @@ one:
   email_address: one@example.com
   password_digest: <%= password_digest %>
   nickname: 테스트유저1
+  role: 0
+  payment_customer_key: customer-key-one
 
 two:
   email_address: two@example.com
   password_digest: <%= password_digest %>
   nickname: 테스트유저2
+  role: 0
+  payment_customer_key: customer-key-two
+
+admin:
+  email_address: admin@example.com
+  password_digest: <%= password_digest %>
+  nickname: 관리자
+  role: 1
+  payment_customer_key: customer-key-admin

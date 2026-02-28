@@ -27,11 +27,15 @@ Rails.application.routes.draw do
   get "/notices",         to: redirect("/posts/notice", status: 301)
   get "/notices/:id",     to: redirect { |params, _req| "/posts/#{params[:id]}" }
 
+  # 게시글 new/create는 category_slug 와일드카드보다 먼저 선언 (충돌 방지)
+  get  "posts/new",  to: "posts#new",    as: :new_post
+  post "posts",      to: "posts#create", as: :posts
+
   # 카테고리별 게시글 목록 (반드시 :slug 라우트보다 먼저 선언)
   get "posts/:category_slug", to: "posts#index", as: :category_posts
 
-  # 게시글 CRUD (slug 기반)
-  resources :posts, param: :slug, only: %i[show new create edit update destroy]
+  # 게시글 CRUD (slug 기반) — new/create는 위에서 선언했으므로 제외
+  resources :posts, param: :slug, only: %i[show edit update destroy]
 
   # 댓글
   resources :comments, only: %i[create destroy] do

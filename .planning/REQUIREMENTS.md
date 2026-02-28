@@ -68,25 +68,25 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CATM-01 | — | Pending |
-| CATM-02 | — | Pending |
-| CATM-03 | — | Pending |
-| CATM-04 | — | Pending |
-| CATM-05 | — | Pending |
-| CATM-06 | — | Pending |
-| AIDR-01 | — | Pending |
-| AIDR-02 | — | Pending |
-| AIDR-03 | — | Pending |
-| AIDR-04 | — | Pending |
-| SCHD-01 | — | Pending |
-| SCHD-02 | — | Pending |
-| SCHD-03 | — | Pending |
+| CATM-01 | Phase 6 | Pending |
+| CATM-02 | Phase 6 | Pending |
+| CATM-03 | Phase 6 | Pending |
+| CATM-04 | Phase 6 | Pending |
+| CATM-05 | Phase 6 | Pending |
+| CATM-06 | Phase 6 | Pending |
+| AIDR-01 | Phase 8 | Pending |
+| AIDR-02 | Phase 8 | Pending |
+| AIDR-03 | Phase 8 | Pending |
+| AIDR-04 | Phase 8 | Pending |
+| SCHD-01 | Phase 7 | Pending |
+| SCHD-02 | Phase 7 | Pending |
+| SCHD-03 | Phase 7 | Pending |
 
 **Coverage:**
 - v1.1 requirements: 13 total
-- Mapped to phases: 0
-- Unmapped: 13
+- Mapped to phases: 13
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-28*
-*Last updated: 2026-02-28 after initial definition*
+*Last updated: 2026-02-28 after roadmap creation — all 13 requirements mapped*

@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-28)
 ## Current Position
 
 Phase: 6 of 8 (카테고리 동적 관리)
-Plan: — of TBD in current phase
-Status: Ready to plan
-Last activity: 2026-02-28 — v1.1 로드맵 생성 완료
+Plan: 1 of 4 in current phase
+Status: Executing
+Last activity: 2026-02-28 — 06-01 완료 (Category 모델 + enum→FK 마이그레이션)
 
-Progress: [░░░░░░░░░░] 0% (v1.1 기준)
+Progress: [█░░░░░░░░░] 10% (v1.1 기준)
 
 ## Performance Metrics
 
@@ -28,7 +28,7 @@ Progress: [░░░░░░░░░░] 0% (v1.1 기준)
 | Phase | Plans | Status |
 |-------|-------|--------|
 | 1-5 (v1.0) | 13/13 | Complete |
-| 6 (v1.1) | 0/TBD | Not started |
+| 6 (v1.1) | 1/4 | In Progress |
 | 7 (v1.1) | 0/TBD | Not started |
 | 8 (v1.1) | 0/TBD | Not started |
 
@@ -39,6 +39,7 @@ Progress: [░░░░░░░░░░] 0% (v1.1 기준)
 - Phase 6: Category 단일 모델 (`record_type` enum으로 post/skillpack 구분) 채택 — LandingSection 패턴 일관성
 - Phase 6: enum → FK 마이그레이션 시 auto-increment ID 가정 금지, slug 기반 SQL 매핑 사용
 - Phase 6: 기존 6개 게시판 라우팅(BlogsController 등) 유지 — SEO URL 파괴 금지
+- Phase 6 (06-01): PostsBaseController 서브클래스는 category_record 메서드로 Category AR 객체 반환 패턴 채택
 - Phase 8: Anthropic API는 `AiDraftJob` 비동기 처리 필수 — Puma 스레드 블로킹 방지
 - Phase 8: `anthropic` gem v1.23.0 사용 (Faraday 직접 호출 방식 대신)
 
@@ -48,11 +49,11 @@ None.
 
 ### Blockers/Concerns
 
-- Phase 6: enum → FK 마이그레이션이 가장 위험한 단계. 스테이징 DB에서 행 수 일치 검증 필수
+- Phase 6: enum → FK 마이그레이션 완료 (06-01). 레코드 수 일치 검증 통과
 - Phase 8 선행: `ANTHROPIC_API_KEY` `.env` 및 `.kamal/secrets` 등록 필요
 
 ## Session Continuity
 
 Last session: 2026-02-28
-Stopped at: v1.1 ROADMAP.md + STATE.md 생성 완료. Phase 6 플래닝 준비됨
+Stopped at: 06-01 완료. Category 모델, 마이그레이션, 모델/뷰/헬퍼 enum 참조 제거 완료
 Resume file: None

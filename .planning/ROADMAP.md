@@ -75,7 +75,13 @@ Plans:
   3. Admin이 카테고리 순서를 드래그앤드롭으로 변경하면 목록 순서가 즉시 반영된다
   4. Admin이 카테고리를 '관리자 전용'으로 설정하면 일반 사용자의 게시글 작성 폼에 해당 카테고리가 노출되지 않는다
   5. Admin이 스킬팩 카테고리를 생성/수정/삭제/순서 변경할 수 있다
-**Plans**: TBD
+**Plans**: 4 plans
+
+Plans:
+- [x] 06-01: Category 모델 + enum→FK 마이그레이션 (Wave 1)
+- [ ] 06-02: Admin 카테고리 CRUD UI + Sortable.js DnD (Wave 2)
+- [ ] 06-03: 컨트롤러 통합 + 라우팅 리다이렉트 + Navbar 동적화 (Wave 2)
+- [ ] 06-04: 통합 테스트 + 최종 검증 (Wave 3)
 
 ### Phase 7: 게시글 예약 발행
 **Goal**: Admin이 게시글에 미래 발행 날짜/시간을 지정하면 해당 시각에 자동으로 공개 전환되고, 공개 피드 정렬이 정확하게 유지된다
@@ -111,6 +117,6 @@ Phases execute in numeric order: 6 → 7 → 8
 | 3. Interactive Landing | v1.0 | 2/2 | Complete | 2026-02-22 |
 | 4. Commerce | v1.0 | 3/3 | Complete | 2026-02-22 |
 | 5. Polish | v1.0 | 2/2 | Complete | 2026-02-22 |
-| 6. 카테고리 동적 관리 | v1.1 | 0/TBD | Not started | - |
+| 6. 카테고리 동적 관리 | v1.1 | 1/4 | In Progress | - |
 | 7. 게시글 예약 발행 | v1.1 | 0/TBD | Not started | - |
 | 8. AI 초안 작성 | v1.1 | 0/TBD | Not started | - |

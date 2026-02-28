@@ -1,0 +1,52 @@
+<%= turbo_frame_tag "category_#{category.id}" do %>
+  <tr data-id="<%= category.id %>">
+    <td class="px-4 py-3 text-sm text-tv-gray w-10">
+      <%# 드래그 핸들 %>
+      <span data-sortable-handle class="cursor-grab text-gray-400 select-none">&#9776;</span>
+    </td>
+    <td class="px-4 py-3">
+      <div>
+        <p class="font-medium text-sm"><%= category.name %></p>
+        <p class="text-xs text-tv-gray"><%= category.slug %></p>
+      </div>
+    </td>
+    <td class="px-4 py-3 text-sm text-tv-gray">
+      <%= category.description.presence || "-" %>
+    </td>
+    <td class="px-4 py-3 text-sm text-center">
+      <% count = category.post? ? category.posts.count : category.skill_packs.count %>
+      <span class="<%= count > 0 ? 'text-tv-dark font-medium' : 'text-tv-gray' %>"><%= count %>개</span>
+    </td>
+    <td class="px-4 py-3 text-center">
+      <%= turbo_frame_tag "category_#{category.id}_admin_only" do %>
+        <%= button_to toggle_admin_only_admin_category_path(category), method: :patch,
+          class: "text-xs px-2 py-1 rounded #{category.admin_only? ? 'bg-red-100 text-red-700 font-bold' : 'bg-gray-100 text-gray-500'}",
+          data: { turbo_frame: "category_#{category.id}_admin_only" } do %>
+          <%= category.admin_only? ? "ON" : "OFF" %>
+        <% end %>
+      <% end %>
+    </td>
+    <td class="px-4 py-3 text-center">
+      <%= turbo_frame_tag "category_#{category.id}_visible_in_nav" do %>
+        <%= button_to toggle_visible_in_nav_admin_category_path(category), method: :patch,
+          class: "text-xs px-2 py-1 rounded #{category.visible_in_nav? ? 'bg-green-100 text-green-700 font-bold' : 'bg-gray-100 text-gray-500'}",
+          data: { turbo_frame: "category_#{category.id}_visible_in_nav" } do %>
+          <%= category.visible_in_nav? ? "ON" : "OFF" %>
+        <% end %>
+      <% end %>
+    </td>
+    <td class="px-4 py-3 text-sm text-center">
+      <%= category.position %>
+    </td>
+    <td class="px-4 py-3">
+      <div class="flex items-center gap-1 justify-end">
+        <%= button_to "위", move_up_admin_category_path(category), method: :patch, class: "text-xs px-2 py-1 border rounded hover:bg-gray-50" %>
+        <%= button_to "아래", move_down_admin_category_path(category), method: :patch, class: "text-xs px-2 py-1 border rounded hover:bg-gray-50" %>
+        <%= link_to "편집", edit_admin_category_path(category), class: "text-xs text-tv-orange hover:underline px-2" %>
+        <%= button_to "삭제", admin_category_path(category), method: :delete,
+          data: { turbo_confirm: "정말 삭제하시겠습니까? 게시글이 있는 카테고리는 삭제할 수 없습니다." },
+          class: "text-xs text-red-500 hover:underline px-2" %>
+      </div>
+    </td>
+  </tr>
+<% end %>

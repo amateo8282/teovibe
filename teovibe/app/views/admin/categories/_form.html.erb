@@ -1,0 +1,56 @@
+<%= form_with model: [:admin, category], class: "max-w-lg space-y-4" do |f| %>
+  <%# record_type은 hidden field로 전달 %>
+  <%= f.hidden_field :record_type %>
+
+  <% if category.errors.any? %>
+    <div class="bg-red-50 border border-red-200 rounded-2xl p-4">
+      <ul class="text-sm text-red-700 space-y-1">
+        <% category.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <label class="block text-sm font-bold mb-1">카테고리 유형</label>
+    <p class="text-sm text-tv-gray px-4 py-3 bg-gray-50 rounded-2xl">
+      <%= category.record_type == "post" ? "게시판 카테고리" : "스킬팩 카테고리" %>
+    </p>
+  </div>
+
+  <div>
+    <label class="block text-sm font-bold mb-1">이름 <span class="text-red-500">*</span></label>
+    <%= f.text_field :name, required: true, class: "w-full px-4 py-3 rounded-2xl border border-gray-300 focus:outline-none focus:border-tv-gold" %>
+  </div>
+
+  <div>
+    <label class="block text-sm font-bold mb-1">슬러그 <span class="text-red-500">*</span></label>
+    <%= f.text_field :slug, required: true, placeholder: "예: blog, tutorial, react-basics",
+      class: "w-full px-4 py-3 rounded-2xl border border-gray-300 focus:outline-none focus:border-tv-gold font-mono text-sm" %>
+    <p class="text-xs text-tv-gray mt-1">URL에 사용되는 고유 식별자 (소문자, 하이픈만 허용)</p>
+  </div>
+
+  <div>
+    <label class="block text-sm font-bold mb-1">설명</label>
+    <%= f.text_area :description, rows: 3,
+      class: "w-full px-4 py-3 rounded-2xl border border-gray-300 focus:outline-none focus:border-tv-gold resize-none" %>
+  </div>
+
+  <div class="flex items-center gap-6">
+    <div class="flex items-center gap-2">
+      <%= f.check_box :admin_only, class: "rounded" %>
+      <label class="text-sm font-bold">관리자 전용</label>
+    </div>
+    <div class="flex items-center gap-2">
+      <%= f.check_box :visible_in_nav, class: "rounded" %>
+      <label class="text-sm font-bold">Navbar에 노출</label>
+    </div>
+  </div>
+
+  <div class="flex gap-3">
+    <%= link_to "취소", admin_categories_path, class: "border border-gray-300 rounded-pill px-6 py-3 text-sm font-bold" %>
+    <%= f.submit category.persisted? ? "수정" : "생성",
+      class: "bg-tv-gold text-tv-black rounded-pill px-6 py-3 text-sm font-bold cursor-pointer" %>
+  </div>
+<% end %>

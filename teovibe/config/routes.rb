@@ -13,28 +13,34 @@ Rails.application.routes.draw do
   get "auth/:provider/callback", to: "omniauth/sessions#create"
   get "auth/failure", to: "omniauth/sessions#failure"
 
-  # 게시판 (카테고리별)
-  resources :blogs, controller: "blogs"
-  resources :tutorials, controller: "tutorials"
-  resources :free_boards, controller: "free_boards"
-  resources :qnas, controller: "qnas" do
-    resources :comments, only: [] do
-      member { patch :accept }
-    end
-  end
-  resources :portfolios, controller: "portfolios"
-  resources :notices, controller: "notices", only: %i[index show]
+  # SEO 리다이렉트 (301 permanent) — 기존 URL 보존
+  get "/blogs",           to: redirect("/posts/blog", status: 301)
+  get "/blogs/:id",       to: redirect { |params, _req| "/posts/#{params[:id]}" }
+  get "/tutorials",       to: redirect("/posts/tutorial", status: 301)
+  get "/tutorials/:id",   to: redirect { |params, _req| "/posts/#{params[:id]}" }
+  get "/free-boards",     to: redirect("/posts/free-board", status: 301)
+  get "/free-boards/:id", to: redirect { |params, _req| "/posts/#{params[:id]}" }
+  get "/qnas",            to: redirect("/posts/qna", status: 301)
+  get "/qnas/:id",        to: redirect { |params, _req| "/posts/#{params[:id]}" }
+  get "/portfolios",      to: redirect("/posts/portfolio", status: 301)
+  get "/portfolios/:id",  to: redirect { |params, _req| "/posts/#{params[:id]}" }
+  get "/notices",         to: redirect("/posts/notice", status: 301)
+  get "/notices/:id",     to: redirect { |params, _req| "/posts/#{params[:id]}" }
 
-  # 게시글 공통 (새 글 작성 시 카테고리 선택)
-  resources :posts, only: %i[new create]
+  # 카테고리별 게시글 목록 (반드시 :slug 라우트보다 먼저 선언)
+  get "posts/:category_slug", to: "posts#index", as: :category_posts
+
+  # 게시글 CRUD (slug 기반)
+  resources :posts, param: :slug, only: %i[show new create edit update destroy]
 
   # 댓글
   resources :comments, only: %i[create destroy] do
+    member { patch :accept }
     resource :like, only: %i[create destroy]
   end
 
   # 좋아요
-  resources :posts, only: [] do
+  resources :posts, param: :slug, only: [] do
     resource :like, only: %i[create destroy]
   end
 
@@ -78,6 +84,17 @@ Rails.application.routes.draw do
   # Admin
   namespace :admin do
     root to: "dashboard#index"
+    resources :categories, only: %i[index new create edit update destroy] do
+      member do
+        patch :move_up
+        patch :move_down
+        patch :toggle_admin_only
+        patch :toggle_visible_in_nav
+      end
+      collection do
+        patch :reorder
+      end
+    end
     resources :landing_sections do
       member do
         patch :move_up

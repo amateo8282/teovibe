@@ -1,0 +1,9 @@
+<%= turbo_stream.replace "category_#{@category.id}_visible_in_nav" do %>
+  <%= turbo_frame_tag "category_#{@category.id}_visible_in_nav" do %>
+    <%= button_to toggle_visible_in_nav_admin_category_path(@category), method: :patch,
+      class: "text-xs px-2 py-1 rounded #{@category.visible_in_nav? ? 'bg-green-100 text-green-700 font-bold' : 'bg-gray-100 text-gray-500'}",
+      data: { turbo_frame: "category_#{@category.id}_visible_in_nav" } do %>
+      <%= @category.visible_in_nav? ? "ON" : "OFF" %>
+    <% end %>
+  <% end %>
+<% end %>

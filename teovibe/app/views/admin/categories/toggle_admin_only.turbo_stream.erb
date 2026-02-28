@@ -1,0 +1,9 @@
+<%= turbo_stream.replace "category_#{@category.id}_admin_only" do %>
+  <%= turbo_frame_tag "category_#{@category.id}_admin_only" do %>
+    <%= button_to toggle_admin_only_admin_category_path(@category), method: :patch,
+      class: "text-xs px-2 py-1 rounded #{@category.admin_only? ? 'bg-red-100 text-red-700 font-bold' : 'bg-gray-100 text-gray-500'}",
+      data: { turbo_frame: "category_#{@category.id}_admin_only" } do %>
+      <%= @category.admin_only? ? "ON" : "OFF" %>
+    <% end %>
+  <% end %>
+<% end %>

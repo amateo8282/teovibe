@@ -8,7 +8,7 @@
       <% end %>
     </div>
     <% if comment.user == Current.user || Current.user&.admin? %>
-      <%= button_to comments_path(comment), method: :delete,
+      <%= button_to comment_path(comment), method: :delete,
         data: { turbo_confirm: "정말 삭제하시겠습니까?" },
         class: "text-xs text-tv-light-gray hover:text-red-500" do %>
         삭제
@@ -23,7 +23,7 @@
       <%= render "likes/button", likeable: comment %>
     </div>
     <% if comment.post.qna? && comment.parent_id.nil? && comment.post.user == Current.user && !comment.accepted? %>
-      <%= button_to "채택", accept_qna_comment_path(comment.post, comment), method: :patch,
+      <%= button_to "채택", accept_comment_path(comment), method: :patch,
         data: { turbo_confirm: "이 답변을 채택하시겠습니까?" },
         class: "text-xs text-tv-orange hover:underline font-bold" %>
     <% end %>

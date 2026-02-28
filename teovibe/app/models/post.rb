@@ -36,6 +36,16 @@ class Post < ApplicationRecord
     category&.name
   end
 
+  # QnA 카테고리 여부 확인
+  def qna?
+    category&.slug == "qna"
+  end
+
+  # slug 기반 라우팅을 위해 to_param 오버라이드
+  def to_param
+    slug
+  end
+
   def liked_by?(user)
     return false unless user
     likes.exists?(user: user)

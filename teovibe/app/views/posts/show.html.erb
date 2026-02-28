@@ -1,17 +1,7 @@
 <article class="max-w-[800px] mx-auto px-5 py-10">
-  <%# 카테고리 목록 경로 (slug 기반) %>
-  <% category_list_path = case @post.category&.slug
-                          when "blog" then blogs_path
-                          when "tutorial" then tutorials_path
-                          when "free-board" then free_boards_path
-                          when "qna" then qnas_path
-                          when "portfolio" then portfolios_path
-                          when "notice" then notices_path
-                          else root_path
-                          end %>
   <%= render "shared/breadcrumb", items: [
     { name: "홈", path: root_path },
-    { name: @post.category_name, path: category_list_path },
+    { name: @post.category_name, path: category_posts_path(category_slug: @post.category&.slug) },
     { name: @post.title }
   ] %>
 
@@ -37,28 +27,11 @@
       <%= render "likes/button", likeable: @post %>
     </div>
     <% if @post.user == Current.user || Current.user&.admin? %>
-      <%# 수정/삭제 경로 (slug 기반) %>
-      <% edit_path = case @post.category&.slug
-                     when "blog" then edit_blog_path(@post)
-                     when "tutorial" then edit_tutorial_path(@post)
-                     when "free-board" then edit_free_board_path(@post)
-                     when "qna" then edit_qna_path(@post)
-                     when "portfolio" then edit_portfolio_path(@post)
-                     when "notice" then edit_notice_path(@post)
-                     end %>
-      <% delete_path = case @post.category&.slug
-                       when "blog" then blog_path(@post)
-                       when "tutorial" then tutorial_path(@post)
-                       when "free-board" then free_board_path(@post)
-                       when "qna" then qna_path(@post)
-                       when "portfolio" then portfolio_path(@post)
-                       when "notice" then notice_path(@post)
-                       end %>
       <div class="flex items-center gap-3">
-        <%= link_to "수정", edit_path, class: "text-sm text-tv-gray hover:text-tv-black" if edit_path %>
-        <%= button_to "삭제", delete_path, method: :delete,
+        <%= link_to "수정", edit_post_path(@post), class: "text-sm text-tv-gray hover:text-tv-black" %>
+        <%= button_to "삭제", post_path(@post), method: :delete,
           data: { turbo_confirm: "정말 삭제하시겠습니까?" },
-          class: "text-sm text-red-500 hover:text-red-700" if delete_path %>
+          class: "text-sm text-red-500 hover:text-red-700" %>
       </div>
     <% end %>
   </div>

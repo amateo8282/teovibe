@@ -6,10 +6,10 @@ class CommentsController < ApplicationController
     if @comment.save
       respond_to do |format|
         format.turbo_stream
-        format.html { redirect_to polymorphic_path(@post.route_key), notice: "댓글이 작성되었습니다." }
+        format.html { redirect_to post_path(@post), notice: "댓글이 작성되었습니다." }
       end
     else
-      redirect_to polymorphic_path(@post.route_key), alert: "댓글 작성에 실패했습니다."
+      redirect_to post_path(@post), alert: "댓글 작성에 실패했습니다."
     end
   end
 
@@ -24,6 +24,23 @@ class CommentsController < ApplicationController
       format.turbo_stream
       format.html { redirect_back fallback_location: root_path, notice: "댓글이 삭제되었습니다." }
     end
+  end
+
+  # QnA 답변 채택
+  def accept
+    @comment = Comment.find(params[:id])
+    @post = @comment.post
+
+    unless @post.user == Current.user
+      redirect_to post_path(@post), alert: "질문 작성자만 채택할 수 있습니다."
+      return
+    end
+
+    # 기존 채택 해제
+    @post.comments.where(accepted: true).update_all(accepted: false)
+    @comment.update!(accepted: true)
+
+    redirect_to post_path(@post), notice: "답변이 채택되었습니다."
   end
 
   private

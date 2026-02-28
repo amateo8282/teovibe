@@ -4,16 +4,7 @@
   <div class="flex items-center justify-between mb-8">
     <h1 class="text-3xl md:text-4xl font-black"><%= @category.name %></h1>
     <% if Current.user %>
-      <%# 카테고리 slug 기반 글쓰기 링크 %>
-      <% new_path = case @category.slug
-                    when "blog" then new_blog_path
-                    when "tutorial" then new_tutorial_path
-                    when "free-board" then new_free_board_path
-                    when "qna" then new_qna_path
-                    when "portfolio" then new_portfolio_path
-                    when "notice" then new_notice_path
-                    end %>
-      <%= link_to "글쓰기", new_path, class: "bg-tv-gold text-tv-black rounded-pill px-5 py-2.5 text-base font-bold hover:opacity-90 transition-opacity" if new_path %>
+      <%= link_to "글쓰기", new_post_path, class: "bg-tv-gold text-tv-black rounded-pill px-5 py-2.5 text-base font-bold hover:opacity-90 transition-opacity" %>
     <% end %>
   </div>
 
@@ -31,15 +22,7 @@
     <div class="text-center py-20">
       <p class="text-tv-gray text-lg">아직 작성된 글이 없습니다.</p>
       <% if Current.user %>
-        <% new_path = case @category.slug
-                      when "blog" then new_blog_path
-                      when "tutorial" then new_tutorial_path
-                      when "free-board" then new_free_board_path
-                      when "qna" then new_qna_path
-                      when "portfolio" then new_portfolio_path
-                      when "notice" then new_notice_path
-                      end %>
-        <%= link_to "첫 번째 글 작성하기", new_path, class: "inline-block mt-4 bg-tv-black text-white rounded-pill px-6 py-3 font-bold hover:opacity-90" if new_path %>
+        <%= link_to "첫 번째 글 작성하기", new_post_path, class: "inline-block mt-4 bg-tv-black text-white rounded-pill px-6 py-3 font-bold hover:opacity-90" %>
       <% end %>
     </div>
   <% end %>

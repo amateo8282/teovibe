@@ -1,0 +1,41 @@
+# Post 카테고리
+blog:
+  name: 블로그
+  slug: blog
+  record_type: 0
+  position: 0
+  admin_only: false
+  visible_in_nav: true
+
+tutorial:
+  name: 튜토리얼
+  slug: tutorial
+  record_type: 0
+  position: 1
+  admin_only: false
+  visible_in_nav: true
+
+notice:
+  name: 공지사항
+  slug: notice
+  record_type: 0
+  position: 5
+  admin_only: true
+  visible_in_nav: true
+
+# SkillPack 카테고리
+template:
+  name: 템플릿
+  slug: template
+  record_type: 1
+  position: 0
+  admin_only: false
+  visible_in_nav: true
+
+component:
+  name: 컴포넌트
+  slug: component
+  record_type: 1
+  position: 1
+  admin_only: false
+  visible_in_nav: false

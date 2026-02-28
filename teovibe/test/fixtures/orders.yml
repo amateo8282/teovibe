@@ -4,14 +4,14 @@ one:
   user: one
   skill_pack: one
   status: 1
-  toss_order_id: MyString
-  payment_event_id: MyString
+  toss_order_id: order-id-one
+  payment_event_id: payment-event-one
   amount: 1
 
 two:
   user: two
   skill_pack: two
   status: 1
-  toss_order_id: MyString
-  payment_event_id: MyString
+  toss_order_id: order-id-two
+  payment_event_id: payment-event-two
   amount: 1

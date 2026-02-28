@@ -1,0 +1,15 @@
+one:
+  title: 테스트 스킬팩 1
+  description: 테스트 설명 1
+  category: template
+  status: 1
+  download_token: test-token-001
+  slug: 1-test-skill-pack-one
+
+two:
+  title: 테스트 스킬팩 2
+  description: 테스트 설명 2
+  category: component
+  status: 1
+  download_token: test-token-002
+  slug: 2-test-skill-pack-two

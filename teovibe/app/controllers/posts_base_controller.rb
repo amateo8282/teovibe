@@ -6,8 +6,8 @@ class PostsBaseController < ApplicationController
   layout "application"
 
   def index
-    @category = category
-    @posts = Post.where(category: category).published.pinned_first.includes(:user)
+    @category = category_record
+    @posts = @category.posts.published.pinned_first.includes(:user)
     @pagy, @posts = pagy(:offset, @posts, limit: 12)
     render "posts/index"
   end
@@ -20,12 +20,12 @@ class PostsBaseController < ApplicationController
   end
 
   def new
-    @post = Post.new(category: category)
+    @post = Post.new(category: category_record)
     render "posts/new"
   end
 
   def create
-    @post = Current.user.posts.build(post_params.merge(category: category, status: :published))
+    @post = Current.user.posts.build(post_params.merge(category: category_record, status: :published))
     if @post.save
       redirect_to url_for_post(@post), notice: "글이 작성되었습니다."
     else
@@ -46,14 +46,25 @@ class PostsBaseController < ApplicationController
   end
 
   def destroy
-    cat = @post.category
+    slug = @post.category&.slug
     @post.destroy
-    redirect_to send("#{cat.pluralize}_path"), notice: "글이 삭제되었습니다.", status: :see_other
+    # slug 기반으로 목록 경로 결정
+    list_path = case slug
+                when "blog" then blogs_path
+                when "tutorial" then tutorials_path
+                when "free-board" then free_boards_path
+                when "qna" then qnas_path
+                when "portfolio" then portfolios_path
+                when "notice" then notices_path
+                else root_path
+                end
+    redirect_to list_path, notice: "글이 삭제되었습니다.", status: :see_other
   end
 
   private
 
-  def category
+  # 서브클래스에서 Category 레코드를 반환하도록 구현
+  def category_record
     raise NotImplementedError
   end
 

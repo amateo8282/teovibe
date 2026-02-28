@@ -46,7 +46,7 @@ module Admin
     end
 
     def skill_pack_params
-      params.require(:skill_pack).permit(:title, :description, :category, :status, :file, :thumbnail)
+      params.require(:skill_pack).permit(:title, :description, :category_id, :status, :file, :thumbnail)
     end
   end
 end

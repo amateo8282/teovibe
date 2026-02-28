@@ -17,7 +17,9 @@ class QnasController < PostsBaseController
 
   private
 
-  def category = :qna
+  def category_record
+    Category.find_by!(slug: "qna", record_type: :post)
+  end
 
   def set_qna_post
     @qna_post = Post.find(params[:qna_id])

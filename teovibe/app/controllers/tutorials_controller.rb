@@ -1,5 +1,7 @@
 class TutorialsController < PostsBaseController
   private
 
-  def category = :tutorial
+  def category_record
+    Category.find_by!(slug: "tutorial", record_type: :post)
+  end
 end

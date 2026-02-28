@@ -1,5 +1,7 @@
 class FreeBoardsController < PostsBaseController
   private
 
-  def category = :free_board
+  def category_record
+    Category.find_by!(slug: "free-board", record_type: :post)
+  end
 end

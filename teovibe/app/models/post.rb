@@ -1,10 +1,10 @@
 class Post < ApplicationRecord
   belongs_to :user, counter_cache: true
+  belongs_to :category
   has_many :comments, dependent: :destroy
   has_many :likes, as: :likeable, dependent: :destroy
   has_rich_text :body
 
-  enum :category, { blog: 0, tutorial: 1, free_board: 2, qna: 3, portfolio: 4, notice: 5 }
   enum :status, { draft: 0, published: 1 }
 
   validates :title, presence: true, length: { maximum: 200 }
@@ -17,12 +17,13 @@ class Post < ApplicationRecord
 
   before_save :generate_slug, if: -> { slug.blank? && title.present? }
 
-  # 카테고리에 맞는 라우트 키 반환
+  # 카테고리에 맞는 라우트 키 반환 (category.slug 기반으로 변경)
   def route_key
-    case category
+    slug_val = category&.slug
+    case slug_val
     when "blog" then [:blog, self]
     when "tutorial" then [:tutorial, self]
-    when "free_board" then [:free_board, self]
+    when "free-board" then [:free_board, self]
     when "qna" then [:qna, self]
     when "portfolio" then [:portfolio, self]
     when "notice" then [:notice, self]
@@ -30,16 +31,9 @@ class Post < ApplicationRecord
     end
   end
 
-  # 카테고리 한글 이름
+  # 카테고리 한글 이름 (Category 모델 위임)
   def category_name
-    {
-      "blog" => "블로그",
-      "tutorial" => "튜토리얼",
-      "free_board" => "자유게시판",
-      "qna" => "Q&A",
-      "portfolio" => "포트폴리오",
-      "notice" => "공지사항"
-    }[category]
+    category&.name
   end
 
   def liked_by?(user)

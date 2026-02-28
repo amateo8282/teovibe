@@ -2,13 +2,13 @@
   <h1 class="text-display font-black text-center mb-4">스킬팩</h1>
   <p class="text-xl text-tv-gray text-center mb-12">바이브코딩에 필요한 템플릿, 컴포넌트, 가이드를 무료로 다운로드하세요.</p>
 
-  <%# 카테고리 필터 %>
+  <%# 카테고리 필터 (Category 모델 기반 동적 루프) %>
   <div class="flex justify-center gap-3 mb-12">
     <%= link_to "전체", skill_packs_path,
       class: "px-5 py-2 rounded-pill text-sm font-bold transition-colors #{params[:category].blank? ? 'bg-tv-gold text-tv-black' : 'bg-tv-cream text-tv-gray hover:bg-tv-gold/20'}" %>
-    <% SkillPack.categories.keys.each do |cat| %>
-      <%= link_to SkillPack.new(category: cat).category_name, skill_packs_path(category: cat),
-        class: "px-5 py-2 rounded-pill text-sm font-bold transition-colors #{params[:category] == cat ? 'bg-tv-gold text-tv-black' : 'bg-tv-cream text-tv-gray hover:bg-tv-gold/20'}" %>
+    <% Category.for_skill_packs.ordered.each do |cat| %>
+      <%= link_to cat.name, skill_packs_path(category: cat.slug),
+        class: "px-5 py-2 rounded-pill text-sm font-bold transition-colors #{params[:category] == cat.slug ? 'bg-tv-gold text-tv-black' : 'bg-tv-cream text-tv-gray hover:bg-tv-gold/20'}" %>
     <% end %>
   </div>
 

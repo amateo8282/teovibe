@@ -1,10 +1,19 @@
 <div class="max-w-[1200px] mx-auto px-5 py-10">
-  <%= render "shared/breadcrumb", items: [{ name: "홈", path: root_path }, { name: Post.new(category: @category).category_name }] %>
+  <%= render "shared/breadcrumb", items: [{ name: "홈", path: root_path }, { name: @category.name }] %>
 
   <div class="flex items-center justify-between mb-8">
-    <h1 class="text-3xl md:text-4xl font-black"><%= Post.new(category: @category).category_name %></h1>
+    <h1 class="text-3xl md:text-4xl font-black"><%= @category.name %></h1>
     <% if Current.user %>
-      <%= link_to "글쓰기", send("new_#{@category}_path"), class: "bg-tv-gold text-tv-black rounded-pill px-5 py-2.5 text-base font-bold hover:opacity-90 transition-opacity" %>
+      <%# 카테고리 slug 기반 글쓰기 링크 %>
+      <% new_path = case @category.slug
+                    when "blog" then new_blog_path
+                    when "tutorial" then new_tutorial_path
+                    when "free-board" then new_free_board_path
+                    when "qna" then new_qna_path
+                    when "portfolio" then new_portfolio_path
+                    when "notice" then new_notice_path
+                    end %>
+      <%= link_to "글쓰기", new_path, class: "bg-tv-gold text-tv-black rounded-pill px-5 py-2.5 text-base font-bold hover:opacity-90 transition-opacity" if new_path %>
     <% end %>
   </div>
 
@@ -22,7 +31,15 @@
     <div class="text-center py-20">
       <p class="text-tv-gray text-lg">아직 작성된 글이 없습니다.</p>
       <% if Current.user %>
-        <%= link_to "첫 번째 글 작성하기", send("new_#{@category}_path"), class: "inline-block mt-4 bg-tv-black text-white rounded-pill px-6 py-3 font-bold hover:opacity-90" %>
+        <% new_path = case @category.slug
+                      when "blog" then new_blog_path
+                      when "tutorial" then new_tutorial_path
+                      when "free-board" then new_free_board_path
+                      when "qna" then new_qna_path
+                      when "portfolio" then new_portfolio_path
+                      when "notice" then new_notice_path
+                      end %>
+        <%= link_to "첫 번째 글 작성하기", new_path, class: "inline-block mt-4 bg-tv-black text-white rounded-pill px-6 py-3 font-bold hover:opacity-90" if new_path %>
       <% end %>
     </div>
   <% end %>

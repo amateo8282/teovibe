@@ -1,4 +1,28 @@
-<%= form_with model: post, url: post.persisted? ? send("#{post.category}_path", post) : send("#{post.category.pluralize}_path"), class: "space-y-6" do |f| %>
+<%# 카테고리 slug 기반 폼 액션 URL 결정 %>
+<% slug = post.category&.slug
+   form_url = if post.persisted?
+     case slug
+     when "blog" then blog_path(post)
+     when "tutorial" then tutorial_path(post)
+     when "free-board" then free_board_path(post)
+     when "qna" then qna_path(post)
+     when "portfolio" then portfolio_path(post)
+     when "notice" then notice_path(post)
+     else post_path(post)
+     end
+   else
+     case slug
+     when "blog" then blogs_path
+     when "tutorial" then tutorials_path
+     when "free-board" then free_boards_path
+     when "qna" then qnas_path
+     when "portfolio" then portfolios_path
+     when "notice" then notices_path
+     else posts_path
+     end
+   end
+%>
+<%= form_with model: post, url: form_url, class: "space-y-6" do |f| %>
   <% if post.errors.any? %>
     <div class="bg-red-50 text-red-800 border border-red-200 rounded-2xl px-4 py-3 text-sm">
       <ul class="list-disc list-inside space-y-1">

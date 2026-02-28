@@ -1,10 +1,10 @@
 class SkillPack < ApplicationRecord
+  belongs_to :category
   has_one_attached :file
   has_one_attached :thumbnail
   has_many :downloads, dependent: :destroy
   has_many :orders, dependent: :destroy
 
-  enum :category, { template: 0, component: 1, guide: 2, toolkit: 3 }
   enum :status, { draft: 0, published: 1 }
 
   validates :title, presence: true, length: { maximum: 200 }
@@ -12,19 +12,15 @@ class SkillPack < ApplicationRecord
   validates :download_token, presence: true, uniqueness: true
 
   scope :published, -> { where(status: :published) }
-  scope :by_category, ->(cat) { where(category: cat) if cat.present? }
+  # category slug 기반 필터 (Category 모델 경유)
+  scope :by_category, ->(slug) { joins(:category).where(categories: { slug: slug }) if slug.present? }
 
   before_validation :generate_download_token, on: :create
   before_save :generate_slug, if: -> { slug.blank? && title.present? }
 
-  # 카테고리 한글 이름
+  # 카테고리 한글 이름 (Category 모델 위임)
   def category_name
-    {
-      "template" => "템플릿",
-      "component" => "컴포넌트",
-      "guide" => "가이드",
-      "toolkit" => "툴킷"
-    }[category]
+    category&.name
   end
 
   private

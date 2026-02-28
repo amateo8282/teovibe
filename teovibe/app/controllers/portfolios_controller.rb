@@ -1,5 +1,7 @@
 class PortfoliosController < PostsBaseController
   private
 
-  def category = :portfolio
+  def category_record
+    Category.find_by!(slug: "portfolio", record_type: :post)
+  end
 end

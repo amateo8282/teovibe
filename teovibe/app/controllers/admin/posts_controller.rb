@@ -47,7 +47,7 @@ module Admin
     end
 
     def post_params
-      params.require(:post).permit(:title, :body, :category, :status, :pinned, :seo_title, :seo_description)
+      params.require(:post).permit(:title, :body, :category_id, :status, :pinned, :seo_title, :seo_description)
     end
   end
 end

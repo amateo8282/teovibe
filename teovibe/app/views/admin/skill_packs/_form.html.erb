@@ -21,9 +21,10 @@
 
   <div class="grid grid-cols-2 gap-4">
     <div>
-      <%= f.label :category, "카테고리", class: "block text-sm font-bold mb-1" %>
-      <%= f.select :category, SkillPack.categories.keys.map { |c| [SkillPack.new(category: c).category_name, c] },
-        {}, class: "w-full border border-tv-cream rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-tv-gold" %>
+      <%= f.label :category_id, "카테고리", class: "block text-sm font-bold mb-1" %>
+      <%= f.collection_select :category_id, Category.for_skill_packs.ordered, :id, :name,
+        { selected: skill_pack.category_id },
+        class: "w-full border border-tv-cream rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-tv-gold" %>
     </div>
     <div>
       <%= f.label :status, "상태", class: "block text-sm font-bold mb-1" %>

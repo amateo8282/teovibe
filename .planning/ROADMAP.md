@@ -92,7 +92,12 @@ Plans:
   2. 지정된 시각에 게시글이 자동으로 published 상태로 전환되어 공개 피드에 나타난다
   3. Admin 게시글 목록에 '예약됨' 배지와 예정 시각이 표시된다
   4. Admin이 예약된 게시글의 발행 시각을 변경하거나 예약을 취소할 수 있다
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] 07-01: 마이그레이션 + Post 모델 + PublishPostJob TDD (Wave 1)
+- [ ] 07-02: Admin 컨트롤러 예약 로직 + 폼 UI + 목록 배지 (Wave 2)
+- [ ] 07-03: 통합 테스트 + 최종 검증 (Wave 3)
 
 ### Phase 8: AI 초안 작성
 **Goal**: Admin이 주제/키워드를 입력하면 AI가 개요를 생성하고, 검토 후 본문을 생성하여 rhino-editor에 자동 삽입된다
@@ -118,5 +123,5 @@ Phases execute in numeric order: 6 → 7 → 8
 | 4. Commerce | v1.0 | 3/3 | Complete | 2026-02-22 |
 | 5. Polish | v1.0 | 2/2 | Complete | 2026-02-22 |
 | 6. 카테고리 동적 관리 | 4/4 | Complete   | 2026-02-28 | - |
-| 7. 게시글 예약 발행 | v1.1 | 0/TBD | Not started | - |
+| 7. 게시글 예약 발행 | v1.1 | 0/3 | Not started | - |
 | 8. AI 초안 작성 | v1.1 | 0/TBD | Not started | - |

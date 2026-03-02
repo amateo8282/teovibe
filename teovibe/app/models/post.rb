@@ -14,8 +14,15 @@ class Post < ApplicationRecord
 
   scope :published, -> { where(status: :published) }
   scope :pinned_first, -> { order(pinned: :desc, created_at: :desc) }
+  # draft 상태이면서 scheduled_at이 있는 예약 발행 게시글 scope
+  scope :scheduled, -> { where(status: :draft).where.not(scheduled_at: nil) }
 
   before_save :generate_slug, if: -> { slug.blank? && title.present? }
+
+  # draft 상태이면서 scheduled_at이 있을 때 true 반환
+  def scheduled?
+    draft? && scheduled_at.present?
+  end
 
   # 카테고리에 맞는 라우트 키 반환 (category.slug 기반으로 변경)
   def route_key

@@ -22,7 +22,16 @@
           <td class="px-4 py-3"><%= post.category_name %></td>
           <td class="px-4 py-3"><%= post.user.nickname %></td>
           <td class="px-4 py-3">
-            <span class="<%= post.published? ? 'text-green-600' : 'text-tv-gray' %>"><%= post.status %></span>
+            <% if post.scheduled? %>
+              <span class="text-yellow-600 font-bold">예약됨</span>
+              <span class="text-xs text-tv-gray block">
+                <%= post.scheduled_at.in_time_zone("Seoul").strftime("%m/%d %H:%M") %>
+              </span>
+            <% elsif post.published? %>
+              <span class="text-green-600">published</span>
+            <% else %>
+              <span class="text-tv-gray">draft</span>
+            <% end %>
           </td>
           <td class="px-4 py-3 text-tv-gray"><%= post.created_at.strftime("%m/%d") %></td>
           <td class="px-4 py-3 text-right">

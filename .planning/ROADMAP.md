@@ -123,5 +123,5 @@ Phases execute in numeric order: 6 → 7 → 8
 | 4. Commerce | v1.0 | 3/3 | Complete | 2026-02-22 |
 | 5. Polish | v1.0 | 2/2 | Complete | 2026-02-22 |
 | 6. 카테고리 동적 관리 | 4/4 | Complete   | 2026-02-28 | - |
-| 7. 게시글 예약 발행 | v1.1 | 1/3 | In Progress | - |
+| 7. 게시글 예약 발행 | 2/3 | In Progress|  | - |
 | 8. AI 초안 작성 | v1.1 | 0/TBD | Not started | - |

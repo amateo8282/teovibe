@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Admin 고도화
 status: unknown
-last_updated: "2026-02-28T16:09:33.698Z"
+last_updated: "2026-03-02T13:31:27.575Z"
 progress:
-  total_phases: 1
+  total_phases: 2
   completed_phases: 1
-  total_plans: 4
-  completed_plans: 4
+  total_plans: 7
+  completed_plans: 6
 ---
 
 # Project State
@@ -23,11 +23,11 @@ See: .planning/PROJECT.md (updated 2026-02-28)
 ## Current Position
 
 Phase: 7 of 8 (게시글 예약 발행)
-Plan: 1 of 3 in current phase
+Plan: 2 of 3 in current phase
 Status: In Progress
-Last activity: 2026-03-02 — 07-01 완료 (예약 발행 인프라 마이그레이션 + PublishPostJob)
+Last activity: 2026-03-02 — 07-02 완료 (Admin 예약 발행 컨트롤러 + 폼 UI + 목록 배지)
 
-Progress: [██░░░░░░░░] 20% (v1.1 기준)
+Progress: [███░░░░░░░] 30% (v1.1 기준)
 
 ## Performance Metrics
 
@@ -42,7 +42,7 @@ Progress: [██░░░░░░░░] 20% (v1.1 기준)
 |-------|-------|--------|
 | 1-5 (v1.0) | 13/13 | Complete |
 | 6 (v1.1) | 4/4 | Complete |
-| 7 (v1.1) | 1/3 | In Progress |
+| 7 (v1.1) | 2/3 | In Progress |
 | 8 (v1.1) | 0/TBD | Not started |
 
 ## Accumulated Context
@@ -61,6 +61,8 @@ Progress: [██░░░░░░░░] 20% (v1.1 기준)
 - [Phase 06-category-management]: Phase 6 (06-04): Admin 카테고리 CRUD/reorder/toggle 컨트롤러 테스트 + 라우팅 리다이렉트 통합 테스트로 CATM-01~06 전 요구사항 자동+수동 이중 검증 완료
 - [Phase 07-scheduled-publishing]: Phase 7 (07-01): Post 상태는 draft/published 2개 유지 — scheduled는 별도 컬럼(scheduled_at)으로 표현 (enum 추가 안티패턴 회피)
 - [Phase 07-scheduled-publishing]: Phase 7 (07-01): PublishPostJob guard: post&.scheduled?로 nil 체크 + 예약 상태 이중 확인, discard_on DeserializationError로 1회성 처리
+- [Phase 07-scheduled-publishing]: Phase 7 (07-02): set_post에서 Post.find_by!(slug:) 사용 — to_param이 slug 반환하므로 Admin 라우트 :id는 slug 값임
+- [Phase 07-scheduled-publishing]: Phase 7 (07-02): update에서 assign_attributes+save 분리 패턴 — handle_scheduling이 scheduled_at 직접 할당하므로
 
 ### Pending Todos
 
@@ -74,5 +76,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-02
-Stopped at: 07-01 완료. 예약 발행 인프라 (마이그레이션 + Post 모델 + PublishPostJob) TDD 구현 완료
+Stopped at: 07-02 완료. Admin::PostsController 예약 발행 로직 TDD 구현 + 폼 datetime-local 필드 + 목록 예약됨 배지 완성
 Resume file: None

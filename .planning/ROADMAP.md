@@ -95,7 +95,7 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 07-01: 마이그레이션 + Post 모델 + PublishPostJob TDD (Wave 1)
+- [x] 07-01: 마이그레이션 + Post 모델 + PublishPostJob TDD (Wave 1)
 - [ ] 07-02: Admin 컨트롤러 예약 로직 + 폼 UI + 목록 배지 (Wave 2)
 - [ ] 07-03: 통합 테스트 + 최종 검증 (Wave 3)
 
@@ -123,5 +123,5 @@ Phases execute in numeric order: 6 → 7 → 8
 | 4. Commerce | v1.0 | 3/3 | Complete | 2026-02-22 |
 | 5. Polish | v1.0 | 2/2 | Complete | 2026-02-22 |
 | 6. 카테고리 동적 관리 | 4/4 | Complete   | 2026-02-28 | - |
-| 7. 게시글 예약 발행 | v1.1 | 0/3 | Not started | - |
+| 7. 게시글 예약 발행 | v1.1 | 1/3 | In Progress | - |
 | 8. AI 초안 작성 | v1.1 | 0/TBD | Not started | - |

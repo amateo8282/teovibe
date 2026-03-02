@@ -22,12 +22,12 @@ See: .planning/PROJECT.md (updated 2026-02-28)
 
 ## Current Position
 
-Phase: 6 of 8 (카테고리 동적 관리)
-Plan: 4 of 4 in current phase
-Status: Complete
-Last activity: 2026-03-01 — 06-04 완료 (Admin 카테고리 통합 테스트 + Phase 6 최종 검증)
+Phase: 7 of 8 (게시글 예약 발행)
+Plan: 1 of 3 in current phase
+Status: In Progress
+Last activity: 2026-03-02 — 07-01 완료 (예약 발행 인프라 마이그레이션 + PublishPostJob)
 
-Progress: [█░░░░░░░░░] 10% (v1.1 기준)
+Progress: [██░░░░░░░░] 20% (v1.1 기준)
 
 ## Performance Metrics
 
@@ -42,7 +42,7 @@ Progress: [█░░░░░░░░░] 10% (v1.1 기준)
 |-------|-------|--------|
 | 1-5 (v1.0) | 13/13 | Complete |
 | 6 (v1.1) | 4/4 | Complete |
-| 7 (v1.1) | 0/TBD | Not started |
+| 7 (v1.1) | 1/3 | In Progress |
 | 8 (v1.1) | 0/TBD | Not started |
 
 ## Accumulated Context
@@ -59,6 +59,8 @@ Progress: [█░░░░░░░░░] 10% (v1.1 기준)
 - [Phase 06-category-management]: Phase 6 (06-02): Turbo Frame + Turbo Stream 조합으로 토글 인라인 업데이트 (turbo_stream.replace로 버튼 단위 교체)
 - [Phase 06-category-management]: Phase 6 (06-02): Sortable.js handle 방식 채택 (data-sortable-handle 아이콘)으로 명시적 DnD UX
 - [Phase 06-category-management]: Phase 6 (06-04): Admin 카테고리 CRUD/reorder/toggle 컨트롤러 테스트 + 라우팅 리다이렉트 통합 테스트로 CATM-01~06 전 요구사항 자동+수동 이중 검증 완료
+- [Phase 07-scheduled-publishing]: Phase 7 (07-01): Post 상태는 draft/published 2개 유지 — scheduled는 별도 컬럼(scheduled_at)으로 표현 (enum 추가 안티패턴 회피)
+- [Phase 07-scheduled-publishing]: Phase 7 (07-01): PublishPostJob guard: post&.scheduled?로 nil 체크 + 예약 상태 이중 확인, discard_on DeserializationError로 1회성 처리
 
 ### Pending Todos
 
@@ -71,6 +73,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-01
-Stopped at: 06-04 완료. Phase 6 카테고리 동적 관리 전체 완료 (CATM-01~06 모든 요구사항 충족)
+Last session: 2026-03-02
+Stopped at: 07-01 완료. 예약 발행 인프라 (마이그레이션 + Post 모델 + PublishPostJob) TDD 구현 완료
 Resume file: None

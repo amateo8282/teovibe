@@ -26,7 +26,7 @@ Requirements for v1.1 Admin 고도화. Each maps to roadmap phases.
 ### 예약 발행
 
 - [ ] **SCHD-01**: Admin이 게시글 저장 시 발행 날짜/시간을 지정할 수 있다
-- [ ] **SCHD-02**: 지정된 시간에 게시글이 자동으로 published 상태로 전환된다
+- [x] **SCHD-02**: 지정된 시간에 게시글이 자동으로 published 상태로 전환된다
 - [ ] **SCHD-03**: Admin이 예약된 게시글의 예약을 취소하거나 시간을 변경할 수 있다
 
 ## Future Requirements
@@ -79,7 +79,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | AIDR-03 | Phase 8 | Pending |
 | AIDR-04 | Phase 8 | Pending |
 | SCHD-01 | Phase 7 | Pending |
-| SCHD-02 | Phase 7 | Pending |
+| SCHD-02 | Phase 7 | Complete |
 | SCHD-03 | Phase 7 | Pending |
 
 **Coverage:**

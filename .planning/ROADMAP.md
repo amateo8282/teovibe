@@ -108,7 +108,11 @@ Plans:
   2. Admin이 생성된 개요를 직접 수정한 뒤 본문 생성을 요청할 수 있다
   3. 생성된 본문이 rhino-editor에 자동으로 삽입되어 즉시 편집 가능한 상태가 된다
   4. 생성된 콘텐츠는 H2/H3 구조와 FAQ 섹션을 포함한 SEO/AEO 최적화 형식을 갖춘다
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 08-01-PLAN.md — anthropic gem + AiDraftService + AiDraftsController + 라우트 + 테스트
+- [ ] 08-02-PLAN.md — Stimulus ai_draft_controller.js + Admin 폼 AI 초안 패널 UI
 
 ## Progress
 
@@ -124,4 +128,4 @@ Phases execute in numeric order: 6 → 7 → 8
 | 5. Polish | v1.0 | 2/2 | Complete | 2026-02-22 |
 | 6. 카테고리 동적 관리 | 4/4 | Complete   | 2026-02-28 | - |
 | 7. 게시글 예약 발행 | 3/3 | Complete   | 2026-03-04 | - |
-| 8. AI 초안 작성 | v1.1 | 0/TBD | Not started | - |
+| 8. AI 초안 작성 | v1.1 | 0/2 | Not started | - |

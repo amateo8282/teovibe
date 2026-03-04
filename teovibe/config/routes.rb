@@ -31,11 +31,13 @@ Rails.application.routes.draw do
   get  "posts/new",  to: "posts#new",    as: :new_post
   post "posts",      to: "posts#create", as: :posts
 
-  # 카테고리별 게시글 목록 (반드시 :slug 라우트보다 먼저 선언)
-  get "posts/:category_slug", to: "posts#index", as: :category_posts
-
   # 게시글 CRUD (slug 기반) — new/create는 위에서 선언했으므로 제외
-  resources :posts, param: :slug, only: %i[show edit update destroy]
+  # constraint: post slug는 숫자 또는 "post-"로 시작 (카테고리 slug와 구분)
+  resources :posts, param: :slug, only: %i[show edit update destroy],
+            constraints: { slug: /(\d|post-).*/ }
+
+  # 카테고리별 게시글 목록 (post slug constraint 이후에 선언)
+  get "posts/:category_slug", to: "posts#index", as: :category_posts
 
   # 댓글
   resources :comments, only: %i[create destroy] do

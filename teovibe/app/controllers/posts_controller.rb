@@ -27,6 +27,7 @@ class PostsController < ApplicationController
   # POST /posts
   def create
     @post = Current.user.posts.build(post_params)
+    @post.status = :published
     if @post.save
       redirect_to post_path(@post), notice: "글이 작성되었습니다."
     else

@@ -18,10 +18,10 @@ Requirements for v1.1 Admin 고도화. Each maps to roadmap phases.
 
 ### AI 초안 작성
 
-- [ ] **AIDR-01**: Admin이 주제/키워드를 입력하면 AI가 개요(H2 섹션 목록)를 생성한다
-- [ ] **AIDR-02**: Admin이 생성된 개요를 검토/수정한 후 본문 생성을 요청할 수 있다
-- [ ] **AIDR-03**: 생성된 본문이 rhino-editor에 자동 삽입된다
-- [ ] **AIDR-04**: AI 생성 시 SEO/AEO 최적화 시스템 프롬프트가 적용된다
+- [x] **AIDR-01**: Admin이 주제/키워드를 입력하면 AI가 개요(H2 섹션 목록)를 생성한다
+- [x] **AIDR-02**: Admin이 생성된 개요를 검토/수정한 후 본문 생성을 요청할 수 있다
+- [x] **AIDR-03**: 생성된 본문이 rhino-editor에 자동 삽입된다
+- [x] **AIDR-04**: AI 생성 시 SEO/AEO 최적화 시스템 프롬프트가 적용된다
 
 ### 예약 발행
 
@@ -74,10 +74,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CATM-04 | Phase 6 | Complete |
 | CATM-05 | Phase 6 | Complete |
 | CATM-06 | Phase 6 | Complete |
-| AIDR-01 | Phase 8 | Pending |
-| AIDR-02 | Phase 8 | Pending |
-| AIDR-03 | Phase 8 | Pending |
-| AIDR-04 | Phase 8 | Pending |
+| AIDR-01 | Phase 8 | Complete |
+| AIDR-02 | Phase 8 | Complete |
+| AIDR-03 | Phase 8 | Complete |
+| AIDR-04 | Phase 8 | Complete |
 | SCHD-01 | Phase 7 | Complete |
 | SCHD-02 | Phase 7 | Complete |
 | SCHD-03 | Phase 7 | Complete |

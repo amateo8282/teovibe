@@ -128,4 +128,4 @@ Phases execute in numeric order: 6 → 7 → 8
 | 5. Polish | v1.0 | 2/2 | Complete | 2026-02-22 |
 | 6. 카테고리 동적 관리 | 4/4 | Complete   | 2026-02-28 | - |
 | 7. 게시글 예약 발행 | 3/3 | Complete   | 2026-03-04 | - |
-| 8. AI 초안 작성 | v1.1 | 0/2 | Not started | - |
+| 8. AI 초안 작성 | 1/2 | In Progress|  | - |

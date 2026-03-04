@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Admin 고도화
 status: completed
-stopped_at: 07-03 완료. Admin 게시글 예약 발행 통합 테스트 7개 추가 + Phase 7 전체 요구사항 SCHD-01~03 완료
-last_updated: "2026-03-04T16:40:44.505Z"
+stopped_at: "08-01 완료. anthropic gem + AiDraftService + Admin::AiDraftsController JSON API 구현"
+last_updated: "2026-03-04T17:04:12.107Z"
 last_activity: 2026-03-05 — 07-03 완료 (Admin 게시글 예약 발행 통합 테스트 7개 + Phase 7 전체 완료)
 progress:
   total_phases: 8
   completed_phases: 2
-  total_plans: 7
-  completed_plans: 7
+  total_plans: 9
+  completed_plans: 8
   percent: 100
 ---
 
@@ -47,6 +47,7 @@ Progress: [██████████] 100% (v1.1 Phase 7 기준)
 | 6 (v1.1) | 4/4 | Complete |
 | 7 (v1.1) | 3/3 | Complete |
 | 8 (v1.1) | 0/TBD | Not started |
+| Phase 08-ai-초안-작성 P01 | 5 | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -67,6 +68,8 @@ Progress: [██████████] 100% (v1.1 Phase 7 기준)
 - [Phase 07-scheduled-publishing]: Phase 7 (07-02): set_post에서 Post.find_by!(slug:) 사용 — to_param이 slug 반환하므로 Admin 라우트 :id는 slug 값임
 - [Phase 07-scheduled-publishing]: Phase 7 (07-02): update에서 assign_attributes+save 분리 패턴 — handle_scheduling이 scheduled_at 직접 할당하므로
 - [Phase 07-scheduled-publishing]: Phase 7 (07-03): 테스트 환경(:test 큐 어댑터)에서 job_id 직접 검증 대신 scheduled? 상태 검증, SolidQueue 테이블 미존재로 cancel_existing_job 테스트 시 job_id=nil 게시글로 early return 유도
+- [Phase 08-ai-초안-작성]: minitest 6.x에서는 minitest/mock이 없으므로 define_singleton_method 기반 stub 패턴 사용
+- [Phase 08-ai-초안-작성]: AiDraftService 에러는 rescue 블록에서 422 + { error: message } JSON으로 반환
 
 ### Pending Todos
 
@@ -79,6 +82,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-04T16:36:34.583Z
-Stopped at: 07-03 완료. Admin 게시글 예약 발행 통합 테스트 7개 추가 + Phase 7 전체 요구사항 SCHD-01~03 완료
+Last session: 2026-03-04T17:04:12.104Z
+Stopped at: 08-01 완료. anthropic gem + AiDraftService + Admin::AiDraftsController JSON API 구현
 Resume file: None

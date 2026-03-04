@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Admin 고도화
 status: completed
-stopped_at: "08-01 완료. anthropic gem + AiDraftService + Admin::AiDraftsController JSON API 구현"
-last_updated: "2026-03-04T17:04:12.107Z"
+stopped_at: "08-02 checkpoint:human-verify 대기 중. AI 초안 패널 UI 구현 완료"
+last_updated: "2026-03-04T17:12:26.359Z"
 last_activity: 2026-03-05 — 07-03 완료 (Admin 게시글 예약 발행 통합 테스트 7개 + Phase 7 전체 완료)
 progress:
   total_phases: 8
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 9
-  completed_plans: 8
+  completed_plans: 9
   percent: 100
 ---
 
@@ -48,6 +48,7 @@ Progress: [██████████] 100% (v1.1 Phase 7 기준)
 | 7 (v1.1) | 3/3 | Complete |
 | 8 (v1.1) | 0/TBD | Not started |
 | Phase 08-ai-초안-작성 P01 | 5 | 2 tasks | 7 files |
+| Phase 08-ai-초안-작성 P02 | 15 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -70,6 +71,8 @@ Progress: [██████████] 100% (v1.1 Phase 7 기준)
 - [Phase 07-scheduled-publishing]: Phase 7 (07-03): 테스트 환경(:test 큐 어댑터)에서 job_id 직접 검증 대신 scheduled? 상태 검증, SolidQueue 테이블 미존재로 cancel_existing_job 테스트 시 job_id=nil 게시글로 early return 유도
 - [Phase 08-ai-초안-작성]: minitest 6.x에서는 minitest/mock이 없으므로 define_singleton_method 기반 stub 패턴 사용
 - [Phase 08-ai-초안-작성]: AiDraftService 에러는 rescue 블록에서 422 + { error: message } JSON으로 반환
+- [Phase 08-ai-초안-작성]: stimulus-vite-helpers glob 자동 등록으로 index.js 수정 불필요 - *_controller.js 파일명 규칙만 준수
+- [Phase 08-ai-초안-작성]: generateBodyBtn 타겟 제거: querySelectorAll('button[data-action]')으로 버튼 일괄 비활성화
 
 ### Pending Todos
 
@@ -82,6 +85,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-04T17:04:12.104Z
-Stopped at: 08-01 완료. anthropic gem + AiDraftService + Admin::AiDraftsController JSON API 구현
+Last session: 2026-03-04T17:12:26.357Z
+Stopped at: 08-02 checkpoint:human-verify 대기 중. AI 초안 패널 UI 구현 완료
 Resume file: None

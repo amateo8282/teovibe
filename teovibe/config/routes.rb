@@ -111,6 +111,12 @@ Rails.application.routes.draw do
     end
     resources :skill_packs
     resources :posts, only: %i[index show new create edit update destroy]
+    resource :ai_draft, only: [] do
+      collection do
+        post :outline
+        post :body
+      end
+    end
     resources :users, only: %i[index show edit update]
     resources :comments, only: %i[index destroy]
     resources :inquiries, only: [:index, :show, :update] do

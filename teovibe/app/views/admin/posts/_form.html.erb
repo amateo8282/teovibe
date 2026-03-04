@@ -9,6 +9,49 @@
     </div>
   <% end %>
 
+  <%# AI 초안 작성 패널 %>
+  <div class="bg-gray-50 rounded-2xl border border-gray-200 p-5"
+       data-controller="ai-draft"
+       data-ai-draft-outline-url-value="<%= outline_admin_ai_draft_path %>"
+       data-ai-draft-body-url-value="<%= body_admin_ai_draft_path %>">
+    <h3 class="text-sm font-black text-tv-black mb-3">AI 초안 작성</h3>
+
+    <%# AIDR-01: 주제 입력 %>
+    <div class="flex gap-2 mb-3">
+      <input type="text"
+             placeholder="주제 또는 키워드를 입력하세요 (예: Rails 성능 최적화 팁)"
+             class="flex-1 px-3 py-2 text-sm rounded-xl border border-gray-300 focus:outline-none"
+             data-ai-draft-target="topic" />
+      <button type="button"
+              class="px-4 py-2 text-sm font-bold bg-tv-black text-white rounded-xl hover:bg-gray-800 disabled:opacity-50"
+              data-action="click->ai-draft#generateOutline">
+        개요 생성
+      </button>
+    </div>
+
+    <%# 로딩 인디케이터 %>
+    <div class="hidden text-sm text-tv-gray mb-2" data-ai-draft-target="loading">
+      생성 중... (10-30초 소요)
+    </div>
+
+    <%# 에러 메시지 %>
+    <div class="hidden text-sm text-red-600 mb-2" data-ai-draft-target="error"></div>
+
+    <%# AIDR-02: 개요 표시 + 수정 영역 %>
+    <div class="hidden" data-ai-draft-target="outlinePanel">
+      <label class="block text-xs font-bold text-tv-gray mb-1">생성된 개요 (수정 가능)</label>
+      <textarea rows="8"
+                class="w-full px-3 py-2 text-sm rounded-xl border border-gray-300 focus:outline-none resize-y mb-2"
+                data-ai-draft-target="outline"
+                placeholder="개요가 여기에 표시됩니다"></textarea>
+      <button type="button"
+              class="px-4 py-2 text-sm font-bold bg-tv-gold text-tv-black rounded-xl hover:bg-yellow-400 disabled:opacity-50"
+              data-action="click->ai-draft#generateBody">
+        본문 생성 후 에디터에 삽입
+      </button>
+    </div>
+  </div>
+
   <div>
     <label class="block text-sm font-bold mb-1">제목</label>
     <%= f.text_field :title, class: "w-full px-4 py-3 rounded-2xl border border-gray-300 focus:outline-none" %>

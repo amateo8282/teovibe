@@ -60,7 +60,7 @@ Plans:
 **Milestone Goal:** Admin 카테고리 동적 관리, AI 초안 작성, 예약 발행으로 운영 효율성 극대화
 
 - [x] **Phase 6: 카테고리 동적 관리** - Category 모델 전환 + Admin CRUD/순서 변경 UI 완성 (completed 2026-02-28)
-- [ ] **Phase 7: 게시글 예약 발행** - 날짜/시간 지정 발행 + Solid Queue 자동 전환
+- [x] **Phase 7: 게시글 예약 발행** - 날짜/시간 지정 발행 + Solid Queue 자동 전환 (completed 2026-03-04)
 - [ ] **Phase 8: AI 초안 작성** - 주제 → 개요 → 본문 2단계 생성 + rhino-editor 자동 삽입
 
 ## Phase Details
@@ -123,5 +123,5 @@ Phases execute in numeric order: 6 → 7 → 8
 | 4. Commerce | v1.0 | 3/3 | Complete | 2026-02-22 |
 | 5. Polish | v1.0 | 2/2 | Complete | 2026-02-22 |
 | 6. 카테고리 동적 관리 | 4/4 | Complete   | 2026-02-28 | - |
-| 7. 게시글 예약 발행 | 2/3 | In Progress|  | - |
+| 7. 게시글 예약 발행 | 3/3 | Complete   | 2026-03-04 | - |
 | 8. AI 초안 작성 | v1.1 | 0/TBD | Not started | - |

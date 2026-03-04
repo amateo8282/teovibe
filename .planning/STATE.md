@@ -2,13 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Admin 고도화
-status: unknown
-last_updated: "2026-03-02T13:31:27.575Z"
+status: executing
+stopped_at: 07-03 완료. Admin 게시글 예약 발행 통합 테스트 7개 추가 + Phase 7 전체 요구사항 SCHD-01~03 완료
+last_updated: "2026-03-04T16:36:34.586Z"
+last_activity: 2026-03-02 — 07-02 완료 (Admin 예약 발행 컨트롤러 + 폼 UI + 목록 배지)
 progress:
-  total_phases: 2
-  completed_phases: 1
+  total_phases: 8
+  completed_phases: 2
   total_plans: 7
-  completed_plans: 6
+  completed_plans: 7
+  percent: 30
 ---
 
 # Project State
@@ -22,12 +25,12 @@ See: .planning/PROJECT.md (updated 2026-02-28)
 
 ## Current Position
 
-Phase: 7 of 8 (게시글 예약 발행)
-Plan: 2 of 3 in current phase
-Status: In Progress
-Last activity: 2026-03-02 — 07-02 완료 (Admin 예약 발행 컨트롤러 + 폼 UI + 목록 배지)
+Phase: 7 of 8 (게시글 예약 발행) — 완료
+Plan: 3 of 3 in current phase — 완료
+Status: Phase 7 Complete
+Last activity: 2026-03-05 — 07-03 완료 (Admin 게시글 예약 발행 통합 테스트 7개 + Phase 7 전체 완료)
 
-Progress: [███░░░░░░░] 30% (v1.1 기준)
+Progress: [██████████] 100% (v1.1 Phase 7 기준)
 
 ## Performance Metrics
 
@@ -42,7 +45,7 @@ Progress: [███░░░░░░░] 30% (v1.1 기준)
 |-------|-------|--------|
 | 1-5 (v1.0) | 13/13 | Complete |
 | 6 (v1.1) | 4/4 | Complete |
-| 7 (v1.1) | 2/3 | In Progress |
+| 7 (v1.1) | 3/3 | Complete |
 | 8 (v1.1) | 0/TBD | Not started |
 
 ## Accumulated Context
@@ -63,6 +66,7 @@ Progress: [███░░░░░░░] 30% (v1.1 기준)
 - [Phase 07-scheduled-publishing]: Phase 7 (07-01): PublishPostJob guard: post&.scheduled?로 nil 체크 + 예약 상태 이중 확인, discard_on DeserializationError로 1회성 처리
 - [Phase 07-scheduled-publishing]: Phase 7 (07-02): set_post에서 Post.find_by!(slug:) 사용 — to_param이 slug 반환하므로 Admin 라우트 :id는 slug 값임
 - [Phase 07-scheduled-publishing]: Phase 7 (07-02): update에서 assign_attributes+save 분리 패턴 — handle_scheduling이 scheduled_at 직접 할당하므로
+- [Phase 07-scheduled-publishing]: Phase 7 (07-03): 테스트 환경(:test 큐 어댑터)에서 job_id 직접 검증 대신 scheduled? 상태 검증, SolidQueue 테이블 미존재로 cancel_existing_job 테스트 시 job_id=nil 게시글로 early return 유도
 
 ### Pending Todos
 
@@ -75,6 +79,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-02
-Stopped at: 07-02 완료. Admin::PostsController 예약 발행 로직 TDD 구현 + 폼 datetime-local 필드 + 목록 예약됨 배지 완성
+Last session: 2026-03-04T16:36:34.583Z
+Stopped at: 07-03 완료. Admin 게시글 예약 발행 통합 테스트 7개 추가 + Phase 7 전체 요구사항 SCHD-01~03 완료
 Resume file: None

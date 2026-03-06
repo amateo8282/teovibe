@@ -18,7 +18,7 @@ class AiDraftService
   # 주제를 기반으로 블로그 개요(outline)를 생성한다
   def generate_outline(topic:)
     message = @client.messages.create(
-      model: "claude-opus-4-5-20250929",
+      model: "claude-sonnet-4-20250514",
       max_tokens: 512,
       system: SYSTEM_PROMPT,
       messages: [
@@ -35,7 +35,7 @@ class AiDraftService
   # 개요를 기반으로 완성된 블로그 본문을 HTML 형식으로 생성한다
   def generate_body(outline:)
     message = @client.messages.create(
-      model: "claude-opus-4-5-20250929",
+      model: "claude-sonnet-4-20250514",
       max_tokens: 4096,
       system: SYSTEM_PROMPT,
       messages: [

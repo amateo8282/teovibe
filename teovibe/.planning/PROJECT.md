@@ -36,11 +36,18 @@
 - ✓ 토스페이먼츠 결제 기반 (Order 모델, 체크아웃 UI, SDK 위젯, confirm API) -- v1.0
 - ✓ 모바일 반응형 보완 (Navbar/Admin off-canvas 사이드바) -- v1.0
 - ✓ 커스텀 에러 페이지 (404/500/422 브랜드 한글) -- v1.0
-- ✓ 게시판/스킬팩 카테고리 동적 CRUD + DnD 순서 변경 + 관리자 전용 토글 -- v1.1
-- ✓ 게시글 예약 발행 (KST 날짜/시간 지정, SolidQueue 자동 전환) -- v1.1
-- ✓ AI 초안 작성 (Anthropic API, 개요→본문 2단계, rhino-editor 삽입, SEO/AEO) -- v1.1
 
 ### Active
+
+## Current Milestone: v1.1 Admin 고도화
+
+**Goal:** Admin 카테고리 동적 관리, AI 초안 작성, 예약 발행으로 운영 효율성 극대화
+
+**Target features:**
+- 게시판 카테고리 동적 CRUD + 관리자 전용 작성 토글
+- 스킬팩 카테고리 동적 CRUD + 순서 변경
+- Anthropic API 기반 AI 초안 작성 (주제 → 개요 → 본문 2단계, SEO/AEO 시스템 프롬프트)
+- 게시글 예약 발행 (날짜/시간 지정, Solid Queue 크론잡)
 
 ### Out of Scope
 
@@ -60,10 +67,8 @@
 - rhino-editor 0.17.x (TipTap 기반, ActionText 호환)
 - chartkick + groupdate (Admin 차트)
 - @tosspayments/payment-widget-sdk 0.12.1 (v1 SDK)
-- anthropic gem v1.23.0 (AI 초안 작성)
-- Sortable.js 1.15.7 (카테고리 DnD)
 - Kamal + Docker 배포 구성 완료
-- 20,615 LOC (Ruby/ERB/JS/JSX/TS/TSX/CSS)
+- 17,092 LOC (Ruby/ERB/JS/JSX/TS/TSX/CSS)
 - 1인 운영 프로젝트, 외부 홍보를 통해 사용자 유입 목표 단계
 
 ## Constraints
@@ -86,10 +91,6 @@
 | motion 패키지 (구 framer-motion) | React 애니메이션 라이브러리 최신 리브랜딩 버전 사용 | ✓ Good |
 | ErrorsController < ActionController::Base | ApplicationController의 DB 의존성 우회, 500 에러 안전 렌더링 | ✓ Good |
 | Tailwind v4 @source 디렉티브 | @tailwindcss/vite가 .erb 파일 자동 스캔 안 함, 명시적 추가 필요 | ✓ Good |
-| Category 단일 모델 (record_type enum) | post/skillpack 구분을 단일 테이블로, LandingSection 패턴 일관성 | ✓ Good |
-| Post 예약: scheduled_at 컬럼 (enum 대신) | status enum에 scheduled 추가는 안티패턴, 별도 컬럼이 유연 | ✓ Good |
-| Anthropic API 동기 JSON 방식 | 스트리밍은 Future scope, 동기 방식이 구현 단순 | ✓ Good |
-| Stimulus Vite glob 자동 등록 | stimulus-vite-helpers의 import.meta.glob으로 수동 등록 불필요 | ✓ Good |
 
 ### Future (deferred from v1.1)
 
@@ -102,4 +103,4 @@
 - Admin 콘텐츠 분석 고도화 (차트, 기간별 필터, 내보내기)
 
 ---
-*Last updated: 2026-03-06 after v1.1 milestone completed*
+*Last updated: 2026-02-28 after v1.1 milestone started*

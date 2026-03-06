@@ -16,6 +16,7 @@ servers:
 proxy:
   ssl: true
   host: jaeho.im
+  response_timeout: 120
 
 # Docker Hub
 registry:

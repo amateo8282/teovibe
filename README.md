@@ -68,6 +68,11 @@
 - Kamal deploy.yml (GitHub Container Registry)
 - Litestream SQLite S3 백업 설정
 
+### v1.1: Admin 고도화
+- 카테고리 동적 관리: Admin CRUD + 드래그앤드롭 정렬 + 활성/비활성 토글
+- 게시글 예약 발행: datetime-local KST→UTC 변환, SolidQueue Job 자동 발행
+- AI 초안 작성: Anthropic API 기반 개요→본문 2단계 생성, rhino-editor 자동 삽입
+
 ## 로컬 개발
 
 ```bash

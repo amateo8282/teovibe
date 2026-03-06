@@ -197,6 +197,35 @@ project/
 - `app/controllers/omniauth/sessions_controller.rb` - OAuth 콜백 처리
 - `docs/OAUTH_SETUP_GUIDE.md` - OAuth 설정 매뉴얼
 
+## 게시판 / 라우팅 트러블슈팅 기록
+
+### Post status 기본값 문제
+- **증상**: 일반 사용자가 글을 작성해도 게시판 목록에 미노출. 마이페이지에서는 보임
+- **원인**: `Post` 모델 `status` enum 기본값이 `draft: 0`. `PostsController` 폼에 status 필드가 없어 모든 글이 draft로 저장됨. 게시판 목록은 `.published` scope만 조회
+- **해결**: `PostsController#create`에서 `@post.status = :published` 명시적 설정
+- **주의**: `Admin::PostsController`는 예약 발행 로직이 별도 존재 — 건드리지 말 것
+
+### Rails 라우트 순서 충돌 (카테고리 목록 vs 게시글 상세)
+- **증상**: 글 작성 후 `/posts/post-8` 이동 시 404 발생
+- **원인**: `GET /posts/:category_slug`(index)가 `GET /posts/:slug`(show)보다 먼저 선언되어 동일 패턴 충돌. `post-8`이 카테고리 slug로 잘못 매칭
+- **해결**: `resources :posts`에 slug constraint 추가 후 카테고리 라우트보다 앞에 선언
+  ```ruby
+  resources :posts, param: :slug, only: %i[show edit update destroy],
+            constraints: { slug: /(\d|post-).*/ }
+  get "posts/:category_slug", to: "posts#index", as: :category_posts
+  ```
+- **규칙**: post slug는 항상 숫자(`8-title`) 또는 `post-N` 형태. 카테고리 slug는 영문자로만 시작 (`blog`, `free-board` 등). 이 규칙이 깨지면 constraint도 수정 필요
+
+### Kamal 배포 시 환경변수 로딩
+- **증상**: `kamal deploy` 실행 시 `docker login` 실패 (`flag needs an argument: 'p'`)
+- **원인**: 셸에 `KAMAL_REGISTRY_PASSWORD`가 설정되지 않은 상태로 실행
+- **해결**: `teovibe/` 디렉토리 안에서 반드시 `.env` 로드 후 배포
+  ```bash
+  cd teovibe
+  export $(cat .env | grep -v '^#' | grep -v '^$' | xargs) && kamal deploy
+  ```
+- **주의**: `teovibe/` 상위 디렉토리에서 실행 시 `.env` 경로가 달라짐
+
 ## 작업 흐름
 
 1. 기능 요구사항 확인 및 도메인 모델 설계

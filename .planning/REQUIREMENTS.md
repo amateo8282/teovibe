@@ -1,92 +1,97 @@
 # Requirements: TeoVibe
 
-**Defined:** 2026-02-28
+**Defined:** 2026-03-14
 **Core Value:** 사용자가 재방문하고 싶은 수준의 콘텐츠 품질과 UX를 갖춘 커뮤니티 플랫폼
 
-## v1.1 Requirements
+## v1.2 Requirements
 
-Requirements for v1.1 Admin 고도화. Each maps to roadmap phases.
+Requirements for v1.2 SEO + Admin UX. Each maps to roadmap phases.
 
-### 카테고리 관리
+### 보안 패치
 
-- [x] **CATM-01**: Admin이 게시판 카테고리를 생성할 수 있다 (이름, 슬러그, 설명)
-- [x] **CATM-02**: Admin이 게시판 카테고리를 수정/삭제할 수 있다
-- [x] **CATM-03**: Admin이 게시판 카테고리 순서를 드래그앤드롭으로 변경할 수 있다
-- [x] **CATM-04**: Admin이 카테고리별 '관리자 전용 작성' 토글을 설정할 수 있다
-- [x] **CATM-05**: 관리자 전용 카테고리는 일반 사용자 게시글 작성 시 선택지에서 숨겨진다
-- [x] **CATM-06**: Admin이 스킬팩 카테고리를 CRUD + 순서 변경할 수 있다
+- [ ] **SEC-01**: seo_helper.rb JSON-LD 헬퍼의 XSS 취약점 수정 (`.to_json.html_safe` → 안전한 직렬화)
 
-### AI 초안 작성
+### SEO 크롤링
 
-- [x] **AIDR-01**: Admin이 주제/키워드를 입력하면 AI가 개요(H2 섹션 목록)를 생성한다
-- [x] **AIDR-02**: Admin이 생성된 개요를 검토/수정한 후 본문 생성을 요청할 수 있다
-- [x] **AIDR-03**: 생성된 본문이 rhino-editor에 자동 삽입된다
-- [x] **AIDR-04**: AI 생성 시 SEO/AEO 최적화 시스템 프롬프트가 적용된다
+- [ ] **CRAWL-01**: robots.txt에 Googlebot/Yeti(네이버) 명시적 허용 규칙 추가
+- [ ] **CRAWL-02**: robots.txt에 sitemap.xml 경로 명시
+- [ ] **CRAWL-03**: sitemap에 동적 카테고리 URL 포함
 
-### 예약 발행
+### 검색엔진 인증
 
-- [x] **SCHD-01**: Admin이 게시글 저장 시 발행 날짜/시간을 지정할 수 있다
-- [x] **SCHD-02**: 지정된 시간에 게시글이 자동으로 published 상태로 전환된다
-- [x] **SCHD-03**: Admin이 예약된 게시글의 예약을 취소하거나 시간을 변경할 수 있다
+- [ ] **SRCH-01**: Google Search Console 소유권 인증 메타태그 삽입
+- [ ] **SRCH-02**: 네이버 서치어드바이저 소유권 인증 메타태그 삽입
+
+### 소셜 공유 메타태그
+
+- [ ] **SOCL-01**: 게시글 상세 페이지에 Open Graph 메타태그 출력 (og:title/description/url/image)
+- [ ] **SOCL-02**: 게시글 상세 페이지에 Twitter Card 메타태그 출력
+- [ ] **SOCL-03**: 기본 페이지(홈/목록)에 사이트 기본 OG 메타태그 출력
+
+### 중복/색인 관리
+
+- [ ] **INDX-01**: 게시글 상세 페이지에 canonical URL 설정
+- [ ] **INDX-02**: Admin 페이지 전역 noindex 처리
+- [ ] **INDX-03**: 인증 관련 페이지(로그인/회원가입) noindex 처리
+
+### 구조화 데이터
+
+- [ ] **STRD-01**: 게시글 상세 페이지에 Article JSON-LD 출력
+- [ ] **STRD-02**: 게시글 상세 페이지에 BreadcrumbList JSON-LD 출력
+- [ ] **STRD-03**: 홈페이지에 WebSite + Organization JSON-LD 출력
+
+### Admin 에디터 UX
+
+- [ ] **ADMN-01**: Admin 게시글 작성/수정 폼 2단 레이아웃 (메타 패널 | 본문 에디터)
+- [ ] **ADMN-02**: 메타 패널 sticky 고정 (스크롤 시 따라오기)
+- [ ] **ADMN-03**: 모바일에서 1단 fallback 레이아웃
 
 ## Future Requirements
 
-Deferred to future release. Tracked but not in current roadmap.
+### SEO 고도화
 
-### AI 초안 확장
-
-- **AIDR-05**: 본문 생성 시 스트리밍으로 실시간 타이핑 효과를 보여준다
-- **AIDR-06**: AI 초안 톤/스타일 선택 (전문적/친근한/SEO 집중)
-
-### 콘텐츠 확장
-
-- **CONT-01**: 슬래시 커맨드로 블록 삽입 (코드블록, 인용, 구분선 등)
-- **CONT-02**: 글 하단 관련/최신 글 추천 섹션
-- **CONT-03**: 태그 기반 콘텐츠 분류 및 필터링
-
-### 알림/결제
-
-- **NOTF-01**: 이메일 알림 발송 (댓글, 좋아요 등)
-- **PYMT-01**: 토스페이먼츠 웹훅 처리 (결제 완료/취소 비동기 확인)
-- **SKLP-01**: 스킬팩 미리보기 콘텐츠 제공
+- **SEOV2-01**: og:image Active Storage 본문 이미지 자동 추출
+- **SEOV2-02**: 게시글별 noindex 토글 (Post 모델 컬럼)
+- **SEOV2-03**: sitemap ping 자동화 (Google/Naver 제출)
+- **SEOV2-04**: SEO 제목/설명 글자수 카운터 Stimulus 컨트롤러
 
 ## Out of Scope
 
-Explicitly excluded. Documented to prevent scope creep.
-
 | Feature | Reason |
 |---------|--------|
-| AI 자동 발행 (사람 검토 없이) | 품질 보증 불가, 브랜드 리스크 |
-| 반복 발행 스케줄 (cron 패턴) | 콘텐츠마다 내용이 달라 자동화 무의미 |
-| 카테고리 계층 구조 (중첩) | 현재 평면 구조에 과도한 복잡도 |
-| 사용자별 카테고리 구독/필터링 | Admin 운영 효율화에 집중, 사용자 기능은 별도 마일스톤 |
-| Google Indexing API 자동 제출 | 대량 AI 콘텐츠 자동 제출은 스팸 정책 위반 가능 |
+| 동적 robots.txt 컨트롤러 | static 파일 직접 수정으로 충분, 환경별 분기 불필요 |
+| AMP 페이지 | Google AMP 우대 종료, 유지보수 비용 대비 효과 없음 |
+| Schema.org FAQ/HowTo | 현재 콘텐츠 유형과 불일치 |
+| 네이버 HTML 파일 인증 | 메타태그 방식이 더 안전하고 관리 편함 |
 
 ## Traceability
 
-Which phases cover which requirements. Updated during roadmap creation.
-
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CATM-01 | Phase 6 | Complete |
-| CATM-02 | Phase 6 | Complete |
-| CATM-03 | Phase 6 | Complete |
-| CATM-04 | Phase 6 | Complete |
-| CATM-05 | Phase 6 | Complete |
-| CATM-06 | Phase 6 | Complete |
-| AIDR-01 | Phase 8 | Complete |
-| AIDR-02 | Phase 8 | Complete |
-| AIDR-03 | Phase 8 | Complete |
-| AIDR-04 | Phase 8 | Complete |
-| SCHD-01 | Phase 7 | Complete |
-| SCHD-02 | Phase 7 | Complete |
-| SCHD-03 | Phase 7 | Complete |
+| SEC-01 | — | Pending |
+| CRAWL-01 | — | Pending |
+| CRAWL-02 | — | Pending |
+| CRAWL-03 | — | Pending |
+| SRCH-01 | — | Pending |
+| SRCH-02 | — | Pending |
+| SOCL-01 | — | Pending |
+| SOCL-02 | — | Pending |
+| SOCL-03 | — | Pending |
+| INDX-01 | — | Pending |
+| INDX-02 | — | Pending |
+| INDX-03 | — | Pending |
+| STRD-01 | — | Pending |
+| STRD-02 | — | Pending |
+| STRD-03 | — | Pending |
+| ADMN-01 | — | Pending |
+| ADMN-02 | — | Pending |
+| ADMN-03 | — | Pending |
 
 **Coverage:**
-- v1.1 requirements: 13 total
-- Mapped to phases: 13
-- Unmapped: 0
+- v1.2 requirements: 18 total
+- Mapped to phases: 0
+- Unmapped: 18
 
 ---
-*Requirements defined: 2026-02-28*
-*Last updated: 2026-02-28 after roadmap creation — all 13 requirements mapped*
+*Requirements defined: 2026-03-14*
+*Last updated: 2026-03-14 after initial definition*

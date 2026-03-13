@@ -68,30 +68,30 @@ Requirements for v1.2 SEO + Admin UX. Each maps to roadmap phases.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SEC-01 | — | Pending |
-| CRAWL-01 | — | Pending |
-| CRAWL-02 | — | Pending |
-| CRAWL-03 | — | Pending |
-| SRCH-01 | — | Pending |
-| SRCH-02 | — | Pending |
-| SOCL-01 | — | Pending |
-| SOCL-02 | — | Pending |
-| SOCL-03 | — | Pending |
-| INDX-01 | — | Pending |
-| INDX-02 | — | Pending |
-| INDX-03 | — | Pending |
-| STRD-01 | — | Pending |
-| STRD-02 | — | Pending |
-| STRD-03 | — | Pending |
-| ADMN-01 | — | Pending |
-| ADMN-02 | — | Pending |
-| ADMN-03 | — | Pending |
+| SEC-01 | Phase 9 | Pending |
+| CRAWL-01 | Phase 10 | Pending |
+| CRAWL-02 | Phase 10 | Pending |
+| CRAWL-03 | Phase 10 | Pending |
+| SRCH-01 | Phase 10 | Pending |
+| SRCH-02 | Phase 10 | Pending |
+| SOCL-01 | Phase 11 | Pending |
+| SOCL-02 | Phase 11 | Pending |
+| SOCL-03 | Phase 11 | Pending |
+| INDX-01 | Phase 11 | Pending |
+| INDX-02 | Phase 11 | Pending |
+| INDX-03 | Phase 11 | Pending |
+| STRD-01 | Phase 12 | Pending |
+| STRD-02 | Phase 12 | Pending |
+| STRD-03 | Phase 12 | Pending |
+| ADMN-01 | Phase 13 | Pending |
+| ADMN-02 | Phase 13 | Pending |
+| ADMN-03 | Phase 13 | Pending |
 
 **Coverage:**
 - v1.2 requirements: 18 total
-- Mapped to phases: 0
-- Unmapped: 18
+- Mapped to phases: 18
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-14*
-*Last updated: 2026-03-14 after initial definition*
+*Last updated: 2026-03-14 — Traceability updated after roadmap creation*

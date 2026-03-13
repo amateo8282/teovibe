@@ -10,6 +10,18 @@ class PostsController < ApplicationController
     @category = Category.find_by!(slug: params[:category_slug], record_type: :post)
     @posts = @category.posts.published.pinned_first.includes(:user)
     @pagy, @posts = pagy(:offset, @posts, limit: 12)
+
+    # 카테고리 목록 페이지 OG 메타태그 설정
+    set_meta_tags(
+      title: @category.name,
+      og: {
+        title: "#{@category.name} - TeoVibe",
+        description: "TeoVibe #{@category.name} 게시판",
+        url: request.original_url.split("?").first,
+        image: "#{request.base_url}/icon.png",
+        type: "website"
+      }
+    )
   end
 
   # GET /posts/:slug
@@ -17,6 +29,24 @@ class PostsController < ApplicationController
     # 본인 글이 아닌 경우에만 조회수 증가
     @post.increment!(:views_count) unless Current.user == @post.user
     @comments = @post.comments.includes(:user).where(parent_id: nil).order(created_at: :asc)
+
+    # 소셜 공유 및 검색 색인용 OG/Twitter/canonical 메타태그 설정
+    set_meta_tags(
+      title: @post.title,
+      og: {
+        title: @post.title,
+        description: helpers.strip_tags(@post.body.to_s).truncate(150),
+        url: post_url(@post),
+        image: "#{request.base_url}/icon.png",
+        type: "article"
+      },
+      twitter: {
+        card: "summary",
+        title: @post.title,
+        description: helpers.strip_tags(@post.body.to_s).truncate(150)
+      },
+      canonical: post_url(@post)
+    )
   end
 
   # GET /posts/new

@@ -1,4 +1,4 @@
-# one:
-#   record: name_of_fixture (ClassOfFixture)
-#   name: content
-#   body: <p>In a <i>million</i> stars!</p>
+blog_post_body:
+  record: blog_post (Post)
+  name: body
+  body: <p>테스트 블로그 게시글 본문 내용입니다. 바이브코딩 커뮤니티 TeoVibe에서 작성된 게시글입니다.</p>

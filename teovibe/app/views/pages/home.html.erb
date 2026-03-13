@@ -2,4 +2,7 @@
 
 <% content_for :head do %>
   <%= vite_javascript_tag 'landing.jsx' %>
+  <%# 구조화 데이터 JSON-LD (WebSite + Organization) %>
+  <script type="application/ld+json"><%= website_json_ld %></script>
+  <script type="application/ld+json"><%= organization_json_ld %></script>
 <% end %>

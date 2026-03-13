@@ -1,373 +1,447 @@
 # Stack Research
 
-**Domain:** TeoVibe v1.1 Admin 고도화 — 동적 카테고리 관리, AI 초안 작성, 예약 발행
-**Researched:** 2026-02-28
-**Confidence:** HIGH
+**Domain:** TeoVibe v1.2 — SEO 검색엔진 최적화 + Admin 에디터 UX 개선
+**Researched:** 2026-03-14
+**Confidence:** HIGH (existing gems verified against Gemfile.lock; patterns verified against official docs and current codebase)
 
 ---
 
 ## Scope
 
-이 문서는 v1.1 신규 기능에만 집중한다. 기존에 검증된 스택(Rails 8.1.2, Hotwire, Solid Queue 1.3.1, vite_ruby + React 19, rhino-editor, chartkick 등)은 재조사하지 않는다.
+이 문서는 v1.2 신규 기능에만 집중한다. 기존에 검증된 스택(Rails 8.1.2, Hotwire, vite_ruby + React 18, rhino-editor, meta-tags, sitemap_generator 등)은 재조사하지 않는다.
 
 신규 기능:
-1. 게시판/스킬팩 카테고리 동적 CRUD + 순서 변경
-2. Anthropic API 기반 AI 초안 작성 (2단계 생성, SEO/AEO)
-3. 게시글 예약 발행 (날짜/시간 지정, Solid Queue scheduled job)
+1. robots.txt — Googlebot/Yeti(네이버봇) 허용 규칙 + 환경별 동작
+2. Google Search Console / 네이버 서치어드바이저 인증 메타태그
+3. JSON-LD 구조화 데이터 (Article, BreadcrumbList)
+4. Open Graph / Twitter Card 메타태그 보강
+5. canonical URL + 불필요 페이지 noindex 처리
+6. Admin 게시글 에디터 2단 레이아웃
 
 ---
 
-## 기능 1: 동적 카테고리 CRUD
+## 핵심 결론: 신규 gem/패키지 추가 없음
 
-### 현황 분석
+v1.2 모든 기능은 **이미 설치된 스택**으로 구현 가능하다.
 
-`Post#category`와 `SkillPack#category`가 현재 Rails `enum`으로 하드코딩:
-
-```ruby
-# 현재 구조 — 하드코딩 enum
-enum :category, { blog: 0, tutorial: 1, free_board: 2, qna: 3, portfolio: 4, notice: 5 }
-enum :category, { template: 0, component: 1, guide: 2, toolkit: 3 }
-```
-
-동적 관리를 위해 `Category` 모델로 전환 필요. 스킬팩 카테고리는 순서 변경 요구사항 있음.
-
-### 추가 스택
-
-#### 신규 Gem
-
-| Technology | Version | Purpose | Why Recommended |
-|------------|---------|---------|-----------------|
-| `acts_as_list` | `~> 1.2` | Category 모델 position 기반 순서 관리 | 스킬팩 카테고리 순서 변경 요구사항. `insert_at`, `move_higher/lower`, `move_to_top` 메서드로 position 관리를 Rails 레벨에서 처리. v1.2.6 (2025-10-21 릴리즈), activerecord >= 6.1 의존 — Rails 8.1.2 호환 확인 |
-
-#### 신규 npm 패키지
-
-| Library | Version | Purpose | When to Use |
-|---------|---------|---------|-------------|
-| `sortablejs` | `^1.15` | 드래그 앤 드롭 카테고리 순서 변경 UI | Admin 카테고리 순서 변경. Stimulus Controller와 연동해 drag-end 이벤트를 PATCH 요청으로 전환. jQuery 불필요, 모바일 터치 지원 |
-| `@types/sortablejs` | `^1.15` | SortableJS TypeScript 타입 | vite_ruby TypeScript 환경에서 타입 안전성 확보 |
-
-### 아키텍처 결정
-
-- `Category` 모델: `name`, `slug`, `position`, `admin_only` (boolean), `category_type` (enum: post/skillpack)
-- `Post#category` integer enum → `belongs_to :category`로 마이그레이션
-- `SkillPack#category` integer enum → `belongs_to :category`로 마이그레이션
-- 기존 라우팅 slug(`/blogs`, `/tutorials`)는 `Category#slug`로 대체
-- `acts_as_list`의 `scope: :category_type`으로 post/skillpack 카테고리 각각 독립 순서 관리
-
-### 구현 패턴
-
-```ruby
-# Gemfile
-gem "acts_as_list", "~> 1.2"
-
-# app/models/category.rb
-class Category < ApplicationRecord
-  acts_as_list scope: :category_type
-
-  enum :category_type, { post: 0, skillpack: 1 }
-
-  validates :name, presence: true, uniqueness: { scope: :category_type }
-  before_validation :generate_slug, if: -> { slug.blank? }
-end
-```
-
-```javascript
-// app/javascript/controllers/sortable_controller.js
-import { Controller } from "@hotwired/stimulus"
-import Sortable from "sortablejs"
-
-export default class extends Controller {
-  connect() {
-    this.sortable = Sortable.create(this.element, {
-      animation: 150,
-      onEnd: this.onEnd.bind(this)
-    })
-  }
-
-  onEnd({ item, newIndex }) {
-    const id = item.dataset.id
-    fetch(item.dataset.url, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json", "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]').content },
-      body: JSON.stringify({ position: newIndex + 1 })
-    })
-  }
-}
-```
+| 현황 | 버전 | v1.2에서 활용 |
+|------|------|--------------|
+| `meta-tags` gem | 2.22.3 (최신) | OG, Twitter Card, canonical, noindex — 아직 controller에서 호출 안 됨 |
+| `sitemap_generator` | 6.3.0 | 완전히 구성됨 — robots.txt에서 참조만 추가 |
+| `public/robots.txt` | 정적 파일 | 동적 Rails 컨트롤러로 교체 |
+| Tailwind CSS | 4.4 | Admin 2단 레이아웃 — `grid-cols-[380px_1fr]` 패턴 |
+| Stimulus | current | 레이아웃 변경에 신규 controller 불필요 |
+| `content_for :head` / `yield :head` | Rails 8 표준 | JSON-LD script 태그 주입 |
 
 ---
 
-## 기능 2: Anthropic API — AI 초안 작성
+## 기능 1: robots.txt 동적화
 
 ### 현황 분석
 
-- Faraday 2.14.1이 이미 Gemfile.lock에 존재 (결제 연동용)
-- 직접 HTTP 호출도 가능하나, Anthropic 공식 Ruby SDK가 2025년 4월 출시됨 (v1.23.0, 2026-02-19)
-
-### 추가 스택
-
-#### 신규 Gem
-
-| Technology | Version | Purpose | Why Recommended |
-|------------|---------|---------|-----------------|
-| `anthropic` | `~> 1.23` | Anthropic Claude API 공식 Ruby 클라이언트 | 2026-02-19 최신 릴리즈. Ruby 3.2.0+ 요구 (프로젝트 Ruby 3.3.10 — 충족). net/http 기반으로 외부 HTTP 의존성 없음. SSE 스트리밍 내장. 자동 재시도(기본 2회), 600초 타임아웃. Yard/RBS/RBI 타입 정의 포함 |
-
-### 모델 선택: `claude-haiku-4-5-20251001`
-
-| Model | API ID | Input | Output | Latency | 추천 이유 |
-|-------|--------|-------|--------|---------|---------|
-| **Claude Haiku 4.5** | `claude-haiku-4-5-20251001` | $1/MTok | $5/MTok | 가장 빠름 | **초안 생성 권장** — 빠른 응답, 1인 운영 비용 효율 |
-| Claude Sonnet 4.6 | `claude-sonnet-4-6` | $3/MTok | $15/MTok | 빠름 | 고품질 필요 시 ENV로 교체 가능한 옵션 |
-| Claude Opus 4.6 | `claude-opus-4-6` | $5/MTok | $25/MTok | 보통 | 초안 생성에 과도 |
-
-모델명은 `ENV["ANTHROPIC_MODEL"]`로 분리하여 비용/품질 트레이드오프 조정 가능하게 구성.
-
-### 2단계 생성 플로우
-
+`public/robots.txt` 정적 파일 존재. 현재 내용:
 ```
-Step 1: 주제 입력 → 개요 생성 (짧은 응답, ~500 tokens, non-streaming)
-Step 2: 개요 확인 → 본문 생성 (긴 응답, ~3000 tokens, Turbo Stream 스트리밍)
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /auth/
+Disallow: /profile/edit
+
+Sitemap: https://teovibe.com/sitemap.xml
 ```
 
-두 단계 모두 동일한 `anthropic` gem으로 처리 — 별도 라이브러리 불필요.
+문제: 정적 파일은 환경 구분 불가. 개발/스테이징에서도 크롤러에 노출됨.
 
-### 스트리밍 구현 패턴
+### 추가 스택: 없음 — Rails 표준 컨트롤러 패턴
 
-**선택: ActiveJob + Turbo::StreamsChannel (Action Cable 방식)**
+#### 구현 패턴
 
-1인 운영 Admin 기능이므로 동시 접속 극히 낮음. Action Cable이 ActionController::Live(SSE)보다 구현 단순.
+Rails 동적 robots.txt 컨트롤러 (커뮤니티 검증 패턴):
 
 ```ruby
-# app/jobs/ai_draft_job.rb
-class AiDraftJob < ApplicationJob
-  queue_as :default
-
-  SYSTEM_PROMPT = <<~PROMPT
-    You are an expert Korean tech blogger specializing in SEO/AEO optimization.
-    Write content that directly answers user questions (AEO) and includes
-    structured headings (H2/H3) with relevant keywords (SEO).
-    Output format: Markdown-compatible HTML for rhino-editor (ActionText).
-  PROMPT
-
-  def perform(draft_id, messages)
-    client = Anthropic::Client.new(api_key: ENV["ANTHROPIC_API_KEY"])
-
-    stream = client.messages.stream(
-      model: ENV.fetch("ANTHROPIC_MODEL", "claude-haiku-4-5-20251001"),
-      max_tokens: 4096,
-      system: SYSTEM_PROMPT,
-      messages: messages
-    )
-
-    stream.text.each do |chunk|
-      Turbo::StreamsChannel.broadcast_append_to(
-        "ai_draft_#{draft_id}",
-        target: "ai-draft-output",
-        partial: "admin/ai_drafts/chunk",
-        locals: { text: chunk }
-      )
-    end
-
-    Turbo::StreamsChannel.broadcast_replace_to(
-      "ai_draft_#{draft_id}",
-      target: "ai-draft-status",
-      partial: "admin/ai_drafts/done"
-    )
+# app/controllers/robots_controller.rb
+class RobotsController < ApplicationController
+  allow_unauthenticated_access
+  def show
+    expires_in 6.hours, public: true
+    respond_to :text
   end
 end
 ```
 
-**Action Cable 순서 주의:** Action Cable은 스레드 풀로 인해 청크 순서 보장 없음. 해결책: 청크를 append 방식으로만 처리(순서 의존 없음). Admin 전용 단일 사용자 환경이므로 실용적으로 문제없음.
+```
+# app/views/robots/show.text.erb
+<% if Rails.env.production? %>
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /auth/
+Disallow: /profile/edit
 
-### ENV 설정
+User-agent: Yeti
+Allow: /
+
+Sitemap: https://teovibe.com/sitemap.xml
+<% else %>
+User-agent: *
+Disallow: /
+<% end %>
+```
+
+```ruby
+# config/routes.rb 추가
+get "/robots.:format", to: "robots#show"
+```
+
+실행: `public/robots.txt` 삭제 필수 (정적 파일이 라우터보다 우선 처리됨).
+
+**Yeti bot 처리 이유:** Yeti는 네이버 검색로봇 공식 User-Agent. 표준 `User-agent: *` 규칙을 따르지만, 명시적 허용 선언이 네이버 서치어드바이저 등록 시 크롤링 승인 가이드라인에 권장됨.
+
+---
+
+## 기능 2: 검색엔진 인증 메타태그
+
+### 현황 분석
+
+- Google Search Console: `<meta name="google-site-verification" content="VALUE">` HTML 메타태그 방식
+- 네이버 서치어드바이저: `<meta name="naver-site-verification" content="VALUE">` HTML 메타태그 방식
+
+두 서비스 모두 HTML 파일 업로드 또는 메타태그 삽입으로 소유권 인증. 메타태그가 더 간단하고 파일 배포 없이 처리 가능.
+
+### 추가 스택: 없음 — Rails credentials + application layout
+
+#### 구현 패턴
+
+인증 값은 소스코드에 하드코딩 금지. Rails credentials에 저장:
 
 ```bash
-# .env (development, .kamal/secrets for production)
-ANTHROPIC_API_KEY=sk-ant-...
-ANTHROPIC_MODEL=claude-haiku-4-5-20251001
+# rails credentials:edit
+seo:
+  google_site_verification: "GOOGLE_VALUE_HERE"
+  naver_site_verification: "NAVER_VALUE_HERE"
+```
+
+`app/views/layouts/application.html.erb`의 `<head>`에 조건부 렌더링:
+
+```erb
+<% if (value = Rails.application.credentials.dig(:seo, :google_site_verification)).present? %>
+  <meta name="google-site-verification" content="<%= value %>">
+<% end %>
+<% if (value = Rails.application.credentials.dig(:seo, :naver_site_verification)).present? %>
+  <meta name="naver-site-verification" content="<%= value %>">
+<% end %>
 ```
 
 ---
 
-## 기능 3: 예약 발행 — Solid Queue Scheduled Job
+## 기능 3: JSON-LD 구조화 데이터
 
 ### 현황 분석
 
-- `solid_queue` 1.3.1 이미 설치 및 설정 완료
-- `config/queue.yml`: Dispatcher 프로세스 + Worker 프로세스 구성됨
-- `config/recurring.yml`: 이미 매시간 finished job 정리 설정됨
-- `Post#status` enum: `{ draft: 0, published: 1 }` 존재
-- DB 스키마에 `publish_at` datetime 컬럼 없음 → 마이그레이션만 필요
+현재 JSON-LD 구현 없음. `posts/show.html.erb`에 breadcrumb UI는 있으나 machine-readable 구조화 데이터 없음.
 
-### 추가 스택: 없음
+Google은 Article, BreadcrumbList schema를 리치 결과(Rich Results)에 활용. JSON-LD 방식이 Google 공식 권장.
 
-Solid Queue의 `perform_at` (ActiveJob `wait_until`) 기능으로 완전히 처리 가능. 신규 gem 불필요.
+### 추가 스택: 없음 — ERB partial + content_for 패턴
 
-### Solid Queue 스케줄드 잡 동작 원리
+`schema_dot_org` gem 검토 결과 **사용 금지**: 1인 프로젝트에 과도한 의존성, Ruby hash + `.to_json`으로 완전히 대체 가능, 유지보수 부담만 증가.
 
-```
-1. PublishPostJob.set(wait_until: post.publish_at).perform_later(post.id)
-   → solid_queue_scheduled_executions 테이블에 저장
+`rails_structured_data` gem **사용 금지**: 작성자가 "work in progress"로 명시.
 
-2. Dispatcher 프로세스 (polling_interval: 1초, config/queue.yml)
-   → scheduled_at이 현재 시간 이전인 잡을 ready_executions로 이동
+#### 구현 패턴
 
-3. Worker 프로세스 (threads: 3, polling_interval: 0.1초)
-   → ready_executions에서 잡 픽업 후 실행
-```
-
-### 필요 마이그레이션
+Helper 메서드로 구조화 데이터 hash 생성, `content_for :head`로 layout에 주입:
 
 ```ruby
-# db/migrate/YYYYMMDDHHMMSS_add_publish_at_to_posts.rb
-class AddPublishAtToPosts < ActiveRecord::Migration[8.1]
-  def change
-    add_column :posts, :publish_at, :datetime
-    add_index :posts, :publish_at
+# app/helpers/seo_helper.rb
+module SeoHelper
+  def article_json_ld(post)
+    {
+      "@context" => "https://schema.org",
+      "@type" => "Article",
+      "headline" => post.seo_title.presence || post.title,
+      "description" => post.seo_description,
+      "author" => {
+        "@type" => "Person",
+        "name" => post.user.nickname
+      },
+      "datePublished" => post.created_at.iso8601,
+      "dateModified" => post.updated_at.iso8601,
+      "publisher" => {
+        "@type" => "Organization",
+        "name" => "TeoVibe",
+        "url" => "https://teovibe.com"
+      }
+    }.compact
+  end
+
+  def breadcrumb_json_ld(items)
+    {
+      "@context" => "https://schema.org",
+      "@type" => "BreadcrumbList",
+      "itemListElement" => items.each_with_index.map do |item, i|
+        {
+          "@type" => "ListItem",
+          "position" => i + 1,
+          "name" => item[:name],
+          "item" => item[:path] ? root_url.chomp("/") + item[:path] : nil
+        }.compact
+      end
+    }
   end
 end
 ```
 
-### 구현 패턴
+```erb
+<%# app/views/posts/show.html.erb에 추가 %>
+<% content_for :head do %>
+  <script type="application/ld+json"><%= raw article_json_ld(@post).to_json %></script>
+  <script type="application/ld+json"><%= raw breadcrumb_json_ld([
+    { name: "홈", path: root_path },
+    { name: @post.category_name, path: category_posts_path(category_slug: @post.category&.slug) },
+    { name: @post.title }
+  ]).to_json %></script>
+<% end %>
+```
+
+`application.html.erb`에 이미 `<%= yield :head %>` 존재 → 제로 레이아웃 변경.
+
+---
+
+## 기능 4: Open Graph / Twitter Card 보강
+
+### 현황 분석
+
+현재 `application.html.erb`에서 `display_meta_tags site: "TeoVibe"` 호출 중 (meta-tags gem 2.22.3). 그러나 어떤 controller에서도 `set_meta_tags`를 호출하지 않아 OG/Twitter Card 태그가 실제로 생성되지 않음.
+
+### 추가 스택: 없음 — meta-tags gem 2.22.3 기존 활용
+
+#### 구현 패턴
+
+`ApplicationController`에 기본 메타태그 설정:
 
 ```ruby
-# app/jobs/publish_post_job.rb
-class PublishPostJob < ApplicationJob
-  queue_as :default
+# app/controllers/application_controller.rb
+before_action :set_default_meta_tags
 
-  def perform(post_id)
-    post = Post.find_by(id: post_id)
-    return unless post
-    return unless post.draft?  # 이미 발행됐거나 삭제됐으면 스킵
-    return if post.publish_at.nil? || post.publish_at > Time.current  # 아직 발행 시간 아님
+private
 
-    post.update!(status: :published, publish_at: nil)
-  end
-end
-
-# app/controllers/admin/posts_controller.rb (update 액션)
-def update
-  if @post.update(post_params)
-    if @post.publish_at.present? && @post.publish_at.future?
-      PublishPostJob.set(wait_until: @post.publish_at).perform_later(@post.id)
-      redirect_to admin_posts_path, notice: "#{@post.publish_at.strftime('%Y-%m-%d %H:%M')}에 예약 발행됩니다."
-    elsif post_params[:status] == "published"
-      redirect_to admin_posts_path, notice: "게시글이 발행되었습니다."
-    else
-      redirect_to admin_posts_path, notice: "임시저장되었습니다."
-    end
-  end
+def set_default_meta_tags
+  set_meta_tags(
+    site: "TeoVibe",
+    title: "바이브코딩 커뮤니티",
+    reverse: true,
+    separator: "|",
+    description: "바이브코딩, 부업 아이템 등 사업화 영역의 블로그형 커뮤니티",
+    og: {
+      site_name: "TeoVibe",
+      type: "website",
+      image: image_url("og-default.png")
+    },
+    twitter: {
+      card: "summary_large_image",
+      site: "@teovibe"
+    }
+  )
 end
 ```
 
-**예약 취소:** `publish_at`을 nil로 업데이트. Solid Queue 잡은 실행 시 `publish_at`이 없으면 스킵하므로 별도 잡 취소 불필요. (멱등성 확보)
+`PostsController#show`에서 게시글별 OG 오버라이드:
+
+```ruby
+# app/controllers/posts_controller.rb show 액션에 추가
+set_meta_tags(
+  title: @post.seo_title.presence || @post.title,
+  description: @post.seo_description,
+  canonical: request.url,
+  og: {
+    title: @post.seo_title.presence || @post.title,
+    description: @post.seo_description,
+    type: "article",
+    url: request.url
+  },
+  twitter: {
+    title: @post.seo_title.presence || @post.title,
+    description: @post.seo_description
+  }
+)
+```
+
+`set_meta_tags`는 호출할 때마다 deep merge — 기존 기본값을 덮어쓰지 않고 오버라이드만 적용.
+
+---
+
+## 기능 5: canonical URL + noindex
+
+### 현황 분석
+
+현재 canonical / noindex 적용 없음. 아래 페이지들이 noindex 대상:
+- `/admin/**` (Admin 영역 전체)
+- `/auth/**` (OAuth 콜백)
+- `/profile/edit` (개인 설정)
+- 로그인이 필요한 모든 페이지 (나중에 확장)
+
+### 추가 스택: 없음 — meta-tags gem 2.22.3
+
+#### 설정 추가
+
+```ruby
+# config/initializers/meta_tags.rb 에 추가
+config.skip_canonical_links_on_noindex = true  # noindex + canonical 혼용 방지
+```
+
+#### 구현 패턴
+
+```ruby
+# app/controllers/admin/base_controller.rb (또는 모든 admin controller 공통 before_action)
+before_action { set_meta_tags noindex: true, follow: false }
+
+# app/controllers/sessions_controller.rb, registrations_controller.rb 등
+before_action { set_meta_tags noindex: true, follow: false }
+```
+
+`noindex: true`는 `<meta name="robots" content="noindex, follow">`를 생성. `follow: false` 추가 시 `noindex, nofollow`.
+
+---
+
+## 기능 6: Admin 2단 레이아웃
+
+### 현황 분석
+
+현재 `app/views/admin/posts/_form.html.erb`: 단일 컬럼 `space-y-4` 폼.
+현재 `edit.html.erb` / `new.html.erb`: `max-w-2xl` 제한 컨테이너.
+
+요구사항: 왼쪽 패널(메타 정보: 제목, 카테고리, 상태, 예약, 고정글, SEO) | 오른쪽 패널(AI 초안 + 본문 에디터).
+
+### 추가 스택: 없음 — Tailwind CSS 4.4 grid
+
+#### 구현 패턴
+
+```erb
+<%# edit.html.erb, new.html.erb — max-w-2xl → w-full (또는 max-w-7xl) %>
+<div class="w-full">
+  <h1 class="text-2xl font-black mb-6">게시글 수정</h1>
+  <%= render "form", post: @post %>
+</div>
+```
+
+```erb
+<%# _form.html.erb 구조 재편 %>
+<%= form_with(model: [:admin, post]) do |f| %>
+  <%# 에러 표시 영역 (상단 공통) %>
+
+  <div class="grid grid-cols-1 xl:grid-cols-[380px_1fr] gap-6 items-start">
+    <%# 왼쪽: 메타 정보 패널 (sticky) %>
+    <div class="xl:sticky xl:top-8 space-y-4 bg-white rounded-card shadow-sm p-6">
+      <%# 제목, 카테고리, 상태, 예약 발행, 고정글, SEO 제목, SEO 설명 %>
+      <%# 저장/취소 버튼 %>
+    </div>
+
+    <%# 오른쪽: 에디터 패널 %>
+    <div class="space-y-4 bg-white rounded-card shadow-sm p-6">
+      <%# AI 초안 작성 패널 %>
+      <%# rhino-editor %>
+    </div>
+  </div>
+<% end %>
+```
+
+**Tailwind v4 주의사항:**
+- `grid-cols-[380px_1fr]` — arbitrary value 문법은 v3/v4 동일
+- `xl:sticky xl:top-8` — xl 브레이크포인트(1280px+) 이상에서만 sticky 적용. 모바일에서는 자연스럽게 단일 컬럼
+
+**rhino-editor 레이아웃 주의:** rhino-editor는 `display: block` 기반. 오른쪽 패널 내부에서 `w-full`로 자연스럽게 확장됨. 별도 스타일 조정 불필요.
 
 ---
 
 ## 최종 추가 목록
 
-### 신규 Gem (Gemfile)
+### 신규 Gem: 없음
 
-| Gem | Version | For |
-|-----|---------|-----|
-| `anthropic` | `~> 1.23` | AI 초안 작성 |
-| `acts_as_list` | `~> 1.2` | 카테고리 순서 관리 |
+### 신규 npm 패키지: 없음
 
-### 신규 npm 패키지
+### 코드 변경 요약
 
-| Package | Version | For |
-|---------|---------|-----|
-| `sortablejs` | `^1.15` | 카테고리 드래그 앤 드롭 |
-| `@types/sortablejs` | `^1.15` | TypeScript 타입 |
+| 파일 | 변경 유형 | 내용 |
+|------|----------|------|
+| `public/robots.txt` | 삭제 | 동적 컨트롤러로 교체 |
+| `app/controllers/robots_controller.rb` | 신규 | 동적 robots.txt 컨트롤러 |
+| `app/views/robots/show.text.erb` | 신규 | 환경별 robots.txt 템플릿 |
+| `config/routes.rb` | 수정 | `/robots.:format` 라우트 추가 |
+| `app/views/layouts/application.html.erb` | 수정 | 인증 메타태그 추가 |
+| `config/initializers/meta_tags.rb` | 수정 | `skip_canonical_links_on_noindex` 추가 |
+| `app/controllers/application_controller.rb` | 수정 | 기본 메타태그 before_action 추가 |
+| `app/controllers/posts_controller.rb` | 수정 | show 액션에 OG/Twitter/canonical 추가 |
+| `app/controllers/admin/base_controller.rb` | 수정 | Admin noindex before_action 추가 |
+| `app/helpers/seo_helper.rb` | 신규 | JSON-LD helper 메서드 |
+| `app/views/posts/show.html.erb` | 수정 | JSON-LD content_for :head 추가 |
+| `app/views/admin/posts/_form.html.erb` | 수정 | 2단 grid 레이아웃으로 재편 |
+| `app/views/admin/posts/edit.html.erb` | 수정 | max-w-2xl → w-full |
+| `app/views/admin/posts/new.html.erb` | 수정 | max-w-2xl → w-full |
 
-### 신규 DB 마이그레이션
+### ENV / Credentials 추가
 
-| Migration | Purpose |
-|-----------|---------|
-| `create_categories` | 동적 카테고리 모델 |
-| `add_category_ref_to_posts` | Post → Category 외래키 |
-| `add_category_ref_to_skill_packs` | SkillPack → Category 외래키 |
-| `add_publish_at_to_posts` | 예약 발행 datetime |
-
-### ENV 추가
-
-| Key | Description |
-|-----|-------------|
-| `ANTHROPIC_API_KEY` | Anthropic API 인증 키 |
-| `ANTHROPIC_MODEL` | 사용 모델 (기본: `claude-haiku-4-5-20251001`) |
+| 키 | 저장 위치 | 내용 |
+|----|----------|------|
+| `seo.google_site_verification` | Rails credentials | Google Search Console 인증값 |
+| `seo.naver_site_verification` | Rails credentials | 네이버 서치어드바이저 인증값 |
 
 ---
 
 ## Installation
 
 ```bash
-# Gemfile에 추가
-gem "anthropic", "~> 1.23"
-gem "acts_as_list", "~> 1.2"
-
-# 설치
-bundle install
-
-# npm 패키지 (pnpm 사용)
-pnpm add sortablejs
-pnpm add -D @types/sortablejs
-
-# DB 마이그레이션
-bin/rails db:migrate
+# 신규 gem/패키지 없음
+# credentials 편집만 필요
+bin/rails credentials:edit
 ```
 
 ---
 
 ## Alternatives Considered
 
-| Recommended | Alternative | When to Use Alternative |
-|-------------|-------------|-------------------------|
-| `anthropic` gem 1.23 | Faraday 직접 HTTP 호출 | 공식 SDK 이전 상황이었다면 Faraday. 현재는 SDK가 스트리밍/재시도/타임아웃을 처리하므로 SDK 우선 |
-| `anthropic` gem 1.23 | `ruby_llm` gem | 여러 LLM provider(OpenAI, Gemini 등) 동시 지원이 필요한 경우 |
-| `acts_as_list` | `ranked-model` | 비순차 float 순서(0.5, 1.5 사이 삽입)가 필요할 때. 현재는 단순 정수 position으로 충분 |
-| `sortablejs` (직접) | `stimulus-sortable` npm 패키지 | stimulus-sortable은 sortablejs 래퍼. 커스텀 콜백이 적을 때 더 빠른 통합 가능 |
-| Solid Queue `perform_at` | `whenever` gem + cron | 매일 같은 시간에 반복 실행(cron 패턴)이 필요할 때. 개별 post 예약은 perform_at이 적합 |
-| `claude-haiku-4-5` | `claude-sonnet-4-6` | 생성 품질이 더 중요하고 비용이 허용될 때 (3배 비용) |
+| 추천 | 대안 | 대안 선택 시기 |
+|------|------|--------------|
+| 기존 `meta-tags` 2.22.3 활용 | `meta_tags-rails` gem | 별도 gem 필요 없음 — meta-tags가 이미 같은 기능 제공 |
+| Plain Ruby hash + `.to_json` for JSON-LD | `schema_dot_org` gem | 여러 schema 타입을 대규모 사이트에서 type-safe하게 관리할 때 |
+| Rails credentials | ENV 환경변수 | 배포 파이프라인에서 ENV 주입이 쉬운 경우 (현재는 credentials이 Kamal 배포와 더 일치) |
+| Tailwind grid 2단 레이아웃 | JavaScript 리사이즈 패널 | 사용자가 패널 너비를 직접 조절해야 하는 경우 |
 
 ---
 
 ## What NOT to Add
 
-| Avoid | Why | Use Instead |
-|-------|-----|-------------|
-| `ruby_llm` gem | 다중 LLM 추상화. Anthropic 단독 사용에 불필요한 레이어 추가 | `anthropic` gem 직접 |
-| `sidekiq` + Redis | 예약 발행에 Redis 의존성 추가. SQLite 스택과 불일치. Solid Queue로 완전히 대체 가능 | Solid Queue `perform_at` |
-| `whenever` gem | cron 파일 별도 관리, 배포 복잡도 증가. 개별 post 예약에 적합하지 않은 패턴 | Solid Queue scheduled job |
-| ActionController::Live SSE (스트리밍) | Puma 스레드 점유. Admin 1인 환경에서도 불필요. Action Cable 방식이 더 Rails 관용적 | Turbo::StreamsChannel + ActiveJob |
-| `ranked-model` gem | 비순차 float 순서는 현재 요구사항 이상. acts_as_list가 더 단순하고 성숙함 | `acts_as_list` |
+| 피할 것 | 이유 | 대신 |
+|---------|------|------|
+| `schema_dot_org` gem | 단순 Article/BreadcrumbList 출력에 과도한 의존성 | Plain Ruby hash + `.to_json` |
+| `rails_structured_data` gem | 작성자가 "work in progress" 명시 — 프로덕션 사용 위험 | Plain ERB partial |
+| `meta_tags-rails` gem (v1.1.1) | `meta-tags` gem(기존 설치)과 다른 gem. 혼용 금지 | 기존 `meta-tags` 2.22.3 |
+| `sitemap_generator` 재설정 | 이미 모든 콘텐츠 커버, 완전히 구성됨 | 기존 config 유지, rake task 실행만 확인 |
 
 ---
 
 ## Version Compatibility
 
-| Package | Compatible With | Notes |
-|---------|-----------------|-------|
-| `anthropic` ~> 1.23 | Ruby >= 3.2.0 | 프로젝트 Ruby 3.3.10 — 호환 확인. net/http 기반으로 Rails 버전 의존 없음 |
-| `acts_as_list` ~> 1.2 | activerecord >= 6.1 | Rails 8.1.2 포함 — 호환 확인. v1.2.6 (2025-10-21 릴리즈) |
-| `sortablejs` ^1.15 | Vite 5.x / ESM | vite_ruby 번들링 환경에서 ESM import 지원. 호환 확인 |
-| `claude-haiku-4-5-20251001` | `anthropic` ~> 1.23 | Anthropic 공식 현재 모델 ID (2026-02-28 기준) |
-| Solid Queue 1.3.1 | `perform_at` / `set(wait_until:)` | 이미 설치된 버전. scheduled_executions 테이블로 미래 실행 지원 |
+| 패키지 | 호환 버전 | 노트 |
+|--------|----------|------|
+| `meta-tags` 2.22.3 | Rails 8.1.2, Ruby 3.3 | Rails < 6.1, Ruby < 3.0 미지원 — 현재 프로젝트 모두 충족 |
+| Tailwind CSS 4.4 | `grid-cols-[arbitrary]` | v4에서 arbitrary values JIT 지원 동일, v3와 문법 동일 |
+| `sitemap_generator` 6.3.0 | Rails 8.1.2 | 기존 사용 중, 변경 없음 |
 
 ---
 
 ## Sources
 
-- [anthropics/anthropic-sdk-ruby GitHub](https://github.com/anthropics/anthropic-sdk-ruby) — 버전, 사용법, 스트리밍 패턴 (HIGH)
-- [rubygems.org/gems/anthropic](https://rubygems.org/gems/anthropic) — v1.23.0 최신 버전 (2026-02-19 릴리즈) 확인 (HIGH)
-- [Anthropic Models Overview](https://platform.claude.com/docs/en/about-claude/models/overview) — claude-haiku-4-5-20251001 모델 ID 및 가격 공식 확인 (HIGH)
-- [rubygems.org/gems/acts_as_list](https://rubygems.org/gems/acts_as_list) — v1.2.6 (2025-10-21), activerecord >= 6.1 의존 확인 (HIGH)
-- [rails/solid_queue GitHub](https://github.com/rails/solid_queue) — scheduled_executions 테이블, Dispatcher 동작, perform_at 패턴 (HIGH)
-- [AppSignal: Deep Dive into Solid Queue](https://blog.appsignal.com/2025/06/18/a-deep-dive-into-solid-queue-for-ruby-on-rails.html) — Dispatcher polling 동작 원리 확인 (MEDIUM)
-- [npmjs.com/package/sortablejs](https://www.npmjs.com/package/sortablejs) — v1.15.x 확인 (MEDIUM)
-- [stimulus-components/stimulus-sortable](https://github.com/stimulus-components/stimulus-sortable) — SortableJS + Stimulus 통합 패턴 참고 (MEDIUM)
-- [evilmartians: AnyCable and LLM streaming pitfalls](https://evilmartians.com/chronicles/anycable-rails-and-the-pitfalls-of-llm-streaming) — Action Cable 순서 보장 이슈 확인 (MEDIUM)
+- [meta-tags gem GitHub (kpumuk/meta-tags)](https://github.com/kpumuk/meta-tags) — OG, Twitter Card, canonical, noindex API 확인 (HIGH, 공식 소스)
+- [meta-tags 2.22.3 RubyDoc](https://rubydoc.info/gems/meta-tags) — 버전 확인 (HIGH)
+- [Adding Structured Data to a Rails Application (Avo Blog)](https://avohq.io/blog/structured-data-rails) — JSON-LD partial 패턴 (MEDIUM, 커뮤니티 검증)
+- [Dynamic robots.txt in Rails (GitHub Gist)](https://gist.github.com/sandheepg/0e9d855d9c37d305d3cdb775a53226e1) — 컨트롤러 기반 robots.txt (MEDIUM, 커뮤니티 패턴)
+- [Naver Search Advisor full guide (Interad, 2025)](https://www.interad.com/en/insights/naver-search-advisor-a-full-guide) — Yeti bot + 메타태그 인증 (MEDIUM)
+- [Google Search Console 소유권 인증](https://support.google.com/webmasters/answer/9008080) — HTML 메타태그 방식 (HIGH, 공식)
+- [schema_dot_org gem GitHub](https://github.com/public-law/schema-dot-org) — 대안 검토 후 제외 근거 (MEDIUM)
+- 기존 Gemfile.lock (`/teovibe/Gemfile.lock`) — meta-tags 2.22.3, sitemap_generator 6.3.0 직접 확인 (HIGH)
 
 ---
 
-*Stack research for: TeoVibe v1.1 Admin 고도화 (동적 카테고리, AI 초안, 예약 발행)*
-*Researched: 2026-02-28*
+*Stack research for: TeoVibe v1.2 SEO 최적화 + Admin 에디터 UX*
+*Researched: 2026-03-14*

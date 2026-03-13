@@ -1,263 +1,191 @@
 # Project Research Summary
 
-**Project:** TeoVibe v1.1 Admin 고도화
-**Domain:** Rails 모놀리스 CMS — 동적 카테고리, AI 초안 작성, 예약 발행
-**Researched:** 2026-02-28
+**Project:** TeoVibe v1.2 — SEO 최적화 + Admin 에디터 UX 개선
+**Domain:** Rails 8 monolith 기반 블로그/커뮤니티 플랫폼 SEO 고도화
+**Researched:** 2026-03-14
 **Confidence:** HIGH
 
 ## Executive Summary
 
-TeoVibe v1.1은 기존에 검증된 Rails 8.1 + Hotwire + Solid Queue 스택 위에 세 가지 운영 효율화 기능을 추가하는 밀스톤이다. 핵심 도전은 기술적 난이도보다 안전한 데이터 이관에 있다. 현재 `posts.category`와 `skill_packs.category`가 정수형 enum으로 하드코딩되어 있으며, 이를 동적 `Category` DB 모델로 전환하는 것이 모든 v1.1 기능의 선행 조건이자 최대 위험 지점이다. 이 마이그레이션을 잘못 처리하면 모든 게시판 라우팅과 기존 게시글 카테고리 분류가 동시에 파괴된다.
+TeoVibe v1.2 마일스톤은 신규 gem이나 npm 패키지 추가 없이 기존 스택만으로 완전히 구현 가능한 SEO 최적화 작업이다. 핵심 인프라(meta-tags gem 2.22.3, sitemap_generator 6.3.0, SeoHelper 전체 JSON-LD 헬퍼 6종)는 이미 코드베이스에 존재하지만 실제로 뷰에 연결되어 있지 않은 "절반만 구현된" 상태다. 즉, 이번 마일스톤 대부분의 작업은 새 코드 작성이 아니라 기존 컴포넌트를 올바르게 연결하는 배선(wiring) 작업이다.
 
-AI 초안 기능은 Anthropic 공식 Ruby SDK(`anthropic` gem v1.23.0)를 사용하여 2단계 생성(개요 → 본문) 패턴으로 구현한다. Puma 스레드 점유 문제를 피하기 위해 `AiDraftJob`(ActiveJob) + `Turbo::StreamsChannel.broadcast_append_to` 방식의 비동기 스트리밍을 채택한다. 예약 발행은 이미 설치된 Solid Queue의 `set(wait_until:).perform_later` 패턴으로 처리하며 신규 인프라가 전혀 필요 없다. 두 기능 모두 Category 모델 전환 완료 후 독립적으로 병렬 구현 가능하다.
+구현 접근법은 두 트랙으로 분리된다. SEO 트랙은 레이아웃과 뷰에 `set_meta_tags` 호출 및 `content_for :head` JSON-LD 블록을 추가하는 작업으로, 아키텍처 변경 없이 진행된다. Admin UX 트랙은 `admin/posts/_form.html.erb`의 1컬럼 레이아웃을 CSS Grid 2컬럼으로 교체하는 작업으로, 모델/컨트롤러 변경 없이 순수 HTML + Tailwind 작업으로 처리된다. 두 트랙은 서로 독립적이라 병렬 개발이 가능하다.
 
-주요 위험은 세 가지다. (1) enum → FK 마이그레이션의 데이터 매핑 오류로 기존 게시글 카테고리 전체 손상, (2) Anthropic API의 동기 호출이 Puma 스레드를 15-60초 블로킹, (3) 예약 발행 잡의 멱등성 미확보로 중복 발행 또는 영구 미발행. 각 위험은 명확한 예방 패턴이 연구 과정에서 확인되었으며, Phase 1에서 마이그레이션 전략을 충분히 검증하는 것이 v1.1 전체 성공의 관건이다.
-
----
+가장 큰 위험 요소는 기존 `seo_helper.rb`의 XSS 보안 취약점이다. `.to_json.html_safe` 패턴이 사용자 입력이 포함된 JSON-LD에서 스크립트 인젝션을 허용한다. 이 패치는 새 JSON-LD를 뷰에 연결하기 전에 반드시 선행되어야 한다. 그 외 pitfall들(og:image 절대 URL 강제, canonical 쿼리 파라미터 제거, noindex+canonical 충돌, naver-site-verification 고정 삽입)은 모두 단일 설정 또는 한두 줄 수정으로 예방 가능하다.
 
 ## Key Findings
 
 ### Recommended Stack
 
-기존 스택(Rails 8.1.2, Hotwire, Solid Queue 1.3.1, vite_ruby + React 19)은 변경 없이 유지한다. v1.1에서 추가되는 의존성은 최소화되어 있으며 모두 기존 스택과 호환이 확인된 패키지다.
+v1.2의 모든 기능은 신규 gem/npm 패키지 추가 없이 구현 가능하다. 이미 설치된 `meta-tags` gem(2.22.3)이 OG, Twitter Card, canonical, noindex를 모두 처리하며, `sitemap_generator`(6.3.0)는 완전히 구성된 상태다. Admin 레이아웃은 Tailwind CSS v4.4의 `grid-cols-[380px_1fr]` arbitrary value 문법으로 2컬럼을 구현한다. 검색엔진 인증 토큰은 Rails credentials에 저장하는 것이 권장된다(Kamal 배포 환경에서 ENV 주입보다 일관성 높음).
 
-**신규 Gem:**
-- `anthropic ~> 1.23` — Anthropic Claude API 공식 Ruby 클라이언트. Ruby 3.2+ 요구(프로젝트 3.3.10 충족), SSE 스트리밍/재시도/타임아웃 내장, 2026-02-19 릴리즈
-- `acts_as_list ~> 1.2` — Category 모델 position 기반 순서 관리. Rails 8.1.2 호환(activerecord >= 6.1), v1.2.6(2025-10-21 릴리즈)
-
-**신규 npm 패키지:**
-- `sortablejs ^1.15` — 카테고리 드래그앤드롭 UI. Stimulus Controller와 연동, jQuery 불필요, ESM import 지원
-- `@types/sortablejs ^1.15` — vite_ruby TypeScript 환경 타입 정의
-
-**신규 DB 마이그레이션:**
-- `create_categories` — 통합 카테고리 모델(`record_type` enum으로 post/skillpack 구분)
-- `add_category_id_to_posts` — 기존 enum 정수값 → Category FK 이관 포함
-- `add_category_id_to_skill_packs` — 기존 enum 정수값 → Category FK 이관 포함
-- `add_publish_at_to_posts` + `add_published_at_to_posts` — 예약 발행 datetime (두 컬럼 동시 추가)
-
-**AI 모델 선택:** `claude-haiku-4-5-20251001` 기본값. `ENV["ANTHROPIC_MODEL"]`로 분리하여 운영 중 `claude-sonnet-4-6`로 교체 가능.
-
-**추가하지 않을 것:**
-- `sidekiq` + Redis — Solid Queue로 완전히 대체 가능, SQLite 스택과 불일치
-- `whenever` gem — 개별 post 예약에 부적합한 cron 패턴
-- `ruby_llm` gem — 다중 LLM 추상화 불필요, Anthropic 단독 사용
-- ActionController::Live SSE (스트리밍) — Puma 스레드 점유. Action Cable 방식이 더 Rails 관용적
+**Core technologies:**
+- `meta-tags` gem 2.22.3: OG, Twitter Card, canonical, noindex 메타태그 — 이미 레이아웃에 배선됨, 각 뷰에서 `set_meta_tags` 호출만 추가 필요
+- `sitemap_generator` 6.3.0: sitemap.xml 생성 — 완전히 구성됨, 카테고리 동적화 수정만 필요
+- Tailwind CSS 4.4 CSS Grid: Admin 2컬럼 레이아웃 — `grid-cols-[380px_1fr]` + `items-start` 패턴
+- `SeoHelper` (기존): JSON-LD Article, BreadcrumbList, WebSite, Organization 등 6종 — 정의됨, 뷰 연결만 필요
+- Rails credentials: 검색엔진 인증 토큰 저장 (`seo.google_site_verification`, `seo.naver_site_verification`)
 
 ### Expected Features
 
-**Must Have (Table Stakes) — v1.1 이번 밀스톤 P1:**
-- 카테고리 CRUD (생성/수정/삭제/순서) — 모든 CMS 기본. 하드코딩 enum은 배포 없이 변경 불가
-- 카테고리별 관리자 전용 작성 토글 (`admin_only` boolean) — "공지" 등 보호 카테고리 지원
-- 스킬팩 카테고리 동적 관리 — 게시판과 동일 패턴, 독립 구현
-- 게시글 예약 발행 (날짜/시간 지정) — Ghost, WordPress 등 모든 블로그 플랫폼이 지원하는 표 스테이크
-- AI 초안 2단계 생성 (주제 → 개요 → 본문) — 1인 운영자 콘텐츠 생산 효율화, 경쟁 차별점
+**Must have (table stakes) — v1.2 이번 마일스톤:**
+- Open Graph 메타태그 (og:title, og:description, og:image, og:type) — 소셜 공유 미리보기
+- Twitter Card `summary_large_image` 전역 설정 — Discord/X 공유 품질
+- canonical URL 자기 참조 — 중복 콘텐츠 방지
+- Admin/인증 페이지 noindex 전역 처리 — 관리자 경로 색인 차단
+- JSON-LD Article + BreadcrumbList 렌더링 (게시글 상세) — Google Rich Results 자격
+- JSON-LD WebSite + Organization 렌더링 (홈) — 사이트 신뢰도
+- Google Search Console 인증 메타태그 — GSC 기능 활성화
+- 네이버 서치어드바이저 인증 메타태그 — 네이버 검색 등록
+- robots.txt Yeti(네이버봇) 명시 블록 + Googlebot 명시 블록 추가
+- Admin 게시글 에디터 2컬럼 레이아웃 (Ghost/WordPress Admin 표준 패턴)
+- 기본 OGP 이미지 에셋 (`public/og-default.png`, 1200x630px)
 
-**Should Have (Competitive) — v1.1 여유 시 추가 또는 v1.x:**
-- 카테고리 드래그앤드롭 순서 변경 — UX 품질 차별화 (버튼 방식으로 먼저 출시 가능)
-- AI 스트리밍 응답 (실시간 타이핑 효과) — UX 개선. 기능 자체는 비스트리밍으로도 동작
+**Should have (competitive) — v1.x 이후:**
+- og:image 본문 첫 번째 이미지 자동 추출 (ActionText 첨부 이미지 URL 접근 방식 추가 조사 필요)
+- noindex 토글 — 게시글별 Admin 설정 (Post 모델 boolean 컬럼 추가 필요)
+- sitemap ping 후처리 (게시글 발행 after_commit 콜백)
+- SEO 필드 글자수 카운터 Stimulus 컨트롤러 (seo_title 60자, seo_description 160자 권장)
+- JSON-LD 카테고리 목록 ItemList + 스킬팩 SoftwareApplication
 
 **Defer (v2+):**
-- 태그 기반 콘텐츠 분류 — 카테고리 안정화 후
-- AI 초안 스타일/톤 선택 — 기본 동작 후 확장
-- 게시글 예약 달력 뷰 — 규모 성장 후
-- 카테고리 계층 구조 — 현재 요구사항 대비 과도한 복잡도 (Ancestry gem 필요)
-- 사용자별 카테고리 구독/필터링 — 별도 마일스톤 수준 작업
-
-**Anti-Features (구현 금지):**
-- 반복 발행 스케줄 (cron 패턴) — 단건 예약으로 충분
-- AI 자동 발행 (관리자 검토 없음) — 브랜드 리스크, 1인 운영 철학에 어긋남
-- Google Indexing API 자동 제출 — 스팸 정책 위반 가능성
+- Core Web Vitals 최적화 (LCP preload, CLS 방지)
+- AMP 구현 — Google이 2023년 순위 요소에서 제외, 유지보수 비용만 높음
+- 자동 meta description AI 생성 — Google이 50%+ 무시하는 추세, AI 초안 기능과 중복
+- 다국어 hreflang — 한국어 전용 서비스, 불필요한 복잡도
+- 구조화 데이터 CI 자동 검증 — 1인 운영에 오버엔지니어링
 
 ### Architecture Approach
 
-단일 `Category` 모델(`record_type` enum으로 post/skillpack 구분)을 중심으로 기존 Rails 모놀리스 아키텍처를 확장한다. AI 초안 로직은 `AiDraftService` 서비스 객체로 분리하고 `Admin::AiDraftsController`가 Turbo Stream 응답을 담당한다. 예약 발행은 `Post#after_save` 콜백 → `PublishPostJob` 패턴으로 처리한다.
+변경 범위는 최소화된다. 새 디렉토리, 모델, 마이그레이션, 컨트롤러가 필요 없다. 모든 변경은 기존 컴포넌트에 대한 가산적(additive) 수정이다. SEO 메타태그 흐름은 `뷰 content_for :head → set_meta_tags → 레이아웃 display_meta_tags → HTML head` 단방향 파이프라인이며, 레이아웃에는 이미 `display_meta_tags`와 `yield :head`가 배선되어 있어 뷰에서 `set_meta_tags` 호출만 추가하면 된다. Admin 2컬럼은 `_form.html.erb` 외부 wrapper의 클래스 교체만으로 처리된다.
 
-**주요 컴포넌트:**
-1. `Category` 모델 — `record_type`, `name`, `slug`, `position`, `admin_only` 컬럼. 기존 `LandingSection#move_up/move_down` 패턴 직접 재사용
-2. `Admin::CategoriesController` — CRUD + 순서 변경. Admin 네임스페이스 내 표준 패턴
-3. `AiDraftService` — Anthropic SDK 래퍼. 2단계 프롬프트 관리, `ApiError` 커스텀 예외. 서비스 객체로 분리하여 API 키를 단일 위치에서 관리
-4. `Admin::AiDraftsController` — Turbo Stream 응답 전용 단일 액션 컨트롤러 (PostsController와 AI 로직 분리)
-5. `PublishPostJob` — 멱등성 보장 예약 발행 Job. `draft?` 재확인 + `with_lock` + `return if published?`
-6. `ai_draft_controller.js` (Stimulus) — Fetch + `Turbo.renderStreamMessage` + rhino-editor 삽입
-
-**핵심 아키텍처 결정:**
-- **Category 단일 모델** (`record_type` 구분): PostCategory + SkillPackCategory 분리보다 LandingSection 패턴과 일관성 유지
-- **AI 초안: Turbo Stream 비동기** (Stimulus Fetch → AiDraftJob → `broadcast_append_to`): 전체 페이지 재렌더링 없이 결과 영역만 업데이트. Action Cable 방식으로 스트리밍 구현
-- **예약 발행: `wait_until` 개별 잡** (recurring cron 폴링 대신): 정확한 시각 실행, Solid Queue Dispatcher가 처리
-
-**데이터 이관 전략 (가장 중요):**
-- 마이그레이션 4단계: nullable FK 추가 → 명시적 SQL 백필 (`UPDATE posts SET category_id = (SELECT id FROM categories WHERE slug = old_slug_name)`) → NOT NULL 제약 → 구 컬럼 삭제
-- 기존 6개 게시판 라우팅 유지 (BlogsController 등). SEO URL 파괴 금지. 신규 동적 카테고리는 제네릭 `/:category_slug` 라우트 추가
-
-**빌드 순서 (아키텍처 의존성):**
-```
-Phase 1: Category 모델 + 마이그레이션 (필수 선행)
-    ↓
-Phase 2: Admin 카테고리 UI   Phase 3: 예약 발행   Phase 4: AI 초안
-     (Phase 1 완료 후 독립적 병렬 가능)
-```
+**Major components:**
+1. `layouts/application.html.erb` — 검색엔진 인증 메타태그 고정 삽입 + robots yield 슬롯 추가 (수정)
+2. `app/helpers/seo_helper.rb` — XSS 패치 (json_escape 적용) + og_image_url_for 헬퍼 추가 (수정)
+3. `app/views/posts/show.html.erb` — set_meta_tags + Article/BreadcrumbList JSON-LD content_for 추가 (수정)
+4. `app/views/pages/home.html.erb` — WebSite/Organization JSON-LD content_for 추가 (수정)
+5. `app/views/admin/posts/_form.html.erb` — CSS Grid 2컬럼 레이아웃으로 교체 (수정)
+6. `public/robots.txt` — Googlebot/Yeti 명시 블록 추가 (수정)
+7. `config/sitemap.rb` — 카테고리 하드코딩 → 동적 루프 교체 (수정)
 
 ### Critical Pitfalls
 
-1. **enum integer → Category FK 마이그레이션 데이터 손상** — auto-increment ID가 enum 정수와 일치한다는 가정 절대 금지. `blog=0`이 `category_id=1`에 매핑되리라는 보장 없음. 명시적 slug 기반 SQL 매핑 사용. 마이그레이션 전 스테이징 DB 복사본에서 행 수 일치 검증 필수.
+1. **JSON-LD XSS 취약점 (`seo_helper.rb`)** — 기존 `.to_json.html_safe` 패턴에서 `<`, `>`, `&` 문자가 이스케이프되지 않아 스크립트 태그 이탈 가능. 모든 JSON-LD 메서드에 `json_escape` 또는 Unicode 이스케이프 래퍼 적용. 새 JSON-LD 연결 전 사전 패치 필수.
 
-2. **하드코딩 카테고리 라우팅 파괴** — 현재 6개 서브컨트롤러(BlogsController 등)와 named route가 enum에 의존. 동적 slug가 `polymorphic_path`에서 `NoMethodError: undefined method 'vibe_coding_path'` 발생. Option A 채택: 기존 6개 라우트 유지 + 신규 동적 카테고리는 제네릭 라우트.
+2. **og:image 상대 경로 사용** — `image_path` 대신 `image_url` 사용, `config/environments/production.rb`에 `config.asset_host = "https://teovibe.com"` 설정 필수. 소셜 크롤러(카카오톡, Facebook, Discord)는 절대 URL만 인식하며, 배포 후 수정 시 카카오톡은 기존 공유 URL 캐시를 갱신할 수 없음.
 
-3. **Anthropic API Puma 스레드 블로킹** — 컨트롤러에서 `messages.create`(blocking) 직접 호출 시 15-60초 스레드 점유. Puma 5 스레드 환경에서 동시 AI 요청 2개면 서버 전체 응답 저하. 반드시 `AiDraftJob` 비동기 처리.
+3. **canonical + noindex 동시 적용 충돌** — `MetaTags.configure { |c| c.skip_canonical_links_on_noindex = true }` 설정으로 자동 처리. canonical을 `request.original_url`로 설정하면 `?page=2` 등 쿼리 파라미터가 포함됨 — 라우트 헬퍼(`post_url(@post)`) 사용 필수.
 
-4. **예약 발행 잡 중복 실행** — `after_save` 콜백이 `publish_at` 변경마다 새 잡 등록. Solid Queue 잡 취소 공식 API 없음. 멱등성 확보 (`return if post.published?`), `with_lock`, `saved_change_to_publish_at?` 조건으로 방지.
+4. **naver-site-verification 태그 위치 오류** — `set_meta_tags`를 통한 조건부 삽입 금지. `application.html.erb`에 ENV 조건으로 직접 고정 삽입해야 Naver Search Advisor가 루트 URL에서 항상 인식 가능. Turbo Frame 내 삽입 시 Naver가 인식 불가.
 
-5. **Anthropic API 키 로그 유출** — `filter_parameters`에 추가 필수. `AiDraftService` 서비스 객체로 키 참조 단일 위치 격리. 컨트롤러에서 직접 `Anthropic::Client.new` 호출 금지.
-
-6. **`published_at` 누락으로 공개 피드 정렬 오류** — 예약 발행 후 `created_at` 기준 정렬이면 발행 전 게시글이 공개 피드에 노출. `publish_at` 컬럼과 함께 `published_at` 컬럼 반드시 동시 추가. 공개 스코프에 `where("published_at <= ?", Time.current)` 조건 포함.
-
----
+5. **rhino-editor sticky 사이드바 무력화** — Admin 2컬럼 grid에 `items-start` 필수. CSS Grid 기본값(`align-items: stretch`)에서는 sticky가 작동 안 함. 부모 컨테이너에 `overflow: hidden` 금지.
 
 ## Implications for Roadmap
 
-### Phase 1: Category 모델 기반 구축
+Based on research, suggested phase structure:
 
-**Rationale:** 모든 v1.1 기능의 선행 조건이자 가장 위험한 단계. Category 모델 없이는 Admin 카테고리 UI, Post 작성 폼, 공개 게시판 라우팅 수정이 모두 불가. 데이터 마이그레이션이 여기에 집중되므로 완전히 독립 검증 후 다음 단계로 진행해야 한다. 스테이징에서 마이그레이션 SQL 검증이 필수.
+### Phase 0: 사전 보안 패치 (XSS 수정)
+**Rationale:** `seo_helper.rb`의 `.to_json.html_safe` XSS 취약점은 JSON-LD를 뷰에 연결하기 전에 반드시 패치해야 한다. 패치 없이 JSON-LD를 활성화하면 취약한 상태로 배포된다. 단독 커밋, 10분 내 수정 가능.
+**Delivers:** Brakeman 경고 0건, 안전한 JSON-LD 출력 기반 확보
+**Addresses:** PITFALLS.md Pitfall 1 (Critical)
+**Avoids:** 배포 후 긴급 패치 시나리오
 
-**Delivers:**
-- `categories` 테이블 + `Category` 모델 (`record_type`, `name`, `slug`, `position`, `admin_only`)
-- Post enum 제거 + `belongs_to :category` 전환 (기존 6개 카테고리 데이터 행 수 보존 검증)
-- SkillPack enum 제거 + `belongs_to :category` 전환 (`by_category` scope 업데이트)
-- `PostsBaseController` 쿼리 교체 (`joins(:category).where(categories:{slug:})`)
-- 기존 6개 게시판 라우팅 유지 확인 (BlogsController 등 6개 서브컨트롤러 200 응답)
-- Category 시드 데이터 (Post 6개 + SkillPack 4개, `admin_only` 기본값 `false`)
+### Phase 1: 크롤링 기초 — robots.txt + sitemap 보완
+**Rationale:** 다른 SEO 기능보다 선행되어야 한다. robots.txt는 크롤러가 사이트를 이해하는 첫 번째 접점이고, sitemap 카테고리 하드코딩은 v1.1 카테고리 동적화 이후 남은 기술 부채로 신규 카테고리 색인 누락을 유발한다.
+**Delivers:** Yeti/Googlebot 명시 허용, 환경별 크롤링 제어 기반, 동적 카테고리 sitemap 커버리지
+**Addresses:** FEATURES.md robots.txt 보강, sitemap 동적 카테고리
+**Avoids:** Naver Search Advisor "수집 오류", 신규 카테고리 색인 누락
 
-**Features Addressed:** 카테고리 CRUD 기반, 관리자 전용 토글 기반, 스킬팩 카테고리 기반
-**Pitfalls to Avoid:** Pitfall 1(enum → FK 데이터 손상), Pitfall 2(라우팅 파괴), admin_only 기본값 false 강제, SkillPack `by_category` scope 파괴
+### Phase 2: 검색엔진 인증 메타태그
+**Rationale:** robots.txt Yeti 허용(Phase 1) 완료 후 Naver Search Advisor 등록을 진행한다. 인증이 완료되어야 이후 SEO 변경사항의 효과를 Search Console에서 추적할 수 있다. 인증 토큰은 `application.html.erb`에 고정 삽입 필수.
+**Delivers:** Google Search Console 소유권 확인, 네이버 서치어드바이저 등록 가능 상태
+**Addresses:** FEATURES.md Google/Naver 인증 메타태그 (table stakes)
+**Avoids:** PITFALLS.md Pitfall 3 — `application.html.erb` 고정 삽입 패턴으로 태그 위치 오류 방지
 
----
+### Phase 3: OG/Twitter Card 메타태그 보강
+**Rationale:** 검색엔진 인증(Phase 2) 후 실제 콘텐츠 메타데이터를 작업한다. ApplicationController 기본값 설정 후 게시글 상세에서 오버라이드하는 단방향 패턴. og:image 절대 URL과 seo_title fallback은 이 단계에서 반드시 처리해야 소셜 공유가 정상 동작한다.
+**Delivers:** 소셜 공유 미리보기(카카오톡/Discord/X), 게시글별 OG 타이틀/설명/이미지, 기본 OGP 이미지 에셋
+**Addresses:** FEATURES.md OG/Twitter Card (table stakes)
+**Avoids:** PITFALLS.md Pitfall 4 (og:image 상대 경로), Pitfall 9 (seo_title fallback 미구현)
 
-### Phase 2: Admin 카테고리 동적 관리 UI
+### Phase 4: canonical URL + noindex 처리
+**Rationale:** OG 메타태그(Phase 3)와 동일한 `set_meta_tags` 인프라를 사용. canonical 쿼리 파라미터 문제와 noindex+canonical 충돌은 이 단계에서 `MetaTags.configure` 설정으로 일괄 처리.
+**Delivers:** 중복 콘텐츠 방지, Admin/인증 페이지 비색인 처리, 크롤 버짓 최적화
+**Addresses:** FEATURES.md canonical URL, noindex 처리 (table stakes)
+**Avoids:** PITFALLS.md Pitfall 6 (canonical+noindex 충돌), Pitfall 7 (request.original_url canonical)
 
-**Rationale:** Phase 1 완료 후 즉시 시작 가능. Phase 3, 4와 독립적 — 병렬 진행 가능. 관리자가 카테고리를 런타임에 생성/수정/삭제/순서변경할 수 있는 UI를 제공해야 "동적 카테고리" 기능이 완성된다. LandingSection 패턴을 그대로 재사용하므로 구현 위험이 낮다.
+### Phase 5: JSON-LD 구조화 데이터 렌더링
+**Rationale:** Phase 0에서 XSS 패치가 완료된 SeoHelper를 비로소 뷰에 연결한다. 헬퍼는 이미 정의되어 있으므로 `content_for :head` 블록 추가만으로 완료. Phase 3-4와 독립적으로 병렬 처리 가능하나 Phase 0 선행 필수.
+**Delivers:** Google Rich Results 자격(Article + BreadcrumbList), 홈 사이트 신뢰도(WebSite + Organization)
+**Addresses:** FEATURES.md JSON-LD 구조화 데이터 렌더링 (differentiator)
+**Avoids:** XSS는 Phase 0에서 선제 해결됨
 
-**Delivers:**
-- `Admin::CategoriesController` CRUD (index/new/create/edit/update/destroy)
-- `move_up` / `move_down` 순서 변경 액션 (LandingSection 패턴 재사용)
-- Admin 카테고리 목록/폼 뷰 (LandingSection 뷰 구조 참조)
-- 관리자 전용 작성 토글 UI (inline Turbo Stream 업데이트)
-- 카테고리 삭제 시 게시글 보호 로직 (게시글 있으면 삭제 거부)
-- Admin 게시글/스킬팩 폼의 카테고리 select 소스 교체 (`Category.for_posts` / `Category.for_skill_packs`)
-- (P2) 드래그앤드롭 순서 변경: `sortablejs` + Stimulus Controller
-
-**Uses:** `acts_as_list ~> 1.2`, `sortablejs ^1.15` (P2)
-**Architecture Component:** `Admin::CategoriesController`, `Category#move_up/move_down`
-
----
-
-### Phase 3: 게시글 예약 발행
-
-**Rationale:** Phase 1 완료 후 즉시 시작 가능 (Phase 2와 병렬). Post 모델에 `publish_at`, `published_at` 컬럼을 추가하고 Solid Queue 잡을 연결하는 독립 기능. 이미 설치된 Solid Queue와 `config/queue.yml`을 그대로 활용하므로 추가 인프라가 없다. `published_at`과 `publish_at`은 반드시 같은 마이그레이션에서 동시에 추가해야 한다.
-
-**Delivers:**
-- `publish_at: datetime` + `published_at: datetime` 컬럼 추가 (동일 마이그레이션)
-- `Post.status` `:scheduled` 추가 (`draft → scheduled → published` 상태 흐름)
-- `PublishPostJob` (멱등성 보장: `return if published?`, `with_lock`)
-- `Post#after_save :schedule_publish` 콜백 (`saved_change_to_publish_at?` 조건)
-- Admin 폼 `datetime_local_field` + flatpickr Stimulus 컨트롤러 (KST 표시, UTC 저장)
-- 공개 스코프 `where("published_at <= ?", Time.current)` 업데이트
-- RSS 피드 / 사이트맵 `published_at` 기준 정렬 업데이트
-- Admin 게시글 목록 "예약됨" 배지 + 예정 시각 표시
-
-**Uses:** Solid Queue `set(wait_until:).perform_later` (기존 설치), flatpickr (npm, 별도 설치)
-**Pitfalls to Avoid:** 잡 중복 실행(with_lock + 멱등성), `published_at` vs `created_at` 정렬 혼선
-
----
-
-### Phase 4: AI 초안 작성 (2단계 생성)
-
-**Rationale:** Phase 1 완료 후 시작 가능. Phase 2, 3과 독립적이나 개발 집중도를 위해 Phase 2, 3 완료 후 진행 권장. Anthropic API 키 환경변수 설정이 선행 필요. STACK.md의 `anthropic` gem 방식과 ARCHITECTURE.md의 Faraday 직접 호출 방식 중 `anthropic` gem 방식으로 통일.
-
-**Delivers:**
-- `AiDraftService` — `anthropic` gem 래퍼, 2단계 프롬프트(개요/본문), `ApiError` 커스텀 예외
-- `AiDraftJob` — 비동기 스트리밍 (`Turbo::StreamsChannel.broadcast_append_to`, `broadcast_append_to "ai_draft_#{draft_id}"`)
-- `Admin::AiDraftsController` — Turbo Stream 응답 전용 (`create` 액션)
-- `ai_draft_controller.js` (Stimulus) — Fetch + `Turbo.renderStreamMessage` + rhino-editor 삽입
-- Admin 게시글 폼 AI 초안 UI (주제 입력 → 개요 표시 → 본문 생성 → 에디터 적용)
-- SEO/AEO 시스템 프롬프트 (H2/H3 구조, FAQ 섹션, 40-60자 직접 답변, 한국어 특화)
-- `filter_parameters`에 `ANTHROPIC_API_KEY` 추가
-- `ENV["ANTHROPIC_MODEL"]`로 모델 교체 가능 구조
-
-**Uses:** `anthropic ~> 1.23` (Gem), `claude-haiku-4-5-20251001` (기본)
-**Pitfalls to Avoid:** Puma 스레드 블로킹 (반드시 Job 비동기), API 키 유출 (서비스 객체 격리 + filter_parameters)
-
----
+### Phase 6: Admin 게시글 에디터 2컬럼 레이아웃
+**Rationale:** SEO 기능과 완전히 독립적. `_form.html.erb` 리팩터링만으로 처리되며 모델/컨트롤러 변경 없음. Phase 1-5 진행 중 병렬 개발 가능. Ghost/WordPress Admin 표준 패턴이므로 사전 연구가 필요 없다.
+**Delivers:** 메타 정보 + 본문 에디터 2컬럼 분리, sticky 우측 설정 패널, SEO 필드 가시성 향상
+**Addresses:** FEATURES.md Admin 에디터 2컬럼 레이아웃 (differentiator)
+**Avoids:** PITFALLS.md Pitfall 8 (rhino-editor sticky 충돌) — `items-start` 필수 적용
 
 ### Phase Ordering Rationale
 
-- **Phase 1이 유일한 blocking 의존성:** Post/SkillPack 모델 변경이 모든 하위 작업의 전제 조건. 가장 위험하므로 스테이징 검증 후 프로덕션 적용.
-- **Phase 2, 3, 4는 상호 독립:** 모두 Phase 1 완료 후 병렬 시작 가능. 1인 개발 제약상 Phase 2 → Phase 3 → Phase 4 순차 진행이 현실적.
-- **Phase 3의 `published_at`은 독자 가시성에 직접 영향:** 카테고리 UI가 내부 Admin 기능인 반면 예약 발행은 독자에게 즉각 영향. 두 기능 중 어느 것을 먼저 해도 무방.
-- **Phase 4는 외부 API 의존성:** Anthropic API 키 발급/검증 시간이 필요. 먼저 `.env`에 키 설정 후 진행.
-
----
+- Phase 0이 Phase 5보다 먼저인 이유: XSS 취약 헬퍼를 활성화하기 전에 반드시 패치해야 함
+- Phase 1(robots.txt)이 Phase 2(인증)보다 먼저인 이유: Naver Search Advisor는 Yeti 허용이 확인된 사이트에 대해 크롤링 진단이 정확함
+- Phase 3-4-5는 논리적 순서가 있지만 실제로는 독립적으로 병렬 처리 가능
+- Phase 6은 SEO 트랙 전체와 독립적 — 언제든 병렬로 진행 가능
 
 ### Research Flags
 
-**Phase 1에서 깊은 검증 필요 (가장 중요):**
-- enum → FK 마이그레이션 SQL 매핑 스크립트를 스테이징 DB 복사본에서 먼저 검증 (행 수 일치 확인)
-- `PostsBaseController` 6개 서브컨트롤러 라우팅 변경 후 전체 게시판 URL 200 응답 확인
-- SkillPack `by_category` scope 수정 후 `SkillPack.by_category("template").count > 0` 검증
+Phases with standard patterns (skip research-phase):
+- **Phase 0:** `json_escape` 헬퍼 적용 — Rails 내장 기능, 단순 래퍼 추가
+- **Phase 1:** robots.txt 정적 파일 수정 + sitemap.rb 동적화 — 확립된 Rails 패턴, 코드 예제 연구에서 완전히 검증됨
+- **Phase 2:** 인증 메타태그 — 공식 Google/Naver 문서 기반, 구현 패턴 단순
+- **Phase 3:** meta-tags gem API — 공식 gem README 기반, 코드 예제 연구에서 완전히 검증됨
+- **Phase 4:** canonical/noindex — meta-tags gem 설정 한 줄 (`skip_canonical_links_on_noindex = true`), 확립된 패턴
+- **Phase 5:** JSON-LD SeoHelper 연결 — 헬퍼 이미 정의됨, `content_for :head` 추가만
+- **Phase 6:** CSS Grid 2컬럼 — Tailwind arbitrary values 확인됨, Ghost/WordPress 표준 패턴
 
-**Phase 4에서 사전 확인 필요:**
-- `ANTHROPIC_API_KEY` `.env` 및 `.kamal/secrets` 등록 후 시작
-- Action Cable 청크 순서 보장: 개발 환경에서 스트리밍 청크가 올바른 순서로 append되는지 초기 검증
-- `anthropic` gem vs ARCHITECTURE.md Faraday 방식 불일치: `anthropic` gem 방식으로 통일 결정 필요
-
-**표준 패턴으로 추가 리서치 불필요:**
-- Phase 2: LandingSection 패턴 직접 재사용 (기존 코드베이스 내 검증된 패턴)
-- Phase 3: Solid Queue `set(wait_until:)` — Rails 8.1 기본 내장 ActiveJob 기능, 추가 설정 불필요
-
----
+Phases likely needing deeper research during planning:
+- **og:image 자동 추출 (v1.x 이후):** ActionText 첨부 이미지 URL 접근 방식이 Rails 버전별로 다르며 공식 문서가 충분하지 않음. 별도 연구 권장.
+- **sitemap ping 자동화 (v1.x 이후):** Solid Queue + after_commit 콜백 패턴 및 Kamal deploy hook 방식 검증 필요.
 
 ## Confidence Assessment
 
 | Area | Confidence | Notes |
 |------|------------|-------|
-| Stack | HIGH | 공식 GitHub 릴리즈 + RubyGems 버전 직접 확인. `anthropic` gem 1.23.0(2026-02-19), `acts_as_list` 1.2.6(2025-10-21). Rails 8.1.2/Ruby 3.3.10 호환 확인. Solid Queue 1.3.1 이미 프로젝트에 설치 확인 |
-| Features | MEDIUM-HIGH | 기존 코드베이스 분석 + Ghost/WordPress 기능 비교 기반. SEO/AEO 효과는 운영 후 실측 필요. 표 스테이크 분류는 경쟁 분석으로 검증됨 |
-| Architecture | HIGH | 기존 코드베이스 직접 분석(models, controllers, routes, queue.yml, schema.rb). LandingSection 패턴 재사용 확인. Solid Queue scheduled_executions 테이블 동작 원리 공식 문서로 검증 |
-| Pitfalls | HIGH | 코드베이스 검증(enum 선언 위치, 라우팅 구조) + Solid Queue GitHub Issues 직접 확인(#429, #651) + 공식 Anthropic 문서 기반. 실제 코드 구조에서 파생된 위험이므로 신뢰도 높음 |
+| Stack | HIGH | 기존 Gemfile.lock 직접 확인 + 공식 gem 문서. 신규 의존성 없음 — 검증 위험 없음 |
+| Features | HIGH | 공식 OGP/Schema.org/Google 문서 + meta-tags gem README 기반. 경쟁 분석(Ghost/WordPress) 포함 |
+| Architecture | HIGH | 코드베이스 직접 분석(seo_helper.rb, sitemap.rb, _form.html.erb, layouts 등) — 가장 신뢰도 높음 |
+| Pitfalls | MEDIUM-HIGH | Naver Search Advisor 공식 문서가 제한적(MEDIUM), 나머지 XSS/canonical/OG pitfall은 공식 소스 기반(HIGH) |
 
 **Overall confidence:** HIGH
 
 ### Gaps to Address
 
-- **`anthropic` gem vs Faraday 방식 불일치:** ARCHITECTURE.md는 Faraday 직접 호출 패턴으로 작성되었으나 STACK.md는 공식 `anthropic` gem 사용 권장. Phase 4 시작 전 `anthropic` gem 방식으로 통일 결정 필요. (STACK.md 기준이 최신 연구 결과)
-- **Action Cable 청크 순서 보장 이슈:** STACK.md에서 "Action Cable은 스레드 풀로 인해 청크 순서 보장 없음"으로 명시됨. append 방식으로만 처리하면 실용적으로 문제없으나, Phase 4 초기 개발 환경 검증 필요.
-- **rhino-editor 외부 HTML 삽입 검증:** AI 생성 Markdown을 rhino-editor hidden input에 삽입 시 `dispatchEvent(new Event("change"))`가 에디터 콘텐츠를 업데이트하는지 현재 설치 버전에서 확인 필요.
-- **flatpickr 한국어 로케일 패키지:** `flatpickr/dist/l10n/ko.js` import 경로가 pnpm + vite_ruby 환경에서 동작하는지 확인 필요.
-
----
+- **Naver Search Advisor 크롤링 동작:** Yeti의 JavaScript 렌더링 능력이 공식 문서에 명시되지 않음. Turbo Drive가 SSR에 영향을 주지 않으므로 현재 구조는 안전하나, 등록 후 Search Advisor 진단 도구로 실제 크롤링 결과 모니터링 권장.
+- **og:image Active Storage 첨부 이미지 URL 추출:** ActionText 본문에서 첫 번째 이미지 URL을 추출하는 Rails 표준 방법이 버전별로 다름. v1.x 구현 시 별도 조사 필요. 현재는 기본 OGP 이미지 폴백으로 처리.
+- **sitemap_generator 자동 실행 주기:** 현재 수동 `rake sitemap:refresh` 실행. Solid Queue cron 또는 Kamal deploy hook으로 자동화 방식은 v1.x에서 결정.
 
 ## Sources
 
 ### Primary (HIGH confidence)
-- [anthropics/anthropic-sdk-ruby GitHub](https://github.com/anthropics/anthropic-sdk-ruby) — SDK 버전, 스트리밍 패턴, Ruby 3.2+ 요구사항
-- [rubygems.org/gems/anthropic](https://rubygems.org/gems/anthropic) — v1.23.0 릴리즈 날짜(2026-02-19) 확인
-- [Anthropic Models Overview](https://platform.claude.com/docs/en/about-claude/models/overview) — 모델 ID 및 가격표
-- [rubygems.org/gems/acts_as_list](https://rubygems.org/gems/acts_as_list) — v1.2.6(2025-10-21), activerecord >= 6.1 의존 확인
-- [rails/solid_queue GitHub](https://github.com/rails/solid_queue) — `scheduled_executions` 테이블, `perform_at` 패턴, Dispatcher 설정
-- 기존 코드베이스 직접 분석 — `app/models/post.rb`, `app/controllers/posts_base_controller.rb`, `config/routes.rb`, `config/queue.yml`, `db/schema.rb`
+- 코드베이스 직접 분석: `app/helpers/seo_helper.rb`, `config/sitemap.rb`, `public/robots.txt`, `app/views/admin/posts/_form.html.erb`, `config/initializers/meta_tags.rb`, `db/schema.rb`
+- [meta-tags gem GitHub (kpumuk/meta-tags)](https://github.com/kpumuk/meta-tags) — OG, canonical, noindex API, `skip_canonical_links_on_noindex` 설정
+- [Open Graph protocol 공식 (ogp.me)](https://ogp.me/) — OG 스펙
+- [Schema.org BreadcrumbList](https://schema.org/BreadcrumbList) — JSON-LD 스펙
+- [Google Search Console 소유권 확인](https://support.google.com/webmasters/answer/9008080) — 인증 메타태그 방식
+- [Google 특수 메타태그 문서](https://developers.google.com/search/docs/crawling-indexing/special-tags) — noindex, canonical 공식
+- [Brakeman: Cross Site Scripting (JSON)](https://brakemanscanner.org/docs/warning_types/cross_site_scripting_to_json/) — JSON-LD XSS 취약점 근거
+- [Google: noindex + canonical 혼용 금지](https://www.searchenginejournal.com/google-dont-mix-noindex-relcanonical/262607/) — John Mueller 공식 권고
+- Tailwind CSS v4 공식 문서 — arbitrary value grid 문법, `items-start` sticky 동작
 
 ### Secondary (MEDIUM confidence)
-- [AppSignal: Deep Dive into Solid Queue (2025)](https://blog.appsignal.com/2025/06/18/a-deep-dive-into-solid-queue-for-ruby-on-rails.html) — Dispatcher polling 동작 원리 확인
-- [npmjs.com/package/sortablejs](https://www.npmjs.com/package/sortablejs) — v1.15.x ESM 지원 확인
-- [Aha! Engineering: Streaming LLM Responses with Rails](https://www.aha.io/engineering/articles/streaming-llm-responses-rails-sse-turbo-streams) — SSE vs Turbo Streams 비교
-- [evilmartians: AnyCable and LLM streaming pitfalls](https://evilmartians.com/chronicles/anycable-rails-and-the-pitfalls-of-llm-streaming) — Action Cable 순서 보장 이슈
-- [Solid Queue GitHub Issues #429, #651](https://github.com/rails/solid_queue/issues/429) — recurring tasks 미등록 이슈 확인
-- [flatpickr 공식 문서](https://flatpickr.js.org/) — enableTime, altInput, locale 설정
-
-### Tertiary (LOW confidence)
-- [GoRails 예약 발행 패턴](https://gorails.com/forum/following-scheduling-post-episode-with-background-jobs) — 커뮤니티 포럼, 보조 참고만
-- [FAQPage 스키마 + AI 검색 인용률](https://www.frase.io/blog/faq-schema-ai-search-geo-aeo) — 단일 출처, SEO/AEO 효과는 운영 후 실측 필요
+- [DataDome: What is NaverBot](https://datadome.co/bots/naverbot/) — Yeti 봇 기술 특성
+- [Interad: Naver Search Advisor guide (2025)](https://www.interad.com/en/insights/naver-search-advisor-a-full-guide) — Yeti robots.txt 명시 권고
+- [Avo Blog: Structured Data in Rails](https://avohq.io/blog/structured-data-rails) — JSON-LD partial 패턴
+- [Avo Blog: Canonical URLs in Rails](https://avohq.io/blog/canonical-urls-rails) — canonical 구현 패턴
+- [Avo Blog: Sitemap Best Practices](https://avohq.io/blog/sitemap-for-rails-applications) — noindex 페이지 sitemap 제외 권장
+- [PayloadCMS: 2-column editor layout discussion](https://github.com/payloadcms/payload/discussions/5181) — Admin 2컬럼 패턴 업계 표준 검증
 
 ---
-
-*Research completed: 2026-02-28*
+*Research completed: 2026-03-14*
 *Ready for roadmap: yes*

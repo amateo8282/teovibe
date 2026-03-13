@@ -1,18 +1,32 @@
 # Feature Research
 
-**Domain:** Admin CMS 고도화 — Rails 기반 블로그 커뮤니티 플랫폼 (v1.1 Milestone)
-**Researched:** 2026-02-28
-**Confidence:** MEDIUM-HIGH
+**Domain:** SEO 최적화 + Admin 에디터 UX — Rails 블로그 커뮤니티 플랫폼 (v1.2 Milestone)
+**Researched:** 2026-03-14
+**Confidence:** HIGH
 
-## Context: What Already Exists (Not in Scope)
+## Context: What Already Exists (v1.1 이전 구현 완료)
 
-이 파일은 v1.1 밀스톤의 신규 기능에만 집중한다. 이미 구현된 항목은 제외.
+이 파일은 v1.2 밀스톤의 신규 기능에만 집중한다. 중복 작업 방지를 위해 기존 구현 현황을 먼저 정리한다.
 
-- 6개 하드코딩 게시판 카테고리 (blog, tutorial, free_board, qna, portfolio, notice)
-- Admin CMS CRUD (게시글, 사용자, 스킬팩, 문의, 랜딩섹션)
-- rhino-editor 리치 에디터 (이미지 업로드, 버블 메뉴)
-- Solid Queue 설정 완료
-- Admin 분석 대시보드 (chartkick + groupdate)
+### 이미 있는 SEO 기반 인프라
+
+- `meta-tags` gem 설치 + `display_meta_tags site: "TeoVibe"` 레이아웃에 적용
+- `sitemap_generator` gem + `config/sitemap.rb` (게시글/스킬팩/카테고리 URL 포함)
+- `public/robots.txt` 기본 설정 (User-agent: * / Disallow: /admin/, /auth/, /profile/edit)
+- `app/helpers/seo_helper.rb` — Article, BreadcrumbList, WebSite, Organization, ItemList, ProfilePage, FAQPage, SoftwareApplication JSON-LD 헬퍼 정의 완료
+- Post 모델에 `seo_title`, `seo_description` 컬럼 존재
+- Admin 게시글 폼에 SEO 제목/설명 필드 존재 (1컬럼 레이아웃 하단에 위치)
+
+### 아직 없는 것 (v1.2 대상)
+
+- `set_meta_tags`를 각 페이지/컨트롤러에서 실제 호출하는 코드 없음
+- Open Graph / Twitter Card 메타태그 실제 출력 없음
+- JSON-LD 헬퍼가 정의되어 있으나 뷰에서 실제 렌더링되지 않음
+- canonical URL 처리 없음
+- noindex 페이지 지정 없음
+- robots.txt에 Yeti(네이버봇) 전용 룰 없음
+- Google/네이버 Search Console 인증 메타태그 없음
+- Admin 에디터 1컬럼 레이아웃 — 메타/설정 필드와 본문 에디터가 세로로 나열됨
 
 ---
 
@@ -20,26 +34,28 @@
 
 ### Table Stakes (Users Expect These)
 
-CMS 관리자가 당연히 있을 것이라 기대하는 기능들. 없으면 "미완성" 느낌을 준다.
+SEO 최적화 플랫폼이라면 당연히 있어야 하는 기능들. 없으면 크롤러에게 "미완성" 시그널을 준다.
 
 | Feature | Why Expected | Complexity | Notes |
 |---------|--------------|------------|-------|
-| 카테고리 CRUD (생성/수정/삭제/순서) | 모든 CMS는 카테고리를 동적으로 관리한다. 하드코딩된 enum은 배포 없이 변경 불가능하여 운영 비효율 발생 | MEDIUM | Post.category enum을 DB 테이블(Category 모델)로 이관. acts_as_list로 position 관리. 기존 게시글과 외래키 연결 필요 |
-| 카테고리별 작성 권한 토글 (관리자 전용) | Discourse, Ghost, WordPress 모두 카테고리별 게시 권한 설정을 제공. "공지" "블로그" 등 일부 카테고리는 관리자만 작성해야 함 | LOW | Category 모델에 `admin_only_write: boolean` 컬럼 추가. PostsController#new에서 권한 체크 |
-| 게시글 예약 발행 | Ghost, WordPress 등 모든 블로그 플랫폼이 지원. 운영자가 콘텐츠를 미리 작성해두고 최적 시간에 자동 발행 | MEDIUM | Post에 `publish_at: datetime` 컬럼. 현재 status enum에 `scheduled` 추가. Solid Queue로 발행 잡 예약 |
-| 예약 발행 날짜/시간 UI 피커 | datetime 필드에 원시 텍스트 입력은 UX 실패. 모든 CMS는 캘린더+시간 피커를 제공 | LOW | Stimulus controller + flatpickr. `enableTime: true`, `altInput: true`로 사람 친화적 표시 + 서버 전송 포맷 분리 |
-| 스킬팩 카테고리 동적 관리 | 게시판과 동일한 패턴. SkillPack도 현재 하드코딩된 카테고리 사용 추정 | MEDIUM | SkillPackCategory 모델 별도 생성. 게시판 카테고리와 독립적으로 관리 |
+| Open Graph 메타태그 (og:title, og:description, og:image, og:type) | 카카오/페이스북/링크드인/슬랙 링크 공유 시 미리보기 생성. 없으면 제목도 없는 빈 카드 노출 | LOW | meta-tags gem이 이미 설치됨. 각 컨트롤러/뷰에서 `set_meta_tags og: {...}` 호출만 추가하면 됨. 게시글 상세 페이지에서는 `og:type = "article"` 필수 |
+| Twitter Card 메타태그 (twitter:card, twitter:title, twitter:image) | X(구 트위터)/Discord 공유 시 미리보기. `summary_large_image` 타입이 클릭률 높음 | LOW | OG 태그와 거의 동일한 패턴. Twitter는 OG 태그를 fallback으로 사용하므로 핵심 twitter:card만 추가해도 동작 |
+| canonical URL 자기 참조 | 페이지네이션, 쿼리스트링 등 동일 콘텐츠 중복 URL 발생 방지. Google이 공식 권장 | LOW | meta-tags gem의 `set_meta_tags canonical: request.original_url` 패턴. ApplicationController concern으로 자동화 가능 |
+| noindex — Admin/인증 페이지 | 관리자 페이지, 프로필 편집 등이 검색 결과에 노출되면 안 됨. robots.txt Disallow는 크롤링 차단이지 noindex가 아님 | LOW | Admin 레이아웃에 `set_meta_tags noindex: true` 전역 설정 한 줄로 처리 가능. meta-tags gem의 `skip_canonical_links_on_noindex: true` config와 함께 사용 권장 |
+| robots.txt 보강 — Yeti(네이버봇) 허용 룰 + sitemap 경로 | 네이버 검색 등록을 위해 Yeti 봇 명시적 허용 설정 필요. 현재 robots.txt는 sitemap 경로 기재되어 있으나 Yeti 전용 룰 없음 | LOW | `User-agent: Yeti` 항목 추가. 현재 `User-agent: *` 규칙이 이미 Yeti를 허용하지만 네이버 서치어드바이저는 명시적 선언을 선호함. `public/robots.txt` 정적 파일 수정 |
+| Google Search Console 인증 메타태그 | 사이트 소유권 확인 없이 GSC 기능 사용 불가. `google-site-verification` 메타태그가 표준 방법 | LOW | `config/initializers/` 또는 환경변수로 토큰 저장 후 application.html.erb `yield :head`에 출력. meta-tags gem의 `set_meta_tags verification: { google: token }` 지원 |
+| 네이버 서치어드바이저 인증 메타태그 | 네이버 검색 노출을 위한 소유권 확인. `naver-site-verification` 메타태그 사용 | LOW | Google과 동일 패턴. `set_meta_tags verification: { naver: token }` 방식 |
 
 ### Differentiators (Competitive Advantage)
 
-TeoVibe의 1인 운영 효율성을 극대화하는 차별 기능. 없어도 작동하지만 있으면 운영 부담을 크게 줄임.
+기본 SEO를 넘어 검색 품질과 관리자 UX를 실질적으로 개선하는 기능들.
 
 | Feature | Value Proposition | Complexity | Notes |
 |---------|-------------------|------------|-------|
-| AI 초안 작성 2단계 (주제 → 개요 → 본문) | 1인 운영자의 콘텐츠 생산 속도를 2-3배 향상. 빈 페이지 앞에서의 저항감 제거. Ghost나 WordPress는 AI 초안 기능 없음 — 차별점이자 운영 효율화 | HIGH | Anthropic Claude API. 1단계: 주제 입력 → 개요(H2 섹션 목록) 생성. 2단계: 개요 승인 후 본문 생성. rhino-editor에 초안 삽입 |
-| SEO/AEO 최적화 시스템 프롬프트 | 단순 글 생성이 아니라 검색 노출 최적화까지 고려. FAQPage 스키마 호환 구조, 40-60자 직접 답변 단락, H2/H3 계층 구조를 프롬프트에 내장 | MEDIUM | 시스템 프롬프트에 AEO 체크리스트 포함. FAQ 섹션 자동 생성 옵션. 별도 설정 UI 불필요 — 프롬프트 엔지니어링으로 해결 |
-| 스트리밍 응답 (실시간 타이핑 효과) | GPT/Claude 웹 인터페이스처럼 글자가 타이핑되는 UX. 응답 대기 시간의 체감 불안감을 제거 | HIGH | ActionController::Live + SSE 또는 Turbo Streams를 통한 청크 스트리밍. Anthropic API `stream: true` 파라미터 사용 |
-| 카테고리 드래그앤드롭 순서 변경 | UX 품질의 차이. 버튼 클릭 위/아래 이동보다 드래그앤드롭이 훨씬 직관적. Notion, Ghost 모두 사용 | MEDIUM | Sortable.js + Stimulus controller. position 컬럼 일괄 업데이트 API 엔드포인트 |
+| JSON-LD 구조화 데이터 실제 렌더링 (Article + BreadcrumbList) | Google Rich Results에서 별점, 날짜, 작성자 표시 가능. 클릭률 향상. 헬퍼는 이미 정의됨 — 뷰에 연결만 하면 됨 | LOW-MEDIUM | 게시글 상세에 `article_json_ld(@post)` + `breadcrumb_json_ld(items)` 렌더링. 홈에 `website_json_ld` + `organization_json_ld`. `<script type="application/ld+json">` 태그로 head에 삽입 |
+| og:image OGP 이미지 자동 생성/선택 | 이미지 없는 OG 카드는 공유 시 매력 없음. 게시글 본문 첫 번째 이미지 자동 추출 또는 기본 OGP 이미지 폴백 | MEDIUM | Post 모델에 `og_image_url` 메서드 추가: (1) 본문에서 첫 번째 첨부 이미지 URL 추출, (2) 없으면 사이트 기본 OGP 이미지(`/opengraph-default.png`) 폴백 |
+| Admin 게시글 에디터 2컬럼 레이아웃 | 현재 1컬럼에서 AI 패널, 제목, 카테고리, 상태, 예약, 본문 에디터, SEO 필드가 세로로 나열 — 스크롤이 매우 길어짐. 2컬럼으로 분리하면 에디터에 집중하면서 메타 정보를 한눈에 볼 수 있음 | MEDIUM | **왼쪽(넓게, ~70%):** AI 패널 + 제목 + 본문 에디터 / **오른쪽(좁게, ~30%):** 카테고리, 상태, 예약 시간, 고정글, SEO 제목/설명. Tailwind CSS Grid 또는 Flex로 구현. Ghost/WordPress Admin이 동일 패턴 사용 |
+| noindex 토글 — 게시글별 관리자 선택 | 시리즈 중간 페이지, 임시 공개 게시글 등 특정 글을 의도적으로 비색인 처리. 현재 모든 published 게시글이 색인됨 | MEDIUM | Post 모델에 `noindex: boolean` 컬럼 추가. Admin 에디터 우측 패널에 토글. 게시글 show 뷰에서 조건부 `set_meta_tags noindex: true` |
 
 ### Anti-Features (Commonly Requested, Often Problematic)
 
@@ -47,177 +63,328 @@ TeoVibe의 1인 운영 효율성을 극대화하는 차별 기능. 없어도 작
 
 | Feature | Why Requested | Why Problematic | Alternative |
 |---------|---------------|-----------------|-------------|
-| 사용자별 카테고리 구독/필터링 | "내가 관심 있는 카테고리만 보고 싶다"는 자연스러운 요청 | 현재 v1.1 스코프가 Admin 운영 효율화에 집중됨. 사용자 선호도 저장 로직, UI 변경이 별도 마일스톤 수준의 작업 | 카테고리 목록 페이지에서 수동 필터링으로 충분 (이미 구현됨) |
-| AI가 자동으로 게시글 전체 생성/발행 | 운영 자동화처럼 들림 | 품질 보증 없는 AI 발행은 브랜드 리스크. 관리자 승인 없는 발행은 1인 운영 철학에 어긋남 | 반드시 사람이 검토 후 수동 발행 또는 예약. AI는 "초안 보조"에 한정 |
-| 반복 발행 스케줄 (cron 패턴) | "매주 월요일 오전 9시에 발행" 같은 요청 | 반복 발행은 게시글마다 내용이 달라야 하므로 자동화 의미 없음. solid_queue recurring은 동일 잡 반복용 | 단건 예약 발행으로 충분. recurring.yml은 시스템 유지보수 작업에만 사용 |
-| 카테고리 계층 구조 (중첩 카테고리) | "메인 카테고리 > 서브카테고리" 구조 요청 | Ancestry 또는 closure_tree gem 필요. 현재 6개 평면 카테고리 구조에 과도한 복잡도. 쿼리, UI, breadcrumb 모두 복잡해짐 | 평면 카테고리 + 태그 시스템으로 대응 (태그는 future 항목) |
-| AI 생성 콘텐츠 자동 SEO 제출 (Google Indexing API) | AI로 쓴 글을 구글에 빠르게 색인 | 대량 AI 콘텐츠 자동 제출은 구글 스팸 정책 위반 가능성. 현재 사이트맵이 이미 존재 | 기존 사이트맵 + ping 엔드포인트로 충분 |
+| sitemap 동적 핑 자동 전송 (Google Indexing API) | 새 글 발행 즉시 구글에 색인 요청하고 싶음 | Google Indexing API는 JobPosting, BroadcastEvent 등 특정 스키마만 지원. 일반 블로그 게시글에는 Search Console ping 엔드포인트 사용이 표준. 과도한 API 호출은 스팸으로 분류될 수 있음 | `sitemap_generator`의 ping 기능(`SitemapGenerator::Sitemap.ping_search_engines`)을 배포 시 한 번 호출하거나 새 글 발행 후 after_create_commit 콜백으로 제한 |
+| 자동 meta description 생성 (본문 첫 200자) | SEO 설명을 매번 입력하기 번거로움 | 자동 생성된 설명은 SEO 품질 낮음. Google이 이미 meta description을 무시하고 자체 snippets 생성하는 추세 (2025년 기준 50% 이상 무시). AI 초안이 이미 있으므로 중복 | Admin 에디터에서 AI 초안 생성 시 SEO 설명도 함께 제안하도록 AI 프롬프트에 포함. 빈 경우만 자동 생성 |
+| AMP (Accelerated Mobile Pages) 별도 구현 | 모바일 검색 속도 향상을 위해 AMP 페이지 만들기 | Google이 2023년부터 AMP를 Core Web Vitals 순위 요소에서 제외. AMP는 Rails에서 별도 뷰 세트 필요로 유지보수 비용 높음. 현재 반응형 Tailwind 디자인으로 충분 | Core Web Vitals(LCP, CLS, FID) 최적화에 집중 |
+| 다국어 hreflang 태그 | 한국어/영어 별도 버전 운영 시 필요 | TeoVibe는 한국어 전용 서비스. 불필요한 복잡도 추가 | `<html lang="ko">` 이미 설정됨. `og:locale = "ko_KR"` 추가로 충분 |
+| 구조화 데이터 유효성 검사 자동화 CI | PR마다 JSON-LD 유효성 자동 체크 | 1인 운영에 CI 설정 오버엔지니어링. 수동으로 Google Rich Results Test 사용이 현실적 | 초기 구현 후 한 번 Google Rich Results Test(`https://search.google.com/test/rich-results`)로 수동 검증 |
 
 ---
 
 ## Feature Dependencies
 
 ```
-[카테고리 CRUD (게시판)]
-    └──requires──> [Category 모델 + DB 마이그레이션]
-                       └──requires──> [기존 Post.category enum 데이터 마이그레이션]
-                       └──enables──> [관리자 전용 작성 토글]
-                       └──enables──> [드래그앤드롭 순서 변경]
+[Open Graph 메타태그]
+    └──requires──> [meta-tags gem (이미 설치됨)]
+    └──requires──> [각 컨트롤러/뷰에서 set_meta_tags 호출]
+    └──enhances──> [og:image] (이미지 있으면 공유 카드 품질 향상)
 
-[카테고리 CRUD (스킬팩)]
-    └──requires──> [SkillPackCategory 모델 + DB 마이그레이션]
-                       └──독립적──> [게시판 카테고리와 별개 모델]
+[JSON-LD 구조화 데이터 렌더링]
+    └──requires──> [seo_helper.rb 헬퍼 (이미 정의됨)]
+    └──requires──> [각 뷰에서 content_for :head 블록으로 script 태그 삽입]
+    └──enhances──> [BreadcrumbList] (shared/breadcrumb 컴포넌트와 일관성 유지 필요)
 
-[게시글 예약 발행]
-    └──requires──> [Post.publish_at 컬럼 + Post.status :scheduled 추가]
-                       └──requires──> [PublishScheduledPostJob (ActiveJob)]
-                                          └──requires──> [Solid Queue (이미 설정됨)]
-    └──requires──> [날짜/시간 피커 UI (flatpickr Stimulus)]
+[noindex 토글 (게시글별)]
+    └──requires──> [Post 모델 noindex 컬럼 마이그레이션]
+    └──requires──> [Admin 에디터 2컬럼 레이아웃] (우측 패널에 배치)
+    └──conflicts──> [canonical URL] (Google 권장: noindex 페이지에 canonical 동시 사용 지양)
+                       └──해결: MetaTags.config.skip_canonical_links_on_noindex = true
 
-[AI 초안 작성]
-    └──requires──> [Anthropic API 클라이언트 (anthropic gem 또는 Faraday 직접)]
-    └──requires──> [AI Draft 컨트롤러 + 라우트]
-    └──enhances──> [rhino-editor (이미 설치됨) — 생성된 초안 삽입]
-    └──optional──> [스트리밍 SSE (ActionController::Live)]
+[Admin 2컬럼 레이아웃]
+    └──requires──> [기존 _form.html.erb 리팩터링]
+    └──enables──> [noindex 토글 UI] (우측 패널 공간 확보)
+    └──enables──> [SEO 필드 가시성 향상] (현재 폼 하단에 묻혀있음)
+
+[Google/네이버 Search Console 인증]
+    └──requires──> [환경변수로 인증 토큰 관리] (.env에 GOOGLE_SITE_VERIFICATION, NAVER_SITE_VERIFICATION)
+    └──requires──> [application.html.erb head 섹션에 토큰 출력]
+    └──독립적──> [다른 SEO 기능과 독립적으로 구현 가능]
+
+[robots.txt 보강]
+    └──독립적──> [정적 파일 수정만으로 완료]
+    └──선행 권장──> [Google/네이버 Search Console 인증보다 먼저 완료 권장]
 ```
 
 ### Dependency Notes
 
-- **Category 모델 이관이 가장 위험한 작업:** 기존 Post.category enum 데이터를 Category 모델 외래키로 마이그레이션해야 함. 마이그레이션 스크립트에서 `"blog" → category_id: 1` 매핑 필요. 롤백 계획 필수.
-- **예약 발행은 Solid Queue 의존:** Solid Queue가 이미 설정되어 있으므로 추가 인프라 불필요. `set(wait_until: post.publish_at).perform_later(post.id)` 패턴으로 구현.
-- **AI 초안이 rhino-editor와 독립적:** AI가 생성한 HTML/Markdown을 rhino-editor에 주입하는 것은 editor 인스턴스에 content를 set하는 JS 이벤트로 해결. editor 자체 수정 불필요.
-- **스트리밍은 선택적 개선:** 스트리밍 없이 일반 POST → 응답 패턴으로도 동작함. 스트리밍은 UX 향상이지 기능 요구사항이 아님. 구현 복잡도를 감안해 후순위로 처리 가능.
+- **JSON-LD와 BreadcrumbList 일관성:** `seo_helper.rb`의 `breadcrumb_json_ld`가 생성하는 구조화 데이터는 반드시 실제 페이지에 보이는 breadcrumb UI와 일치해야 함. 불일치 시 Google이 구조화 데이터를 무시하거나 패널티 부여 가능.
+- **noindex + canonical 충돌:** Google의 John Mueller 권고에 따라 noindex 페이지에는 canonical 태그를 함께 사용하지 않는 것이 권장됨. `MetaTags.config.skip_canonical_links_on_noindex = true` 설정으로 자동 처리.
+- **og:image 없는 OG 태그 금지:** `og:image`가 없으면 공유 시 빈 카드 노출. 기본 OGP 이미지를 반드시 `public/` 에 준비해야 함.
+- **Admin 2컬럼 레이아웃이 noindex 토글의 선행 조건:** 1컬럼에서도 noindex 토글 추가는 가능하나, 2컬럼으로 전환 시 우측 패널에 자연스럽게 배치되므로 레이아웃 작업을 먼저 하는 것이 효율적.
 
 ---
 
 ## 기능별 상세 동작 분석
 
-### 1. 동적 카테고리 관리 + 관리자 전용 작성 토글
+### 1. Open Graph + Twitter Card 메타태그
 
-**사용자 행동 시나리오:**
-1. Admin이 `/admin/categories` 접근
-2. "새 카테고리" 버튼 클릭 → 이름, 슬러그, 설명, 관리자 전용 여부 입력
-3. 생성된 카테고리가 목록에 표시 — 드래그로 순서 변경
-4. `admin_only_write: true`인 카테고리는 일반 사용자 게시글 작성 폼에 노출되지 않음
-5. 카테고리 삭제 시 기존 게시글 처리 정책: "기본 카테고리로 이동" 또는 "삭제 불가 (게시글 있을 때)"
+**동작 방식:**
+- 각 페이지 타입별로 `set_meta_tags` 호출 시 meta-tags gem이 `<head>`에 `<meta property="og:...">` 태그 자동 생성
+- Twitter는 OG 태그를 fallback으로 사용하므로 `twitter:card` 타입만 명시하면 나머지는 OG에서 상속
 
-**관리자 전용 토글 UX 패턴:**
-- 카테고리 목록에서 토글 스위치 (inline Turbo Stream 업데이트)
-- 새 게시글 작성 시 `admin_only_write` 카테고리는 일반 사용자에게 숨김
-- 실수 방지: 이미 게시글이 있는 카테고리를 admin_only로 전환하면 경고 표시
+**구현 패턴:**
 
-**복잡도 요인:**
-- enum → DB 테이블 이관 시 기존 데이터 정합성 (높은 위험)
-- 순서 저장: `position` 컬럼 + acts_as_list 또는 직접 구현
-- Sortable.js AJAX 업데이트: position 배열을 PATCH 한 번에 업데이트
-
-### 2. AI 초안 작성 (2단계: 주제 → 개요 → 본문)
-
-**사용자 행동 시나리오:**
-1. Admin이 게시글 작성 폼 하단 "AI 초안 작성" 섹션 접근
-2. **1단계:** 주제/키워드 입력 (예: "바이브코딩으로 수익화하는 5가지 방법") → "개요 생성" 클릭
-3. 서버가 Anthropic API 호출 → 섹션 개요(H2 목록 + 각 섹션 요약 1문장) 반환
-4. Admin이 개요 검토 — 섹션 이름 수정, 순서 변경, 삭제 가능
-5. **2단계:** "본문 생성" 클릭 → 승인된 개요 기반으로 전체 본문 생성
-6. 생성된 본문이 rhino-editor에 삽입됨 → Admin이 편집 후 저장/예약 발행
-
-**SEO/AEO 시스템 프롬프트 핵심 요소:**
-- H2/H3 명확한 계층 구조 (Google SGE가 계층 구조를 인식)
-- 각 섹션 첫 단락에 40-60자 직접 답변 ("What is X? X is...")
-- FAQ 섹션 자동 포함 (FAQPage 스키마 마크업과 호환)
-- 타겟 키워드를 자연스럽게 첫 100자 내 포함
-- 한국어 콘텐츠 특화 (구어체/문어체 혼용 주의)
-
-**API 구현 패턴:**
-```
-POST /admin/ai_drafts
-Body: { topic: "...", target_keywords: [...], category: "blog", step: "outline" | "body", outline: {...} }
-Response: { content: "...", step: "outline" | "body" }
-```
-
-**스트리밍 구현 (선택적):**
-- `stream: true` Anthropic API 파라미터
-- Rails `ActionController::Live` + `response.stream.write("data: #{chunk}\n\n")`
-- 프론트엔드: `EventSource` API로 청크 수신 → rhino-editor에 점진적 삽입
-
-**복잡도 요인:**
-- Anthropic API 비용 관리 (응답 토큰 cap 설정 권장: max_tokens: 4000)
-- 스트리밍과 Puma의 connection thread 관리 (streaming은 별도 고려 필요)
-- rhino-editor에 외부 HTML 삽입: editor.commands.setContent() 또는 insertContent() 호출
-
-### 3. 게시글 예약 발행 (날짜/시간 피커)
-
-**사용자 행동 시나리오:**
-1. Admin이 게시글 작성/수정 폼에서 "발행 예약" 옵션 선택
-2. 날짜+시간 피커 표시 (flatpickr: 현재 시간 이후만 선택 가능, `minDate: "today"`)
-3. "예약 발행" 저장 클릭 → Post.status가 `:scheduled`, `publish_at`에 선택한 시간 저장
-4. Solid Queue 잡이 `publish_at` 시각에 `Post.status = :published`로 변경
-5. Admin 게시글 목록에서 "예약됨" 상태 + 발행 예정 시각 표시
-6. 예약 취소: "예약 해제" 버튼 → status를 `:draft`로, `publish_at`을 nil로 변경
-
-**Status 상태 흐름:**
-```
-:draft → [즉시 발행] → :published
-:draft → [예약 설정] → :scheduled → [시간 도래] → :published
-:scheduled → [예약 취소] → :draft
-:published → [게시 취소] → :draft (관리자 수동)
-```
-
-**Solid Queue 잡 구현:**
+게시글 상세 컨트롤러 (`posts_controller.rb#show`):
 ```ruby
-# app/jobs/publish_scheduled_post_job.rb
-class PublishScheduledPostJob < ApplicationJob
-  def perform(post_id)
-    post = Post.find_by(id: post_id)
-    return unless post&.scheduled?
-    return if post.publish_at > Time.current  # 재스케줄된 경우 안전장치
-    post.update!(status: :published, published_at: Time.current)
-  end
-end
-
-# 예약 시:
-PublishScheduledPostJob.set(wait_until: post.publish_at).perform_later(post.id)
+set_meta_tags(
+  title: @post.seo_title.presence || @post.title,
+  description: @post.seo_description,
+  og: {
+    title: @post.seo_title.presence || @post.title,
+    description: @post.seo_description,
+    type: "article",
+    url: request.original_url,
+    image: @post.og_image_url,
+    locale: "ko_KR",
+    "article:published_time" => @post.created_at.iso8601,
+    "article:author" => @post.user.nickname
+  },
+  twitter: {
+    card: "summary_large_image"
+  }
+)
 ```
 
-**flatpickr UX 설정:**
-- `enableTime: true` — 시간도 선택 가능
-- `altInput: true` — 사람 친화적 표시 ("2026년 3월 15일 오전 10:00") + 서버 전송용 ISO 포맷 숨김
-- `minDate: "today"`, `minTime: "now"` — 과거 시간 선택 방지
-- `locale: "ko"` — 한국어 UI
-- 시간대: 서버는 UTC 저장, 표시는 KST (UTC+9) 변환
+ApplicationController (전역 기본값):
+```ruby
+before_action :set_default_meta_tags
 
-**복잡도 요인:**
-- 시간대 처리: Ruby `Time.zone = "Seoul"` 설정 + 사용자 입력을 UTC로 변환
-- 예약 취소 후 잡이 이미 큐에 있는 경우 처리 (Solid Queue에서 잡 취소 또는 perform 시 status 체크로 무시)
-- 예약 변경 시 기존 잡 취소 + 새 잡 등록 패턴
+def set_default_meta_tags
+  set_meta_tags(
+    site: "TeoVibe",
+    title: "바이브코딩 커뮤니티",
+    description: "바이브코딩으로 사업을 만드는 사람들의 커뮤니티",
+    og: {
+      site_name: "TeoVibe",
+      type: "website",
+      image: "#{root_url}opengraph-default.png",
+      locale: "ko_KR"
+    },
+    twitter: { card: "summary_large_image" }
+  )
+end
+```
+
+**og:image 자동 추출 (Post 모델 메서드):**
+```ruby
+def og_image_url
+  # ActionText 본문에서 첫 번째 첨부 이미지 URL 추출
+  # 없으면 사이트 기본 OGP 이미지 반환 (컨트롤러에서 처리)
+  nil # 컨트롤러에서 폴백 처리
+end
+```
+
+**이미지 권장 사이즈:** 1200x630px (1.91:1 비율). `public/opengraph-default.png` 필수 준비.
+
+### 2. JSON-LD 구조화 데이터 렌더링
+
+**동작 방식:**
+- `seo_helper.rb`에 헬퍼 정의 완료됨. 뷰에서 `content_for :head` 블록으로 `<script type="application/ld+json">` 태그를 `yield :head` 위치에 삽입하면 됨
+
+**게시글 상세 뷰 (`posts/show.html.erb`) 추가:**
+```erb
+<% content_for :head do %>
+  <script type="application/ld+json"><%= article_json_ld(@post) %></script>
+  <script type="application/ld+json"><%= breadcrumb_json_ld([
+    { name: "홈", url: root_url },
+    { name: @post.category_name, url: category_posts_url(category_slug: @post.category&.slug) },
+    { name: @post.title }
+  ]) %></script>
+<% end %>
+```
+
+**중요:** BreadcrumbList의 `itemListElement`에 사용하는 URL이 실제 breadcrumb UI에 표시된 링크와 동일해야 함.
+
+**페이지별 JSON-LD 매핑:**
+
+| 페이지 | JSON-LD 타입 |
+|--------|-------------|
+| 홈 (`/`) | WebSite + Organization |
+| 게시글 상세 | Article + BreadcrumbList |
+| 스킬팩 상세 | SoftwareApplication |
+| 카테고리 목록 | ItemList + BreadcrumbList |
+| 프로필 | ProfilePage |
+
+### 3. canonical URL + noindex 처리
+
+**canonical URL 전략:**
+- 모든 페이지: 자기 참조 canonical (`request.original_url` 기반)
+- 페이지네이션(`?page=2`): 각 페이지의 `request.original_url`을 canonical로 사용 (noindex 적용 금지 — 深 페이지 콘텐츠 색인 방지)
+- ApplicationController before_action으로 기본값 설정, 각 컨트롤러에서 필요 시 오버라이드
+
+**noindex 적용 대상:**
+1. Admin 레이아웃 전체 (`admin.html.erb` head에 전역 설정)
+2. 인증 관련 페이지 (`/auth/`, `/sessions/`, `/registrations/`)
+3. 프로필 편집 페이지 (`/profile/edit`)
+4. 게시글별 noindex 토글 (Admin에서 선택 시 해당 게시글만)
+
+**구현 방식:**
+- Admin 레이아웃: `<meta name="robots" content="noindex, follow">` 직접 삽입 또는 `set_meta_tags noindex: true`
+- ApplicationController: `MetaTags.config.skip_canonical_links_on_noindex = true`
+
+### 4. robots.txt 보강
+
+**현재 상태 (이미 있음):**
+```
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /auth/
+Disallow: /profile/edit
+Sitemap: https://teovibe.com/sitemap.xml
+```
+
+**v1.2 추가 사항:**
+```
+User-agent: Googlebot
+Allow: /
+
+User-agent: Yeti
+Allow: /
+
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /auth/
+Disallow: /sessions/
+Disallow: /profile/edit
+
+Sitemap: https://teovibe.com/sitemap.xml
+```
+
+**참고:** Yeti는 네이버 검색 크롤러의 공식 명칭. `User-agent: *` 규칙이 이미 Yeti를 허용하지만, 네이버 서치어드바이저 등록 시 명시적 선언이 크롤링 품질에 도움.
+
+### 5. Google / 네이버 Search Console 인증
+
+**동작 방식:**
+- Google: `<meta name="google-site-verification" content="TOKEN">` — 홈페이지 head에 삽입
+- Naver: `<meta name="naver-site-verification" content="TOKEN">` — 홈페이지 head에 삽입
+
+**구현 패턴 (환경변수 기반):**
+
+`config/initializers/seo.rb`:
+```ruby
+# 환경변수에서 토큰 로드 (없으면 nil, 메타태그 미출력)
+GOOGLE_SITE_VERIFICATION = ENV["GOOGLE_SITE_VERIFICATION"]
+NAVER_SITE_VERIFICATION = ENV["NAVER_SITE_VERIFICATION"]
+```
+
+`app/views/layouts/application.html.erb` (yield :head 전):
+```erb
+<% if defined?(GOOGLE_SITE_VERIFICATION) && GOOGLE_SITE_VERIFICATION.present? %>
+  <meta name="google-site-verification" content="<%= GOOGLE_SITE_VERIFICATION %>">
+<% end %>
+<% if defined?(NAVER_SITE_VERIFICATION) && NAVER_SITE_VERIFICATION.present? %>
+  <meta name="naver-site-verification" content="<%= NAVER_SITE_VERIFICATION %>">
+<% end %>
+```
+
+또는 meta-tags gem 방식:
+```ruby
+# ApplicationController
+set_meta_tags verification: {
+  google: ENV["GOOGLE_SITE_VERIFICATION"],
+  "naver-site-verification" => ENV["NAVER_SITE_VERIFICATION"]
+}
+```
+
+**주의:** 인증 토큰은 절대 코드에 하드코딩 금지. `.env` 파일에 저장, `.gitignore`에 `.env*` 포함 확인.
+
+### 6. Admin 게시글 에디터 2컬럼 레이아웃
+
+**현재 레이아웃 문제:**
+- 1컬럼 세로 나열: AI 패널 → 제목 → 카테고리 → 상태 → 예약 → 고정글 → 본문 에디터 → SEO 제목 → SEO 설명
+- 본문 에디터에 집중하려면 SEO/설정 필드까지 스크롤해야 함
+- SEO 필드가 폼 하단에 있어 자주 빠뜨리게 됨
+
+**2컬럼 레이아웃 설계:**
+
+```
+┌─────────────────────────────┬──────────────────────┐
+│  왼쪽 (flex-1, ~70%)         │  오른쪽 (~30%)        │
+│                             │                      │
+│  [AI 초안 작성 패널]          │  [게시 설정]          │
+│                             │  - 카테고리           │
+│  [제목 입력]                  │  - 상태              │
+│                             │  - 예약 발행 시각      │
+│  [본문 에디터 (rhino-editor)] │  - 고정글 토글        │
+│  (높이 가득 차지)              │  - noindex 토글 (신규) │
+│                             │                      │
+│                             │  [SEO 설정]           │
+│                             │  - SEO 제목           │
+│                             │  - SEO 설명           │
+│                             │                      │
+│                             │  [저장/취소 버튼]      │
+└─────────────────────────────┴──────────────────────┘
+```
+
+**구현 패턴:**
+
+```erb
+<%# admin/posts/_form.html.erb 구조 변경 %>
+<%= form_with(model: [:admin, post]) do |f| %>
+  <%# AI 패널 — 풀 width %>
+  <div class="mb-4">
+    <%= render "admin/posts/ai_panel", f: f %>
+  </div>
+
+  <%# 2컬럼 그리드 %>
+  <div class="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 items-start">
+    <%# 왼쪽: 제목 + 에디터 %>
+    <div class="space-y-4">
+      <%# 제목 필드 %>
+      <%# rhino-editor %>
+    </div>
+
+    <%# 오른쪽: 메타/설정 %>
+    <div class="space-y-4 lg:sticky lg:top-[100px]">
+      <%# 카테고리, 상태, 예약, 고정글, noindex %>
+      <%# SEO 제목, SEO 설명 %>
+      <%# 저장 버튼 %>
+    </div>
+  </div>
+<% end %>
+```
+
+**sticky 우측 패널:** `lg:sticky lg:top-[100px]`로 우측 설정 패널을 뷰포트에 고정시켜 긴 본문 편집 시에도 설정값 확인 가능.
+
+**모바일 대응:** `grid-cols-1 lg:grid-cols-[1fr_320px]` — 모바일은 1컬럼(설정이 에디터 아래), 데스크탑은 2컬럼.
+
+**AI 패널 위치:** 2컬럼 밖 풀 width 영역에 배치. 레이아웃 변경이 AI 패널 기능에 영향 없어야 함.
 
 ---
 
 ## MVP Definition
 
-### Launch With (v1.1 이번 밀스톤)
+### Launch With (v1.2 이번 밀스톤)
 
-- [ ] Category 모델 생성 + Post enum 이관 마이그레이션 — 모든 동적 카테고리 기능의 기반
-- [ ] Admin 카테고리 CRUD UI + 관리자 전용 토글 — 표 스테이크
-- [ ] 카테고리 순서 변경 (position + acts_as_list) — UX 완성도
-- [ ] 스킬팩 카테고리 별도 CRUD — 독립 기능, Category 모델과 유사 패턴
-- [ ] Post publish_at + :scheduled status 추가 — 예약 발행 기반
-- [ ] PublishScheduledPostJob + Solid Queue 연동 — 예약 발행 백엔드
-- [ ] flatpickr 날짜/시간 피커 UI — 예약 발행 프론트엔드
-- [ ] AI 초안 1단계 (주제 → 개요) — 핵심 가치
-- [ ] AI 초안 2단계 (개요 → 본문) + rhino-editor 삽입 — 핵심 가치
+- [ ] robots.txt 보강 (Yeti 명시, /sessions/ 추가) — 정적 파일 수정, 5분
+- [ ] ApplicationController 기본 meta 태그 전역 설정 (site, description, og 기본값) — LOW
+- [ ] 게시글 상세 Open Graph 메타태그 (`set_meta_tags` 컨트롤러 호출) — LOW
+- [ ] Twitter Card `summary_large_image` 타입 전역 설정 — LOW
+- [ ] canonical URL 자기 참조 (ApplicationController before_action) — LOW
+- [ ] Admin 레이아웃 noindex 전역 처리 — LOW (한 줄)
+- [ ] 인증 관련 페이지 noindex 처리 — LOW
+- [ ] JSON-LD 게시글 상세 Article + BreadcrumbList 렌더링 — LOW (헬퍼 이미 정의됨)
+- [ ] JSON-LD 홈페이지 WebSite + Organization 렌더링 — LOW
+- [ ] Google Search Console 인증 메타태그 (환경변수 기반) — LOW
+- [ ] 네이버 서치어드바이저 인증 메타태그 (환경변수 기반) — LOW
+- [ ] Admin 게시글 에디터 2컬럼 레이아웃 (_form.html.erb 리팩터링) — MEDIUM
+- [ ] 기본 OGP 이미지 (`public/opengraph-default.png`, 1200x630px) — LOW (에셋 준비)
 
 ### Add After Validation (v1.x)
 
-- [ ] AI 초안 스트리밍 응답 — UX 개선, 기능 자체는 이미 동작
-- [ ] 카테고리 드래그앤드롭 순서 변경 (Sortable.js) — 버튼 방식으로 먼저 출시
-- [ ] 예약 발행 일괄 관리 (Admin 게시글 목록에서 예약 현황 일괄 확인) — 단건으로 먼저 검증
+- [ ] og:image 본문 첫 번째 이미지 자동 추출 (Post 모델 메서드) — MEDIUM (ActionText 첨부 이미지 URL 접근 방식 조사 필요)
+- [ ] noindex 토글 — 게시글별 Admin 설정 (Post 모델 컬럼 추가 필요) — MEDIUM
+- [ ] JSON-LD 카테고리 목록 ItemList + BreadcrumbList — LOW (각 카테고리 컨트롤러 추가)
+- [ ] JSON-LD 스킬팩 상세 SoftwareApplication — LOW
+- [ ] sitemap ping 후처리 (게시글 발행 after_commit 콜백) — LOW
 
 ### Future Consideration (v2+)
 
-- [ ] 태그 기반 콘텐츠 분류 (PROJECT.md future 항목) — 카테고리 안정화 후
-- [ ] AI 초안 스타일/톤 선택 (전문적/친근한/SEO 집중) — 기본 동작 후 확장
-- [ ] 게시글 예약 달력 뷰 — 규모 성장 후 의미 있음
+- [ ] Core Web Vitals 최적화 (LCP 이미지 preload, CLS 방지) — 트래픽 증가 후 의미 있음
+- [ ] 이미지 최적화 파이프라인 (WebP 변환, responsive srcset) — 별도 마일스톤
+- [ ] AI 초안 생성 시 SEO 제목/설명 자동 제안 — AI 기능 고도화 마일스톤
 
 ---
 
@@ -225,54 +392,63 @@ PublishScheduledPostJob.set(wait_until: post.publish_at).perform_later(post.id)
 
 | Feature | User Value | Implementation Cost | Priority |
 |---------|------------|---------------------|----------|
-| Category 모델 + enum 이관 | HIGH | HIGH | P1 (기반 작업) |
-| Admin 카테고리 CRUD | HIGH | MEDIUM | P1 |
-| 관리자 전용 작성 토글 | MEDIUM | LOW | P1 |
-| 카테고리 position 순서 변경 | MEDIUM | MEDIUM | P1 |
-| 스킬팩 카테고리 CRUD | MEDIUM | MEDIUM | P1 |
-| 예약 발행 (백엔드 잡) | HIGH | MEDIUM | P1 |
-| 예약 발행 (flatpickr UI) | HIGH | LOW | P1 |
-| AI 초안 1단계 (개요 생성) | HIGH | MEDIUM | P1 |
-| AI 초안 2단계 (본문 생성) | HIGH | MEDIUM | P1 |
-| AI 스트리밍 응답 | MEDIUM | HIGH | P2 |
-| 카테고리 드래그앤드롭 | MEDIUM | MEDIUM | P2 |
+| robots.txt 보강 | LOW | LOW | P1 (5분 작업) |
+| 전역 기본 OG 메타태그 | HIGH | LOW | P1 |
+| 게시글 상세 OG 메타태그 | HIGH | LOW | P1 |
+| Twitter Card 설정 | MEDIUM | LOW | P1 |
+| canonical URL 처리 | MEDIUM | LOW | P1 |
+| Admin/인증 noindex | MEDIUM | LOW | P1 |
+| JSON-LD Article 렌더링 | MEDIUM | LOW | P1 (헬퍼 이미 있음) |
+| JSON-LD WebSite/Organization 렌더링 | LOW | LOW | P1 |
+| Google/네이버 SC 인증 | HIGH | LOW | P1 |
+| OGP 기본 이미지 에셋 준비 | HIGH | LOW | P1 |
+| Admin 에디터 2컬럼 레이아웃 | HIGH | MEDIUM | P1 |
+| og:image 자동 추출 | MEDIUM | MEDIUM | P2 |
+| noindex 토글 (게시글별) | MEDIUM | MEDIUM | P2 |
+| JSON-LD 목록/스킬팩 | LOW | LOW | P2 |
+| sitemap ping 후처리 | LOW | LOW | P2 |
 
 **Priority key:**
-- P1: 이번 밀스톤 필수
-- P2: 이번 밀스톤 내 여유 시 추가
+- P1: 이번 밀스톤(v1.2) 필수
+- P2: 이번 밀스톤 내 여유 시 또는 바로 다음 PR
 - P3: 차기 밀스톤
 
 ---
 
 ## Competitor Feature Analysis
 
-| Feature | Ghost | WordPress Admin | TeoVibe Current | TeoVibe v1.1 Target |
-|---------|-------|-----------------|-----------------|---------------------|
-| 동적 카테고리 CRUD | Yes (Tags/Categories) | Yes (Categories) | 하드코딩 enum | DB 기반 Category 모델 |
-| 카테고리 순서 변경 | Yes (drag) | Yes (drag) | 없음 | position + acts_as_list |
-| 카테고리별 작성 권한 | No (모두 작성 가능) | Yes (roles per category) | 없음 | admin_only_write 토글 |
-| AI 초안 작성 | No | 써드파티 플러그인만 | 없음 | Anthropic 네이티브 통합 |
-| 예약 발행 | Yes | Yes | 없음 | Solid Queue 기반 |
-| 예약 발행 UI | 캘린더 피커 | 캘린더 피커 | 없음 | flatpickr Stimulus |
+| Feature | Ghost (블로그 플랫폼) | WordPress | TeoVibe v1.1 현황 | TeoVibe v1.2 목표 |
+|---------|---------------------|-----------|-------------------|-------------------|
+| Open Graph 메타태그 | 자동 생성 | Yoast SEO 플러그인 | 미구현 (gem 설치만) | 컨트롤러별 set_meta_tags |
+| Twitter Card | 자동 생성 | Yoast SEO | 미구현 | summary_large_image 전역 |
+| JSON-LD 구조화 데이터 | Article, BreadcrumbList 자동 | Yoast가 자동 생성 | 헬퍼 정의만, 렌더링 안 됨 | 뷰에 script 태그 삽입 |
+| canonical URL | 자동 설정 | Yoast 자동 | 미구현 | before_action 전역 처리 |
+| noindex 설정 | 게시글별 토글 | Yoast 게시글별 토글 | 미구현 | Admin 레이아웃 전역 + 게시글별 (P2) |
+| Search Console 인증 | HTML 파일 업로드 권장 | 플러그인 | 미구현 | 메타태그 방식, 환경변수 |
+| 에디터 레이아웃 | 2컬럼 (본문+사이드바) | 2컬럼 (본문+사이드바) | 1컬럼 세로 나열 | 2컬럼 (본문+설정 사이드바) |
+| robots.txt 관리 | Admin UI에서 편집 | Admin UI에서 편집 | 정적 파일, 기본 설정만 | 정적 파일 수동 보강 |
 
-**Key insight:** Ghost와 WordPress 모두 동적 카테고리와 예약 발행을 표 스테이크로 제공한다. AI 초안은 Ghost도 네이티브로 없음 — 이 부분이 실질적 차별점이 될 수 있다. 단, AI 초안은 "도구"일 뿐이고 최종 콘텐츠 품질은 사람의 편집에 달려 있다.
+**Key insight:** Ghost와 WordPress Admin 모두 에디터 2컬럼 레이아웃을 표준으로 사용한다. 우측 사이드바에 발행 설정 + SEO 설정이 배치되는 패턴이 CMS 업계 표준. OG/JSON-LD는 두 플랫폼 모두 자동 생성하는 기능 — TeoVibe에서는 수동 구현이 필요하나 Rails meta-tags gem과 기존 헬퍼 덕분에 실제 작업량은 적음.
 
 ---
 
 ## Sources
 
-- Anthropic API 스트리밍 공식 문서: [https://platform.claude.com/docs/en/build-with-claude/streaming](https://platform.claude.com/docs/en/build-with-claude/streaming) — HIGH confidence (공식 문서)
-- Solid Queue 공식 GitHub: [https://github.com/rails/solid_queue](https://github.com/rails/solid_queue) — HIGH confidence (공식)
-- Solid Queue 실전 가이드 (2025): [https://blog.appsignal.com/2025/06/18/a-deep-dive-into-solid-queue-for-ruby-on-rails.html](https://blog.appsignal.com/2025/06/18/a-deep-dive-into-solid-queue-for-ruby-on-rails.html) — HIGH confidence (AppSignal, 검증된 Rails 블로그)
-- Dynamic scheduled tasks Solid Queue issue: [https://github.com/rails/solid_queue/issues/186](https://github.com/rails/solid_queue/issues/186) — HIGH confidence (공식 GitHub)
-- flatpickr 공식 문서: [https://flatpickr.js.org/](https://flatpickr.js.org/) — HIGH confidence (공식)
-- stimulus-flatpickr wrapper: [https://github.com/adrienpoly/stimulus-flatpickr](https://github.com/adrienpoly/stimulus-flatpickr) — MEDIUM confidence (커뮤니티 라이브러리)
-- AEO 완전 가이드 2025: [https://cxl.com/blog/answer-engine-optimization-aeo-the-comprehensive-guide/](https://cxl.com/blog/answer-engine-optimization-aeo-the-comprehensive-guide/) — HIGH confidence (CXL, 신뢰성 높은 마케팅 교육 기관)
-- FAQPage 스키마 + AI 검색 인용률: [https://www.frase.io/blog/faq-schema-ai-search-geo-aeo](https://www.frase.io/blog/faq-schema-ai-search-geo-aeo) — MEDIUM confidence (WebSearch, 단일 출처)
-- Time picker UX best practices 2025: [https://www.eleken.co/blog-posts/time-picker-ux](https://www.eleken.co/blog-posts/time-picker-ux) — MEDIUM confidence (WebSearch)
-- GoRails 예약 발행 패턴: [https://gorails.com/forum/following-scheduling-post-episode-with-background-jobs](https://gorails.com/forum/following-scheduling-post-episode-with-background-jobs) — MEDIUM confidence (커뮤니티 포럼)
+- meta-tags gem 공식 GitHub: [https://github.com/kpumuk/meta-tags](https://github.com/kpumuk/meta-tags) — HIGH confidence (공식)
+- meta-tags gem 설정 체크시트: [https://devhints.io/meta-tags](https://devhints.io/meta-tags) — MEDIUM confidence (커뮤니티 레퍼런스)
+- Google 공식 특수 메타태그 문서: [https://developers.google.com/search/docs/crawling-indexing/special-tags](https://developers.google.com/search/docs/crawling-indexing/special-tags) — HIGH confidence (공식)
+- Google Search Console 소유권 확인: [https://support.google.com/webmasters/answer/9008080](https://support.google.com/webmasters/answer/9008080) — HIGH confidence (공식)
+- 네이버 서치어드바이저 메타태그 인증: [https://seo.tbwakorea.com/blog/robots-txt-complete-guide/](https://seo.tbwakorea.com/blog/robots-txt-complete-guide/) — MEDIUM confidence (검증된 한국 SEO 에이전시)
+- BreadcrumbList Schema.org: [https://schema.org/BreadcrumbList](https://schema.org/BreadcrumbList) — HIGH confidence (공식)
+- Open Graph protocol 공식: [https://ogp.me/](https://ogp.me/) — HIGH confidence (공식)
+- Twitter Card 메타태그 가이드 2025: [https://www.everywheremarketer.com/blog/ultimate-guide-to-social-meta-tags-open-graph-and-twitter-cards](https://www.everywheremarketer.com/blog/ultimate-guide-to-social-meta-tags-open-graph-and-twitter-cards) — MEDIUM confidence (WebSearch, 다수 출처 일치)
+- Rails canonical URL 구현: [https://avohq.io/blog/canonical-urls-rails](https://avohq.io/blog/canonical-urls-rails) — MEDIUM confidence (검증된 Rails 블로그)
+- canonical + noindex 혼용 가이드: [https://sitechecker.pro/site-audit-issues/canonicalized-url-noindex-nofollow/](https://sitechecker.pro/site-audit-issues/canonicalized-url-noindex-nofollow/) — MEDIUM confidence
+- Yeti (NaverBot) 정보: [https://datadome.co/bots/naverbot/](https://datadome.co/bots/naverbot/) — HIGH confidence
+- robots.txt SEO 가이드 2025: [https://increv.co/academy/seo/robots-txt/](https://increv.co/academy/seo/robots-txt/) — MEDIUM confidence (WebSearch)
+- Admin 2컬럼 에디터 UX 패턴: [https://github.com/payloadcms/payload/discussions/5181](https://github.com/payloadcms/payload/discussions/5181) — MEDIUM confidence (PayloadCMS 공식 토론, 2컬럼 메타 사이드바 표준 언급)
 
 ---
 
-*Feature research for: Admin CMS 고도화 (v1.1) — 동적 카테고리, AI 초안, 예약 발행*
-*Researched: 2026-02-28*
+*Feature research for: SEO 최적화 + Admin 에디터 UX (v1.2)*
+*Researched: 2026-03-14*

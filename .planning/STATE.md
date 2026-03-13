@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: SEO + Admin UX
 status: planning
-stopped_at: Completed 11-01-PLAN.md
-last_updated: "2026-03-13T17:28:21.820Z"
+stopped_at: Completed 12-01-PLAN.md
+last_updated: "2026-03-13T17:56:05.035Z"
 last_activity: 2026-03-14 — Roadmap created
 progress:
   total_phases: 10
-  completed_phases: 3
-  total_plans: 5
-  completed_plans: 5
+  completed_phases: 4
+  total_plans: 6
+  completed_plans: 6
   percent: 0
 ---
 
@@ -53,6 +53,7 @@ Phase 13 [ ] Admin 에디터 UX
 | Phase 10-크롤링-기초 P01 | 20 | 2 tasks | 7 files |
 | Phase 11-소셜-색인-메타태그 P02 | 2 | 1 tasks | 4 files |
 | Phase 11-소셜-색인-메타태그 P01 | 2 | 2 tasks | 4 files |
+| Phase 12-구조화-데이터 P01 | 15 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -75,6 +76,8 @@ Full decision log in PROJECT.md Key Decisions table.
 - [Phase 11-소셜-색인-메타태그]: Admin 레이아웃은 display_meta_tags 미사용이므로 meta 태그 직접 삽입, 컨트롤러는 before_action :set_noindex 패턴으로 특정 액션에만 noindex 적용
 - [Phase 11-소셜-색인-메타태그]: request.base_url + '/icon.png' 방식으로 OG 이미지 절대 URL 생성 — helpers.asset_url 테스트 환경 불안정 방지
 - [Phase 11-소셜-색인-메타태그]: ActionText 픽스처에 blog_post 본문 추가 — 빈 body로 인한 og:description 누락 방지
+- [Phase 12-구조화-데이터]: content_for :head 블록 내 script 태그 배치로 레이아웃의 yield :head 위치에 JSON-LD 자동 삽입
+- [Phase 12-구조화-데이터]: category_posts_url(절대 URL) 사용 — BreadcrumbList item 필드는 절대 URL 필요
 
 ### Pending Todos
 
@@ -87,7 +90,7 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-13T17:24:50.688Z
-Stopped at: Completed 11-01-PLAN.md
+Last session: 2026-03-13T17:56:05.032Z
+Stopped at: Completed 12-01-PLAN.md
 Resume file: None
 Next action: `/gsd:plan-phase 9`

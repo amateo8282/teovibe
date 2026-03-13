@@ -36,9 +36,9 @@ Requirements for v1.2 SEO + Admin UX. Each maps to roadmap phases.
 
 ### 구조화 데이터
 
-- [ ] **STRD-01**: 게시글 상세 페이지에 Article JSON-LD 출력
-- [ ] **STRD-02**: 게시글 상세 페이지에 BreadcrumbList JSON-LD 출력
-- [ ] **STRD-03**: 홈페이지에 WebSite + Organization JSON-LD 출력
+- [x] **STRD-01**: 게시글 상세 페이지에 Article JSON-LD 출력
+- [x] **STRD-02**: 게시글 상세 페이지에 BreadcrumbList JSON-LD 출력
+- [x] **STRD-03**: 홈페이지에 WebSite + Organization JSON-LD 출력
 
 ### Admin 에디터 UX
 
@@ -80,9 +80,9 @@ Requirements for v1.2 SEO + Admin UX. Each maps to roadmap phases.
 | INDX-01 | Phase 11 | Complete |
 | INDX-02 | Phase 11 | Complete |
 | INDX-03 | Phase 11 | Complete |
-| STRD-01 | Phase 12 | Pending |
-| STRD-02 | Phase 12 | Pending |
-| STRD-03 | Phase 12 | Pending |
+| STRD-01 | Phase 12 | Complete |
+| STRD-02 | Phase 12 | Complete |
+| STRD-03 | Phase 12 | Complete |
 | ADMN-01 | Phase 13 | Pending |
 | ADMN-02 | Phase 13 | Pending |
 | ADMN-03 | Phase 13 | Pending |

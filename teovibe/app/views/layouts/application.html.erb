@@ -10,6 +10,14 @@
     <%= csp_meta_tag %>
     <%= display_meta_tags site: "TeoVibe" %>
 
+    <%# 검색엔진 소유권 인증 메타태그 (yield :head 이전 — 모든 경로 일관 출력 보장) %>
+    <% if (token = Rails.application.credentials.dig(:seo, :google_site_verification)).present? %>
+      <meta name="google-site-verification" content="<%= token %>">
+    <% end %>
+    <% if (token = Rails.application.credentials.dig(:seo, :naver_site_verification)).present? %>
+      <meta name="naver-site-verification" content="<%= token %>">
+    <% end %>
+
     <%= yield :head %>
 
     <link rel="icon" href="/icon.png" type="image/png">

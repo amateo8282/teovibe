@@ -1,3 +1,13 @@
+<%# 구조화 데이터 JSON-LD (Article + BreadcrumbList) %>
+<% content_for :head do %>
+  <script type="application/ld+json"><%= article_json_ld(@post) %></script>
+  <script type="application/ld+json"><%= breadcrumb_json_ld([
+    { name: "홈", url: root_url },
+    { name: @post.category_name, url: category_posts_url(category_slug: @post.category&.slug) },
+    { name: @post.title }
+  ]) %></script>
+<% end %>
+
 <article class="max-w-[800px] mx-auto px-5 py-10">
   <%= render "shared/breadcrumb", items: [
     { name: "홈", path: root_path },

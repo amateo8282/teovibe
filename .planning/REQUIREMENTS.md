@@ -9,7 +9,7 @@ Requirements for v1.2 SEO + Admin UX. Each maps to roadmap phases.
 
 ### 보안 패치
 
-- [ ] **SEC-01**: seo_helper.rb JSON-LD 헬퍼의 XSS 취약점 수정 (`.to_json.html_safe` → 안전한 직렬화)
+- [x] **SEC-01**: seo_helper.rb JSON-LD 헬퍼의 XSS 취약점 수정 (`.to_json.html_safe` → 안전한 직렬화)
 
 ### SEO 크롤링
 
@@ -68,7 +68,7 @@ Requirements for v1.2 SEO + Admin UX. Each maps to roadmap phases.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SEC-01 | Phase 9 | Pending |
+| SEC-01 | Phase 9 | Complete |
 | CRAWL-01 | Phase 10 | Pending |
 | CRAWL-02 | Phase 10 | Pending |
 | CRAWL-03 | Phase 10 | Pending |

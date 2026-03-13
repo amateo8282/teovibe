@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: SEO + Admin UX
 status: planning
-stopped_at: Completed 10-01-PLAN.md
-last_updated: "2026-03-13T16:58:27.044Z"
+stopped_at: Completed 11-02-PLAN.md
+last_updated: "2026-03-13T17:24:41.122Z"
 last_activity: 2026-03-14 — Roadmap created
 progress:
   total_phases: 10
-  completed_phases: 2
-  total_plans: 3
-  completed_plans: 3
+  completed_phases: 3
+  total_plans: 5
+  completed_plans: 5
   percent: 0
 ---
 
@@ -51,6 +51,8 @@ Phase 13 [ ] Admin 에디터 UX
 | Phase 09-xss-보안-패치 P01 | 4 | 2 tasks | 2 files |
 | Phase 10-크롤링-기초 P02 | 3 | 1 tasks | 2 files |
 | Phase 10-크롤링-기초 P01 | 20 | 2 tasks | 7 files |
+| Phase 11-소셜-색인-메타태그 P02 | 2 | 1 tasks | 4 files |
+| Phase 11-소셜-색인-메타태그 P01 | 2 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -70,6 +72,7 @@ Full decision log in PROJECT.md Key Decisions table.
 - [Phase 10-크롤링-기초]: yield :head 이전에 인증 태그 배치 — 모든 경로에서 일관 출력 보장
 - [Phase 10-크롤링-기초]: 정적 public/robots.txt 삭제 필수 — Rails 정적 파일이 라우터보다 우선하므로 컨트롤러 무시됨
 - [Phase 10-크롤링-기초]: sitemap.rb 게시글 라우트 단일화 — post_path(post)로 통합하여 카테고리 의존성 제거
+- [Phase 11-소셜-색인-메타태그]: Admin 레이아웃은 display_meta_tags 미사용이므로 meta 태그 직접 삽입, 컨트롤러는 before_action :set_noindex 패턴으로 특정 액션에만 noindex 적용
 
 ### Pending Todos
 
@@ -82,7 +85,7 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-13T16:55:37.215Z
-Stopped at: Completed 10-01-PLAN.md
+Last session: 2026-03-13T17:24:27.299Z
+Stopped at: Completed 11-02-PLAN.md
 Resume file: None
 Next action: `/gsd:plan-phase 9`

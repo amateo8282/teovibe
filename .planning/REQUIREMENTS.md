@@ -31,8 +31,8 @@ Requirements for v1.2 SEO + Admin UX. Each maps to roadmap phases.
 ### 중복/색인 관리
 
 - [ ] **INDX-01**: 게시글 상세 페이지에 canonical URL 설정
-- [ ] **INDX-02**: Admin 페이지 전역 noindex 처리
-- [ ] **INDX-03**: 인증 관련 페이지(로그인/회원가입) noindex 처리
+- [x] **INDX-02**: Admin 페이지 전역 noindex 처리
+- [x] **INDX-03**: 인증 관련 페이지(로그인/회원가입) noindex 처리
 
 ### 구조화 데이터
 
@@ -78,8 +78,8 @@ Requirements for v1.2 SEO + Admin UX. Each maps to roadmap phases.
 | SOCL-02 | Phase 11 | Pending |
 | SOCL-03 | Phase 11 | Pending |
 | INDX-01 | Phase 11 | Pending |
-| INDX-02 | Phase 11 | Pending |
-| INDX-03 | Phase 11 | Pending |
+| INDX-02 | Phase 11 | Complete |
+| INDX-03 | Phase 11 | Complete |
 | STRD-01 | Phase 12 | Pending |
 | STRD-02 | Phase 12 | Pending |
 | STRD-03 | Phase 12 | Pending |

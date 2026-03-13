@@ -128,7 +128,10 @@ Plans:
   2. 게시글 상세 페이지 `<head>`에 BreadcrumbList JSON-LD가 출력되며 카테고리 계층 구조를 반영한다
   3. 홈페이지 `<head>`에 WebSite와 Organization JSON-LD가 출력된다
   4. JSON-LD 출력이 특수문자(`<`, `>`, `&`)를 올바르게 이스케이프하여 HTML 파서가 오작동하지 않는다
-**Plans**: [To be planned]
+**Plans**: 1 plan
+
+Plans:
+- [ ] 12-01-PLAN.md — Article/BreadcrumbList/WebSite/Organization JSON-LD 뷰 배선 + 통합 테스트
 
 ### Phase 13: Admin 에디터 UX
 **Goal**: Admin 게시글 에디터가 메타 정보와 본문을 분리된 2단 레이아웃으로 제공한다
@@ -138,7 +141,10 @@ Plans:
   1. Admin 게시글 작성/수정 페이지에서 좌측에 메타 패널(제목, 카테고리, SEO 필드 등), 우측에 본문 에디터가 나란히 표시된다
   2. 본문 에디터를 스크롤해도 메타 패널이 뷰포트 상단에 고정되어 따라온다 (sticky)
   3. 모바일 화면에서 2단 레이아웃이 1단으로 자동 전환되어 메타 패널이 에디터 위에 쌓인다
-**Plans**: [To be planned]
+**Plans**: 1 plan
+
+Plans:
+- [ ] 12-01-PLAN.md — Article/BreadcrumbList/WebSite/Organization JSON-LD 뷰 배선 + 통합 테스트
 
 ## Progress
 

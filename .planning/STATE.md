@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: SEO + Admin UX
 status: planning
-stopped_at: Completed 11-02-PLAN.md
-last_updated: "2026-03-13T17:24:41.122Z"
+stopped_at: Completed 11-01-PLAN.md
+last_updated: "2026-03-13T17:24:50.693Z"
 last_activity: 2026-03-14 — Roadmap created
 progress:
   total_phases: 10
@@ -73,6 +73,8 @@ Full decision log in PROJECT.md Key Decisions table.
 - [Phase 10-크롤링-기초]: 정적 public/robots.txt 삭제 필수 — Rails 정적 파일이 라우터보다 우선하므로 컨트롤러 무시됨
 - [Phase 10-크롤링-기초]: sitemap.rb 게시글 라우트 단일화 — post_path(post)로 통합하여 카테고리 의존성 제거
 - [Phase 11-소셜-색인-메타태그]: Admin 레이아웃은 display_meta_tags 미사용이므로 meta 태그 직접 삽입, 컨트롤러는 before_action :set_noindex 패턴으로 특정 액션에만 noindex 적용
+- [Phase 11-소셜-색인-메타태그]: request.base_url + '/icon.png' 방식으로 OG 이미지 절대 URL 생성 — helpers.asset_url 테스트 환경 불안정 방지
+- [Phase 11-소셜-색인-메타태그]: ActionText 픽스처에 blog_post 본문 추가 — 빈 body로 인한 og:description 누락 방지
 
 ### Pending Todos
 
@@ -85,7 +87,7 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-13T17:24:27.299Z
-Stopped at: Completed 11-02-PLAN.md
+Last session: 2026-03-13T17:24:50.688Z
+Stopped at: Completed 11-01-PLAN.md
 Resume file: None
 Next action: `/gsd:plan-phase 9`

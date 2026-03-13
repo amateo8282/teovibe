@@ -24,13 +24,13 @@ Requirements for v1.2 SEO + Admin UX. Each maps to roadmap phases.
 
 ### 소셜 공유 메타태그
 
-- [ ] **SOCL-01**: 게시글 상세 페이지에 Open Graph 메타태그 출력 (og:title/description/url/image)
-- [ ] **SOCL-02**: 게시글 상세 페이지에 Twitter Card 메타태그 출력
-- [ ] **SOCL-03**: 기본 페이지(홈/목록)에 사이트 기본 OG 메타태그 출력
+- [x] **SOCL-01**: 게시글 상세 페이지에 Open Graph 메타태그 출력 (og:title/description/url/image)
+- [x] **SOCL-02**: 게시글 상세 페이지에 Twitter Card 메타태그 출력
+- [x] **SOCL-03**: 기본 페이지(홈/목록)에 사이트 기본 OG 메타태그 출력
 
 ### 중복/색인 관리
 
-- [ ] **INDX-01**: 게시글 상세 페이지에 canonical URL 설정
+- [x] **INDX-01**: 게시글 상세 페이지에 canonical URL 설정
 - [x] **INDX-02**: Admin 페이지 전역 noindex 처리
 - [x] **INDX-03**: 인증 관련 페이지(로그인/회원가입) noindex 처리
 
@@ -74,10 +74,10 @@ Requirements for v1.2 SEO + Admin UX. Each maps to roadmap phases.
 | CRAWL-03 | Phase 10 | Complete |
 | SRCH-01 | Phase 10 | Complete |
 | SRCH-02 | Phase 10 | Complete |
-| SOCL-01 | Phase 11 | Pending |
-| SOCL-02 | Phase 11 | Pending |
-| SOCL-03 | Phase 11 | Pending |
-| INDX-01 | Phase 11 | Pending |
+| SOCL-01 | Phase 11 | Complete |
+| SOCL-02 | Phase 11 | Complete |
+| SOCL-03 | Phase 11 | Complete |
+| INDX-01 | Phase 11 | Complete |
 | INDX-02 | Phase 11 | Complete |
 | INDX-03 | Phase 11 | Complete |
 | STRD-01 | Phase 12 | Pending |

@@ -1,0 +1,24 @@
+<% if Rails.env.production? %>
+User-agent: Googlebot
+Allow: /
+Disallow: /admin/
+Disallow: /auth/
+Disallow: /profile/edit
+
+User-agent: Yeti
+Allow: /
+Disallow: /admin/
+Disallow: /auth/
+Disallow: /profile/edit
+
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /auth/
+Disallow: /profile/edit
+
+Sitemap: https://teovibe.com/sitemap.xml
+<% else %>
+User-agent: *
+Disallow: /
+<% end %>

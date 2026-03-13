@@ -137,6 +137,9 @@ Rails.application.routes.draw do
   # React 데모 (ViewComponent + React 마운트 패턴 검증)
   get "demo/react", to: "demo#react"
 
+  # 동적 robots.txt (정적 파일보다 라우터 우선 처리하려면 public/robots.txt 삭제 필수)
+  get "/robots.:format", to: "robots#show"
+
   # Health check
   get "up" => "rails/health#show", as: :rails_health_check
 

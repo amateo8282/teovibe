@@ -164,5 +164,5 @@ Phases execute in numeric order: 9 → 10 → 11 → 12 (depends on 9) → 13 (i
 | 9. XSS 보안 패치 | v1.2 | 1/1 | Complete | 2026-03-13 |
 | 10. 크롤링 기초 | v1.2 | 2/2 | Complete | 2026-03-13 |
 | 11. 소셜/색인 메타태그 | 2/2 | Complete    | 2026-03-13 | — |
-| 12. 구조화 데이터 | 1/1 | Complete   | 2026-03-13 | — |
+| 12. 구조화 데이터 | 1/1 | Complete    | 2026-03-13 | — |
 | 13. Admin 에디터 UX | v1.2 | 0/? | Not started | — |

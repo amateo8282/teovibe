@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: SEO + Admin UX
 status: planning
-stopped_at: Completed 09-xss-보안-패치-01-PLAN.md
-last_updated: "2026-03-13T16:25:49.869Z"
+stopped_at: Completed 10-크롤링-기초-02-PLAN.md
+last_updated: "2026-03-13T16:55:06.859Z"
 last_activity: 2026-03-14 — Roadmap created
 progress:
   total_phases: 10
   completed_phases: 1
-  total_plans: 1
-  completed_plans: 1
+  total_plans: 3
+  completed_plans: 2
   percent: 0
 ---
 
@@ -49,6 +49,7 @@ Phase 13 [ ] Admin 에디터 UX
 | v1.1 Admin 고도화 | 3 | 9 | Complete | 2026-03-06 |
 | v1.2 SEO + Admin UX | 5 | TBD | Active | — |
 | Phase 09-xss-보안-패치 P01 | 4 | 2 tasks | 2 files |
+| Phase 10-크롤링-기초 P02 | 3 | 1 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -64,6 +65,8 @@ Full decision log in PROJECT.md Key Decisions table.
 - 검색엔진 인증 토큰은 Rails credentials 저장 — Kamal 배포 환경에서 ENV보다 일관성 높음
 - [Phase 09-xss-보안-패치]: safe_json_ld private 래퍼로 .to_json.html_safe 패턴 교체 - 명시적 보안 의도 문서화
 - [Phase 09-xss-보안-패치]: ActiveSupport to_json이 이미 XSS 이스케이프하지만 safe_json_ld로 이중 보안 확보
+- [Phase 10-크롤링-기초]: credentials.dig 직접 호출 방식 사용 — set_meta_tags verification: 방식 불사용 (경로 외 소실 위험)
+- [Phase 10-크롤링-기초]: yield :head 이전에 인증 태그 배치 — 모든 경로에서 일관 출력 보장
 
 ### Pending Todos
 
@@ -76,7 +79,7 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-13T16:23:07.647Z
-Stopped at: Completed 09-xss-보안-패치-01-PLAN.md
+Last session: 2026-03-13T16:55:06.857Z
+Stopped at: Completed 10-크롤링-기초-02-PLAN.md
 Resume file: None
 Next action: `/gsd:plan-phase 9`

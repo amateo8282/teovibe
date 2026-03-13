@@ -68,7 +68,7 @@ Plans:
 ## v1.2 SEO + Admin UX
 
 - [x] **Phase 9: XSS 보안 패치** — JSON-LD 헬퍼 안전한 직렬화로 교체 (completed 2026-03-13)
-- [ ] **Phase 10: 크롤링 기초** — robots.txt 보강 + sitemap 동적화 + 검색엔진 인증 메타태그
+- [x] **Phase 10: 크롤링 기초** — robots.txt 보강 + sitemap 동적화 + 검색엔진 인증 메타태그 (completed 2026-03-13)
 - [ ] **Phase 11: 소셜/색인 메타태그** — Open Graph, Twitter Card, canonical URL, noindex 처리
 - [ ] **Phase 12: 구조화 데이터** — Article/BreadcrumbList/WebSite/Organization JSON-LD 렌더링
 - [ ] **Phase 13: Admin 에디터 UX** — 게시글 에디터 2단 레이아웃
@@ -152,7 +152,7 @@ Phases execute in numeric order: 9 → 10 → 11 → 12 (depends on 9) → 13 (i
 | 7. 게시글 예약 발행 | v1.1 | 3/3 | Complete | 2026-03-04 |
 | 8. AI 초안 작성 | v1.1 | 2/2 | Complete | 2026-03-06 |
 | 9. XSS 보안 패치 | v1.2 | 1/1 | Complete | 2026-03-13 |
-| 10. 크롤링 기초 | v1.2 | 0/2 | Not started | — |
+| 10. 크롤링 기초 | 2/2 | Complete   | 2026-03-13 | — |
 | 11. 소셜/색인 메타태그 | v1.2 | 0/? | Not started | — |
 | 12. 구조화 데이터 | v1.2 | 0/? | Not started | — |
 | 13. Admin 에디터 UX | v1.2 | 0/? | Not started | — |

@@ -19,8 +19,8 @@ Requirements for v1.2 SEO + Admin UX. Each maps to roadmap phases.
 
 ### 검색엔진 인증
 
-- [ ] **SRCH-01**: Google Search Console 소유권 인증 메타태그 삽입
-- [ ] **SRCH-02**: 네이버 서치어드바이저 소유권 인증 메타태그 삽입
+- [x] **SRCH-01**: Google Search Console 소유권 인증 메타태그 삽입
+- [x] **SRCH-02**: 네이버 서치어드바이저 소유권 인증 메타태그 삽입
 
 ### 소셜 공유 메타태그
 
@@ -72,8 +72,8 @@ Requirements for v1.2 SEO + Admin UX. Each maps to roadmap phases.
 | CRAWL-01 | Phase 10 | Pending |
 | CRAWL-02 | Phase 10 | Pending |
 | CRAWL-03 | Phase 10 | Pending |
-| SRCH-01 | Phase 10 | Pending |
-| SRCH-02 | Phase 10 | Pending |
+| SRCH-01 | Phase 10 | Complete |
+| SRCH-02 | Phase 10 | Complete |
 | SOCL-01 | Phase 11 | Pending |
 | SOCL-02 | Phase 11 | Pending |
 | SOCL-03 | Phase 11 | Pending |

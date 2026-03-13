@@ -13,9 +13,9 @@ Requirements for v1.2 SEO + Admin UX. Each maps to roadmap phases.
 
 ### SEO 크롤링
 
-- [ ] **CRAWL-01**: robots.txt에 Googlebot/Yeti(네이버) 명시적 허용 규칙 추가
-- [ ] **CRAWL-02**: robots.txt에 sitemap.xml 경로 명시
-- [ ] **CRAWL-03**: sitemap에 동적 카테고리 URL 포함
+- [x] **CRAWL-01**: robots.txt에 Googlebot/Yeti(네이버) 명시적 허용 규칙 추가
+- [x] **CRAWL-02**: robots.txt에 sitemap.xml 경로 명시
+- [x] **CRAWL-03**: sitemap에 동적 카테고리 URL 포함
 
 ### 검색엔진 인증
 
@@ -69,9 +69,9 @@ Requirements for v1.2 SEO + Admin UX. Each maps to roadmap phases.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | SEC-01 | Phase 9 | Complete |
-| CRAWL-01 | Phase 10 | Pending |
-| CRAWL-02 | Phase 10 | Pending |
-| CRAWL-03 | Phase 10 | Pending |
+| CRAWL-01 | Phase 10 | Complete |
+| CRAWL-02 | Phase 10 | Complete |
+| CRAWL-03 | Phase 10 | Complete |
 | SRCH-01 | Phase 10 | Complete |
 | SRCH-02 | Phase 10 | Complete |
 | SOCL-01 | Phase 11 | Pending |

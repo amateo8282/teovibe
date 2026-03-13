@@ -1,7 +1,7 @@
 module SeoHelper
   # Article JSON-LD (게시글 상세)
   def article_json_ld(post)
-    {
+    safe_json_ld({
       "@context" => "https://schema.org",
       "@type" => "Article",
       "headline" => post.title,
@@ -12,17 +12,17 @@ module SeoHelper
         "name" => post.user.nickname
       },
       "publisher" => organization_json_ld_hash
-    }.to_json.html_safe
+    })
   end
 
   # Organization JSON-LD (루트 페이지)
   def organization_json_ld
-    organization_json_ld_hash.to_json.html_safe
+    safe_json_ld(organization_json_ld_hash)
   end
 
   # WebSite JSON-LD (검색 액션 포함)
   def website_json_ld
-    {
+    safe_json_ld({
       "@context" => "https://schema.org",
       "@type" => "WebSite",
       "name" => "TeoVibe",
@@ -36,12 +36,12 @@ module SeoHelper
         },
         "query-input" => "required name=search_term_string"
       }
-    }.to_json.html_safe
+    })
   end
 
   # SoftwareApplication JSON-LD (스킬팩)
   def software_application_json_ld(skill_pack)
-    {
+    safe_json_ld({
       "@context" => "https://schema.org",
       "@type" => "SoftwareApplication",
       "name" => skill_pack.title,
@@ -53,12 +53,12 @@ module SeoHelper
         "priceCurrency" => "KRW"
       },
       "operatingSystem" => "All"
-    }.to_json.html_safe
+    })
   end
 
   # ItemList JSON-LD (목록 페이지)
   def item_list_json_ld(items, name:)
-    {
+    data = {
       "@context" => "https://schema.org",
       "@type" => "ItemList",
       "name" => name,
@@ -70,12 +70,13 @@ module SeoHelper
           "name" => item.respond_to?(:title) ? item.title : item.to_s
         }
       end
-    }.to_json.html_safe
+    }
+    safe_json_ld(data)
   end
 
   # ProfilePage JSON-LD
   def profile_page_json_ld(user)
-    {
+    safe_json_ld({
       "@context" => "https://schema.org",
       "@type" => "ProfilePage",
       "mainEntity" => {
@@ -83,12 +84,12 @@ module SeoHelper
         "name" => user.nickname,
         "description" => user.bio
       }
-    }.to_json.html_safe
+    })
   end
 
   # FAQPage JSON-LD
   def faq_json_ld(items)
-    {
+    data = {
       "@context" => "https://schema.org",
       "@type" => "FAQPage",
       "mainEntity" => items.map do |item|
@@ -101,12 +102,13 @@ module SeoHelper
           }
         }
       end
-    }.to_json.html_safe
+    }
+    safe_json_ld(data)
   end
 
   # BreadcrumbList JSON-LD
   def breadcrumb_json_ld(items)
-    {
+    data = {
       "@context" => "https://schema.org",
       "@type" => "BreadcrumbList",
       "itemListElement" => items.each_with_index.map do |item, i|
@@ -118,10 +120,23 @@ module SeoHelper
         entry["item"] = item[:url] if item[:url]
         entry
       end
-    }.to_json.html_safe
+    }
+    safe_json_ld(data)
   end
 
   private
+
+  # XSS 안전 JSON-LD 직렬화 래퍼
+  # ActiveSupport의 to_json은 <, >, &, /를 Unicode 이스케이프하지만,
+  # 명시적 이스케이프를 통해 보안 의도를 명확히 하고 Brakeman 경고를 방지한다.
+  def safe_json_ld(data)
+    data.to_json
+        .gsub('<', '\u003c')
+        .gsub('>', '\u003e')
+        .gsub('&', '\u0026')
+        .gsub('/', '\u002f')
+        .html_safe
+  end
 
   def organization_json_ld_hash
     {

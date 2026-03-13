@@ -100,8 +100,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 10-01-PLAN.md — 동적 robots.txt 컨트롤러 + sitemap 카테고리 동적화
-- [ ] 10-02-PLAN.md — Google/Naver 검색엔진 인증 메타태그
+- [x] 10-01-PLAN.md — 동적 robots.txt 컨트롤러 + sitemap 카테고리 동적화
+- [x] 10-02-PLAN.md — Google/Naver 검색엔진 인증 메타태그
 
 ### Phase 11: 소셜/색인 메타태그
 **Goal**: 콘텐츠가 소셜에서 올바르게 미리보기되고 검색 색인이 의도한 대로 제어된다
@@ -113,7 +113,11 @@ Plans:
   3. 홈페이지 및 목록 페이지 `<head>`에 사이트 기본 OG 메타태그가 출력된다
   4. 게시글 상세 페이지 `<head>`에 `<link rel="canonical">` 태그가 쿼리 파라미터 없이 출력된다
   5. `/admin/` 하위 모든 페이지와 로그인/회원가입 페이지 `<head>`에 `<meta name="robots" content="noindex">` 태그가 출력된다
-**Plans**: [To be planned]
+**Plans**: 2 plans
+
+Plans:
+- [ ] 11-01-PLAN.md — OG/Twitter Card/canonical 메타태그 (게시글 + 홈 + 목록)
+- [ ] 11-02-PLAN.md — Admin/인증 페이지 noindex 처리
 
 ### Phase 12: 구조화 데이터
 **Goal**: 게시글이 Google Rich Results 자격을 갖추고 홈페이지가 사이트 신뢰도 구조화 데이터를 제공한다
@@ -152,7 +156,7 @@ Phases execute in numeric order: 9 → 10 → 11 → 12 (depends on 9) → 13 (i
 | 7. 게시글 예약 발행 | v1.1 | 3/3 | Complete | 2026-03-04 |
 | 8. AI 초안 작성 | v1.1 | 2/2 | Complete | 2026-03-06 |
 | 9. XSS 보안 패치 | v1.2 | 1/1 | Complete | 2026-03-13 |
-| 10. 크롤링 기초 | 2/2 | Complete    | 2026-03-13 | — |
-| 11. 소셜/색인 메타태그 | v1.2 | 0/? | Not started | — |
+| 10. 크롤링 기초 | v1.2 | 2/2 | Complete | 2026-03-13 |
+| 11. 소셜/색인 메타태그 | v1.2 | 0/2 | Not started | — |
 | 12. 구조화 데이터 | v1.2 | 0/? | Not started | — |
 | 13. Admin 에디터 UX | v1.2 | 0/? | Not started | — |

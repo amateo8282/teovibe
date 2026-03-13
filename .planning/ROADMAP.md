@@ -86,7 +86,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 09-01-PLAN.md — safe_json_ld XSS 패치 + 테스트
+- [x] 09-01-PLAN.md — safe_json_ld XSS 패치 + 테스트
 
 ### Phase 10: 크롤링 기초
 **Goal**: Googlebot과 Yeti(네이버봇)이 사이트를 올바르게 수집하고, 양대 검색엔진에서 소유권이 인증된 상태
@@ -97,10 +97,11 @@ Plans:
   2. `GET /sitemap.xml` 응답에 동적으로 생성된 카테고리 URL이 포함된다 (Admin에서 카테고리를 추가해도 자동 반영)
   3. 모든 페이지 `<head>`에 Google Search Console 소유권 인증 메타태그가 출력된다
   4. 모든 페이지 `<head>`에 네이버 서치어드바이저 소유권 인증 메타태그가 출력된다
-**Plans**: 1 plan
+**Plans**: 2 plans
 
 Plans:
-- [ ] 09-01-PLAN.md — safe_json_ld XSS 패치 + 테스트
+- [ ] 10-01-PLAN.md — 동적 robots.txt 컨트롤러 + sitemap 카테고리 동적화
+- [ ] 10-02-PLAN.md — Google/Naver 검색엔진 인증 메타태그
 
 ### Phase 11: 소셜/색인 메타태그
 **Goal**: 콘텐츠가 소셜에서 올바르게 미리보기되고 검색 색인이 의도한 대로 제어된다
@@ -112,10 +113,7 @@ Plans:
   3. 홈페이지 및 목록 페이지 `<head>`에 사이트 기본 OG 메타태그가 출력된다
   4. 게시글 상세 페이지 `<head>`에 `<link rel="canonical">` 태그가 쿼리 파라미터 없이 출력된다
   5. `/admin/` 하위 모든 페이지와 로그인/회원가입 페이지 `<head>`에 `<meta name="robots" content="noindex">` 태그가 출력된다
-**Plans**: 1 plan
-
-Plans:
-- [ ] 09-01-PLAN.md — safe_json_ld XSS 패치 + 테스트
+**Plans**: [To be planned]
 
 ### Phase 12: 구조화 데이터
 **Goal**: 게시글이 Google Rich Results 자격을 갖추고 홈페이지가 사이트 신뢰도 구조화 데이터를 제공한다
@@ -126,10 +124,7 @@ Plans:
   2. 게시글 상세 페이지 `<head>`에 BreadcrumbList JSON-LD가 출력되며 카테고리 계층 구조를 반영한다
   3. 홈페이지 `<head>`에 WebSite와 Organization JSON-LD가 출력된다
   4. JSON-LD 출력이 특수문자(`<`, `>`, `&`)를 올바르게 이스케이프하여 HTML 파서가 오작동하지 않는다
-**Plans**: 1 plan
-
-Plans:
-- [ ] 09-01-PLAN.md — safe_json_ld XSS 패치 + 테스트
+**Plans**: [To be planned]
 
 ### Phase 13: Admin 에디터 UX
 **Goal**: Admin 게시글 에디터가 메타 정보와 본문을 분리된 2단 레이아웃으로 제공한다
@@ -139,10 +134,7 @@ Plans:
   1. Admin 게시글 작성/수정 페이지에서 좌측에 메타 패널(제목, 카테고리, SEO 필드 등), 우측에 본문 에디터가 나란히 표시된다
   2. 본문 에디터를 스크롤해도 메타 패널이 뷰포트 상단에 고정되어 따라온다 (sticky)
   3. 모바일 화면에서 2단 레이아웃이 1단으로 자동 전환되어 메타 패널이 에디터 위에 쌓인다
-**Plans**: 1 plan
-
-Plans:
-- [ ] 09-01-PLAN.md — safe_json_ld XSS 패치 + 테스트
+**Plans**: [To be planned]
 
 ## Progress
 
@@ -159,8 +151,8 @@ Phases execute in numeric order: 9 → 10 → 11 → 12 (depends on 9) → 13 (i
 | 6. 카테고리 동적 관리 | v1.1 | 4/4 | Complete | 2026-02-28 |
 | 7. 게시글 예약 발행 | v1.1 | 3/3 | Complete | 2026-03-04 |
 | 8. AI 초안 작성 | v1.1 | 2/2 | Complete | 2026-03-06 |
-| 9. XSS 보안 패치 | 1/1 | Complete   | 2026-03-13 | — |
-| 10. 크롤링 기초 | v1.2 | 0/? | Not started | — |
+| 9. XSS 보안 패치 | v1.2 | 1/1 | Complete | 2026-03-13 |
+| 10. 크롤링 기초 | v1.2 | 0/2 | Not started | — |
 | 11. 소셜/색인 메타태그 | v1.2 | 0/? | Not started | — |
 | 12. 구조화 데이터 | v1.2 | 0/? | Not started | — |
 | 13. Admin 에디터 UX | v1.2 | 0/? | Not started | — |

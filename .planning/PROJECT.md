@@ -42,6 +42,18 @@
 
 ### Active
 
+**Current Milestone: v1.2 SEO + Admin UX**
+
+**Goal:** 네이버/구글 검색엔진 크롤링 최적화 및 Admin 게시글 에디터 UX 개선
+
+**Target features:**
+- robots.txt (Googlebot, Yeti/네이버봇 허용 규칙 + sitemap 경로)
+- 네이버 서치어드바이저 / Google Search Console 인증 메타태그
+- JSON-LD 구조화 데이터 (Article, BreadcrumbList 등)
+- Open Graph / Twitter Card 메타태그 보강
+- canonical URL + 불필요 페이지 noindex 처리
+- Admin 게시글 에디터 2단 레이아웃 (메타 정보 | 본문 에디터 분리)
+
 ### Out of Scope
 
 - 실시간 채팅/DM -- 1인 운영에 과도한 운영 부담, 기존 댓글로 충분
@@ -102,4 +114,4 @@
 - Admin 콘텐츠 분석 고도화 (차트, 기간별 필터, 내보내기)
 
 ---
-*Last updated: 2026-03-06 after v1.1 milestone completed*
+*Last updated: 2026-03-14 after v1.2 milestone started*

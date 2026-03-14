@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: Admin 에디터 고도화
 status: unknown
-stopped_at: "Checkpoint: Task 2 브라우저 검증 대기 중 (18-01-PLAN.md)"
-last_updated: "2026-03-14T15:14:33.797Z"
+stopped_at: Completed 18-01-PLAN.md (18-블록-삽입-메뉴)
+last_updated: "2026-03-14T15:16:14.179Z"
 progress:
   total_phases: 10
   completed_phases: 5
@@ -59,6 +59,7 @@ Progress: ░░░░░░░░░░░░░░░░░░░░ 0% (0/5 p
 | Phase 16-텍스트-스타일링 P01 | 12min | 2 tasks | 4 files |
 | Phase 16-텍스트-스타일링 P01 | 12min | 3 tasks | 4 files |
 | Phase 17-표-삽입 P01 | 2 | 1 tasks | 1 files |
+| Phase 18-블록-삽입-메뉴 P01 | 20min | 2 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -87,6 +88,8 @@ Full decision log in PROJECT.md Key Decisions table.
 - [Phase 17-표-삽입]: Light DOM 컨텍스트 메뉴 — shadow DOM 경계 외부에 배치해야 position:absolute가 뷰포트 기준으로 동작
 - [Phase 18-블록-삽입-메뉴]: @tiptap/extension-floating-menu 설치 금지 — tippy.js 의존성 + Shadow DOM 충돌. Light DOM 네이티브 구현
 - [Phase 18-블록-삽입-메뉴]: depth===1 조건으로 표 셀/리스트 내부(depth>1)에서 플로팅 메뉴 미표시 보장
+- [Phase 18-블록-삽입-메뉴]: @tiptap/extension-floating-menu 설치 금지 — tippy.js 의존성 + Shadow DOM 충돌. 네이티브 JS로 직접 구현
+- [Phase 18-블록-삽입-메뉴]: depth===1 조건으로 표 셀 내부(depth>1) 플로팅 메뉴 미표시 보장
 
 ### Pending Todos
 
@@ -102,7 +105,7 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-14T15:14:29.771Z
-Stopped at: Checkpoint: Task 2 브라우저 검증 대기 중 (18-01-PLAN.md)
+Last session: 2026-03-14T15:16:14.176Z
+Stopped at: Completed 18-01-PLAN.md (18-블록-삽입-메뉴)
 Resume file: None
 Next action: `/gsd:plan-phase 14`

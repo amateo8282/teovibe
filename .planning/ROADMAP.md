@@ -96,7 +96,10 @@ Plans:
   2. AI 초안 작성 버튼이 AdminRhinoEditor를 정상적으로 감지하고 초안을 삽입한다
   3. style 속성이 포함된 콘텐츠를 저장 후 게시글 상세 페이지에서 로드해도 style이 유지된다
   4. table/tr/td/th 태그가 포함된 콘텐츠를 저장 후 게시글 상세 페이지에서 로드해도 표 구조가 유지된다
-**Plans**: TBD
+**Plans**: 1 plan
+
+Plans:
+- [ ] 14-01-PLAN.md — ActionText 허용목록 + AdminRhinoEditor 스캐폴드 + AI selector 수정
 
 ### Phase 15: 툴바 서식 확장
 **Goal**: 취소선, 밑줄, 인용구, 구분선, 코드블록, 제목 드롭다운이 Admin 에디터 툴바에 추가되어 작성자가 풍부한 서식을 적용할 수 있다
@@ -107,7 +110,10 @@ Plans:
   2. 제목 드롭다운에서 H1/H2/H3을 선택하면 커서가 위치한 블록이 해당 제목 레벨로 변환된다
   3. 위 서식이 적용된 게시글을 저장하고 상세 페이지에서 조회하면 서식이 그대로 렌더링된다
   4. 새 npm 패키지 없이 기존 RhinoStarterKit 등록 extension만으로 모든 버튼이 동작한다
-**Plans**: TBD
+**Plans**: 1 plan
+
+Plans:
+- [ ] 14-01-PLAN.md — ActionText 허용목록 + AdminRhinoEditor 스캐폴드 + AI selector 수정
 
 ### Phase 16: 텍스트 스타일링
 **Goal**: 텍스트 정렬(좌/중/우), 글자색, 배경 하이라이트, 폰트 크기를 Admin 에디터에서 조절할 수 있다
@@ -118,7 +124,10 @@ Plans:
   2. 색상 팔레트에서 색상을 선택하면 선택 텍스트의 글자색 또는 배경색이 즉시 변경되고 저장 후에도 유지된다
   3. 폰트 크기 드롭다운에서 크기를 선택하면 선택 텍스트의 크기가 변경되고 저장 후에도 유지된다
   4. @tiptap/extension-font-size npm 패키지를 사용하지 않고 로컬 커스텀 extension으로 구현된다
-**Plans**: TBD
+**Plans**: 1 plan
+
+Plans:
+- [ ] 14-01-PLAN.md — ActionText 허용목록 + AdminRhinoEditor 스캐폴드 + AI selector 수정
 
 ### Phase 17: 표 삽입
 **Goal**: Admin 에디터에서 표를 삽입하고 행/열을 추가 및 삭제할 수 있다
@@ -129,7 +138,10 @@ Plans:
   2. 표 셀 내 컨텍스트 메뉴(버블 메뉴)에서 행/열 추가 및 삭제가 동작한다
   3. 저장 후 게시글 상세 페이지에서 표 구조와 내용이 올바르게 렌더링된다
   4. 기존 텍스트 선택 버블 메뉴와 표 버블 메뉴가 충돌 없이 각자 적절한 상황에서만 표시된다
-**Plans**: TBD
+**Plans**: 1 plan
+
+Plans:
+- [ ] 14-01-PLAN.md — ActionText 허용목록 + AdminRhinoEditor 스캐폴드 + AI selector 수정
 
 ### Phase 18: 블록 삽입 메뉴
 **Goal**: 빈 줄에서 + 버튼이 나타나 구분선/인용구/코드블록/표를 빠르게 삽입할 수 있다
@@ -139,7 +151,10 @@ Plans:
   1. 빈 단락에 커서를 놓으면 + 플로팅 버튼이 나타난다
   2. + 버튼 클릭 시 구분선/인용구/코드블록/표 삽입 옵션이 표시되고 선택 시 즉시 삽입된다
   3. 텍스트가 있는 줄에서는 + 버튼이 나타나지 않는다
-**Plans**: TBD
+**Plans**: 1 plan
+
+Plans:
+- [ ] 14-01-PLAN.md — ActionText 허용목록 + AdminRhinoEditor 스캐폴드 + AI selector 수정
 
 ## Progress
 
@@ -158,7 +173,7 @@ Plans:
 | 11. 소셜/색인 메타태그 | v1.2 | 2/2 | Complete | 2026-03-13 |
 | 12. 구조화 데이터 | v1.2 | 1/1 | Complete | 2026-03-13 |
 | 13. Admin 에디터 UX | v1.2 | 1/1 | Complete | 2026-03-14 |
-| 14. 에디터 기반 설정 | v1.3 | 0/? | Not started | - |
+| 14. 에디터 기반 설정 | v1.3 | 0/1 | Not started | - |
 | 15. 툴바 서식 확장 | v1.3 | 0/? | Not started | - |
 | 16. 텍스트 스타일링 | v1.3 | 0/? | Not started | - |
 | 17. 표 삽입 | v1.3 | 0/? | Not started | - |

@@ -113,7 +113,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 14-01-PLAN.md — ActionText 허용목록 + AdminRhinoEditor 스캐폴드 + AI selector 수정
+- [ ] 15-01-PLAN.md — Underline extension + renderToolbarEnd 오버라이드 + ActionText u 태그 허용 + 서식 검증
 
 ### Phase 16: 텍스트 스타일링
 **Goal**: 텍스트 정렬(좌/중/우), 글자색, 배경 하이라이트, 폰트 크기를 Admin 에디터에서 조절할 수 있다

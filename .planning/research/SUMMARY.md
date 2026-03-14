@@ -1,190 +1,204 @@
 # Project Research Summary
 
-**Project:** TeoVibe v1.2 — SEO 최적화 + Admin 에디터 UX 개선
-**Domain:** Rails 8 monolith 기반 블로그/커뮤니티 플랫폼 SEO 고도화
+**Project:** TeoVibe v1.3 Admin Editor Enhancement
+**Domain:** TipTap extension integration via rhino-editor 0.17.x (Rails 8 + ActionText)
 **Researched:** 2026-03-14
 **Confidence:** HIGH
 
 ## Executive Summary
 
-TeoVibe v1.2 마일스톤은 신규 gem이나 npm 패키지 추가 없이 기존 스택만으로 완전히 구현 가능한 SEO 최적화 작업이다. 핵심 인프라(meta-tags gem 2.22.3, sitemap_generator 6.3.0, SeoHelper 전체 JSON-LD 헬퍼 6종)는 이미 코드베이스에 존재하지만 실제로 뷰에 연결되어 있지 않은 "절반만 구현된" 상태다. 즉, 이번 마일스톤 대부분의 작업은 새 코드 작성이 아니라 기존 컴포넌트를 올바르게 연결하는 배선(wiring) 작업이다.
+TeoVibe v1.3 adds "Naver Blog-level" editing capability to the Admin CMS by extending the existing rhino-editor 0.17.3 component with additional TipTap extensions. The recommended approach is to subclass `TipTapEditor` as a new custom element `<admin-rhino-editor>`, adding 9 npm packages pinned to `@tiptap/core@2.27.2` and one locally-written custom FontSize extension. This isolates Admin enhancements from the public post form, preserves ActionText/ActiveStorage integration, and requires no Rails-side migrations.
 
-구현 접근법은 두 트랙으로 분리된다. SEO 트랙은 레이아웃과 뷰에 `set_meta_tags` 호출 및 `content_for :head` JSON-LD 블록을 추가하는 작업으로, 아키텍처 변경 없이 진행된다. Admin UX 트랙은 `admin/posts/_form.html.erb`의 1컬럼 레이아웃을 CSS Grid 2컬럼으로 교체하는 작업으로, 모델/컨트롤러 변경 없이 순수 HTML + Tailwind 작업으로 처리된다. 두 트랙은 서로 독립적이라 병렬 개발이 가능하다.
+The key insight from source inspection is that five of the eleven requested features (Strike, Underline, Blockquote, HorizontalRule, CodeBlock) are already registered in `RhinoStarterKit` — they only need toolbar UI work. The six genuinely new extensions (TextAlign, Color, Highlight, Table family, FontSize) require careful version pinning to `2.27.2` and a pre-implementation `config/initializers/action_text.rb` that allowlists the `style` attribute and table-related HTML tags before any colored or table content is written to the DB.
 
-가장 큰 위험 요소는 기존 `seo_helper.rb`의 XSS 보안 취약점이다. `.to_json.html_safe` 패턴이 사용자 입력이 포함된 JSON-LD에서 스크립트 인젝션을 허용한다. 이 패치는 새 JSON-LD를 뷰에 연결하기 전에 반드시 선행되어야 한다. 그 외 pitfall들(og:image 절대 URL 강제, canonical 쿼리 파라미터 제거, noindex+canonical 충돌, naver-site-verification 고정 삽입)은 모두 단일 설정 또는 한두 줄 수정으로 예방 가능하다.
+The two highest-risk areas are ActionText HTML sanitization (which silently strips `style` attributes and table tags on render, not on save — making bugs invisible in development until the post detail page is loaded) and TipTap extension version conflicts (mixing any `@tiptap/*@3.x` package with the `2.27.2` ecosystem causes silent ProseMirror schema errors). Both risks have deterministic preventions documented in PITFALLS.md and must be addressed as Day 1 setup tasks before any feature work begins.
+
+---
 
 ## Key Findings
 
 ### Recommended Stack
 
-v1.2의 모든 기능은 신규 gem/npm 패키지 추가 없이 구현 가능하다. 이미 설치된 `meta-tags` gem(2.22.3)이 OG, Twitter Card, canonical, noindex를 모두 처리하며, `sitemap_generator`(6.3.0)는 완전히 구성된 상태다. Admin 레이아웃은 Tailwind CSS v4.4의 `grid-cols-[380px_1fr]` arbitrary value 문법으로 2컬럼을 구현한다. 검색엔진 인증 토큰은 Rails credentials에 저장하는 것이 권장된다(Kamal 배포 환경에서 ENV 주입보다 일관성 높음).
+rhino-editor 0.17.3 is the locked base (0.18.x removed image upload — must not upgrade). It resolves `@tiptap/core` to exactly `2.27.2`. All new extensions must pin to this version. The `@tiptap/extension-font-size` npm package does not exist in TipTap v2 and must be implemented as a 25-line custom extension using `@tiptap/extension-text-style`'s `addGlobalAttributes` pattern.
 
-**Core technologies:**
-- `meta-tags` gem 2.22.3: OG, Twitter Card, canonical, noindex 메타태그 — 이미 레이아웃에 배선됨, 각 뷰에서 `set_meta_tags` 호출만 추가 필요
-- `sitemap_generator` 6.3.0: sitemap.xml 생성 — 완전히 구성됨, 카테고리 동적화 수정만 필요
-- Tailwind CSS 4.4 CSS Grid: Admin 2컬럼 레이아웃 — `grid-cols-[380px_1fr]` + `items-start` 패턴
-- `SeoHelper` (기존): JSON-LD Article, BreadcrumbList, WebSite, Organization 등 6종 — 정의됨, 뷰 연결만 필요
-- Rails credentials: 검색엔진 인증 토큰 저장 (`seo.google_site_verification`, `seo.naver_site_verification`)
+**Core technologies to install:**
+- `@tiptap/extension-text-align@2.27.2` — left/center/right alignment — only official option for v2
+- `@tiptap/extension-color@2.27.2` — text foreground color — requires TextStyle peer (already transitive dep)
+- `@tiptap/extension-highlight@2.27.2` — background color — `multicolor: true` for palette
+- `@tiptap/extension-underline@2.27.2` — not in StarterKit despite being in RhinoStarterKit
+- `@tiptap/extension-table@2.27.2` + `table-row` + `table-cell` + `table-header` — all 4 required together
+- `FontSize` (local, `app/frontend/extensions/font-size.js`) — no v2 npm package exists; build on TextStyle
+
+**What NOT to install:**
+- Any `@tiptap/*@^3.x` package — causes schema conflicts with the locked 2.27.2 ecosystem
+- `@tiptap/extension-font-size` (npm) — does not exist in v2; installing pulls v3 packages
+- `tiptap-extension-font-size` (community, unmaintained)
+- rhino-editor 0.18.x (removes image upload)
 
 ### Expected Features
 
-**Must have (table stakes) — v1.2 이번 마일스톤:**
-- Open Graph 메타태그 (og:title, og:description, og:image, og:type) — 소셜 공유 미리보기
-- Twitter Card `summary_large_image` 전역 설정 — Discord/X 공유 품질
-- canonical URL 자기 참조 — 중복 콘텐츠 방지
-- Admin/인증 페이지 noindex 전역 처리 — 관리자 경로 색인 차단
-- JSON-LD Article + BreadcrumbList 렌더링 (게시글 상세) — Google Rich Results 자격
-- JSON-LD WebSite + Organization 렌더링 (홈) — 사이트 신뢰도
-- Google Search Console 인증 메타태그 — GSC 기능 활성화
-- 네이버 서치어드바이저 인증 메타태그 — 네이버 검색 등록
-- robots.txt Yeti(네이버봇) 명시 블록 + Googlebot 명시 블록 추가
-- Admin 게시글 에디터 2컬럼 레이아웃 (Ghost/WordPress Admin 표준 패턴)
-- 기본 OGP 이미지 에셋 (`public/og-default.png`, 1200x630px)
+Source inspection of `rhino-starter-kit.d.ts` confirmed that Strike, Underline, Blockquote, HorizontalRule, and CodeBlock are all pre-registered in RhinoStarterKit. This collapses five "extension tasks" into five "toolbar button tasks" with zero package installs.
 
-**Should have (competitive) — v1.x 이후:**
-- og:image 본문 첫 번째 이미지 자동 추출 (ActionText 첨부 이미지 URL 접근 방식 추가 조사 필요)
-- noindex 토글 — 게시글별 Admin 설정 (Post 모델 boolean 컬럼 추가 필요)
-- sitemap ping 후처리 (게시글 발행 after_commit 콜백)
-- SEO 필드 글자수 카운터 Stimulus 컨트롤러 (seo_title 60자, seo_description 160자 권장)
-- JSON-LD 카테고리 목록 ItemList + 스킬팩 SoftwareApplication
+**Must have — P1 (v1.3 core):**
+- Strikethrough toolbar button — 0 packages, `rhinoStrike` already registered (renders `<del>`, not `<s>`)
+- Underline toolbar button — 0 packages, already registered in RhinoStarterKit
+- Blockquote toolbar button — 0 packages, already registered
+- Horizontal rule button — 0 packages, already registered
+- Code block button — 0 packages, already registered
+- Heading H1~H3 dropdown — 0 packages, configure via `starterKitOptions.heading.levels`
+- Text alignment (L/C/R) — 1 package (`@tiptap/extension-text-align`)
+- Table insertion + row/col operations + bubble menu — 4 packages
+- Text color preset palette (12 colors) — 2 packages (`@tiptap/extension-text-style` + `@tiptap/extension-color`)
+- Background highlight preset palette — 1 package (`@tiptap/extension-highlight`)
+- Font size preset dropdown — custom local extension (TextStyle shared from Color)
 
-**Defer (v2+):**
-- Core Web Vitals 최적화 (LCP preload, CLS 방지)
-- AMP 구현 — Google이 2023년 순위 요소에서 제외, 유지보수 비용만 높음
-- 자동 meta description AI 생성 — Google이 50%+ 무시하는 추세, AI 초안 기능과 중복
-- 다국어 hreflang — 한국어 전용 서비스, 불필요한 복잡도
-- 구조화 데이터 CI 자동 검증 — 1인 운영에 오버엔지니어링
+**Should have — P2 (add if P1 ships with time remaining):**
+- Block insertion floating menu (`+` button on empty lines via TipTap `FloatingMenu`)
+
+**Defer to v1.4+:**
+- Slash commands (`/`) — experimental upstream, no official npm package, high maintenance burden
+- Syntax highlighting in code blocks (`@tiptap/extension-code-block-lowlight`) — bundle weight cost
+- Table column resize — upstream TipTap bug #2041 (widths lost when editor not editable)
+- Font family selection — brand consistency risk, low value for current content type
 
 ### Architecture Approach
 
-변경 범위는 최소화된다. 새 디렉토리, 모델, 마이그레이션, 컨트롤러가 필요 없다. 모든 변경은 기존 컴포넌트에 대한 가산적(additive) 수정이다. SEO 메타태그 흐름은 `뷰 content_for :head → set_meta_tags → 레이아웃 display_meta_tags → HTML head` 단방향 파이프라인이며, 레이아웃에는 이미 `display_meta_tags`와 `yield :head`가 배선되어 있어 뷰에서 `set_meta_tags` 호출만 추가하면 된다. Admin 2컬럼은 `_form.html.erb` 외부 wrapper의 클래스 교체만으로 처리된다.
+The recommended architecture creates one new JS file (`app/frontend/editor/admin_rhino_editor.js`) that subclasses `TipTapEditor`, injects extensions via `editorOptions()` override, and registers as `<admin-rhino-editor>`. Three existing files require minimal modification: `application.js` (add one import), `admin/posts/_form.html.erb` (change element tag), `ai_draft_controller.js` (update one querySelector string). The public `posts/_form.html.erb` is untouched. No Rails migrations or model changes are required — all new HTML (style attributes, table tags) is stored verbatim by ActionText and requires only the sanitizer allowlist configuration.
 
 **Major components:**
-1. `layouts/application.html.erb` — 검색엔진 인증 메타태그 고정 삽입 + robots yield 슬롯 추가 (수정)
-2. `app/helpers/seo_helper.rb` — XSS 패치 (json_escape 적용) + og_image_url_for 헬퍼 추가 (수정)
-3. `app/views/posts/show.html.erb` — set_meta_tags + Article/BreadcrumbList JSON-LD content_for 추가 (수정)
-4. `app/views/pages/home.html.erb` — WebSite/Organization JSON-LD content_for 추가 (수정)
-5. `app/views/admin/posts/_form.html.erb` — CSS Grid 2컬럼 레이아웃으로 교체 (수정)
-6. `public/robots.txt` — Googlebot/Yeti 명시 블록 추가 (수정)
-7. `config/sitemap.rb` — 카테고리 하드코딩 → 동적 루프 교체 (수정)
+1. `AdminRhinoEditor` class (`app/frontend/editor/admin_rhino_editor.js`) — subclass with extended extensions, custom toolbar via Lit `renderToolbar()` override
+2. `config/initializers/action_text.rb` — allowlist `style` attribute + all table HTML tags; must be created before any feature work begins
+3. Toolbar UI (Lit html templates inline or in `admin_toolbar_helpers.js`) — heading dropdown, color swatches, alignment buttons, table bubble menu
 
 ### Critical Pitfalls
 
-1. **JSON-LD XSS 취약점 (`seo_helper.rb`)** — 기존 `.to_json.html_safe` 패턴에서 `<`, `>`, `&` 문자가 이스케이프되지 않아 스크립트 태그 이탈 가능. 모든 JSON-LD 메서드에 `json_escape` 또는 Unicode 이스케이프 래퍼 적용. 새 JSON-LD 연결 전 사전 패치 필수.
+1. **ActionText strips `style` attributes on render, not on save** — Color/Highlight/TextAlign appear to work in development (editor renders them) but are silently stripped when the post detail page loads. Fix: create `config/initializers/action_text.rb` with `ActionText::ContentHelper.allowed_attributes += ["style"]` as the very first task before writing any color/alignment feature code.
 
-2. **og:image 상대 경로 사용** — `image_path` 대신 `image_url` 사용, `config/environments/production.rb`에 `config.asset_host = "https://teovibe.com"` 설정 필수. 소셜 크롤러(카카오톡, Facebook, Discord)는 절대 URL만 인식하며, 배포 후 수정 시 카카오톡은 기존 공유 URL 캐시를 갱신할 수 없음.
+2. **ActionText strips table tags on render** — `<table>`, `<tr>`, `<th>`, `<td>`, `<thead>`, `<tbody>`, `<tfoot>` are all absent from `DEFAULT_ALLOWED_TAGS`. Entire tables disappear after save. Fix: add all table tags + `colspan`/`rowspan` attributes to the same initializer, before any table feature work begins.
 
-3. **canonical + noindex 동시 적용 충돌** — `MetaTags.configure { |c| c.skip_canonical_links_on_noindex = true }` 설정으로 자동 처리. canonical을 `request.original_url`로 설정하면 `?page=2` 등 쿼리 파라미터가 포함됨 — 라우트 헬퍼(`post_url(@post)`) 사용 필수.
+3. **TipTap extension duplicate registration** — Adding an extension that already exists in StarterKit (CodeBlock, Heading, Strike) causes `[tiptap warn]: Duplicate extension names found` and silent malfunction. Heading levels must be adjusted via `starterKitOptions.heading.levels`, not by adding a second Heading extension. `rhinoStrike` uses `<del>` — do NOT add the standard Strike extension alongside it.
 
-4. **naver-site-verification 태그 위치 오류** — `set_meta_tags`를 통한 조건부 삽입 금지. `application.html.erb`에 ENV 조건으로 직접 고정 삽입해야 Naver Search Advisor가 루트 URL에서 항상 인식 가능. Turbo Frame 내 삽입 시 Naver가 인식 불가.
+4. **`@tiptap/extension-font-size` does not exist in v2** — Installing it pulls TipTap v3 packages, causing peer dep conflicts with `@tiptap/core@2.27.2`. Write a 25-line custom extension using `addGlobalAttributes` on TextStyle instead.
 
-5. **rhino-editor sticky 사이드바 무력화** — Admin 2컬럼 grid에 `items-start` 필수. CSS Grid 기본값(`align-items: stretch`)에서는 sticky가 작동 안 함. 부모 컨테이너에 `overflow: hidden` 금지.
+5. **Toolbar buttons missing `type="button"` submit the form** — Any `<button>` inside `<form>` without `type` defaults to `type="submit"`. Every custom toolbar button must have `type="button"` explicitly.
+
+6. **Turbo Drive stale editor on back navigation** — Lit Web Components re-fire `connectedCallback` on Turbo cache restore, reinitializing the editor and losing content. Fix: add `<meta name="turbo-cache-control" content="no-cache">` to the Admin layout.
+
+---
 
 ## Implications for Roadmap
 
-Based on research, suggested phase structure:
+Based on research, the work decomposes naturally into a setup phase followed by feature phases ordered by complexity. Simpler toolbar-only features ship first to validate the scaffold, then progressively more complex extensions are added.
 
-### Phase 0: 사전 보안 패치 (XSS 수정)
-**Rationale:** `seo_helper.rb`의 `.to_json.html_safe` XSS 취약점은 JSON-LD를 뷰에 연결하기 전에 반드시 패치해야 한다. 패치 없이 JSON-LD를 활성화하면 취약한 상태로 배포된다. 단독 커밋, 10분 내 수정 가능.
-**Delivers:** Brakeman 경고 0건, 안전한 JSON-LD 출력 기반 확보
-**Addresses:** PITFALLS.md Pitfall 1 (Critical)
-**Avoids:** 배포 후 긴급 패치 시나리오
+### Phase 1: Foundation Setup
+**Rationale:** ActionText sanitizer configuration and the AdminRhinoEditor scaffold must exist before any feature work begins. The sanitizer pitfalls (Pitfalls 2 and 3) cause silent, hard-to-debug data loss if encountered mid-feature — addressing them upfront eliminates an entire class of bugs. The `<admin-rhino-editor>` scaffold verifies that the subclass pattern and `ai_draft_controller.js` still work before any extensions are added.
+**Delivers:** `config/initializers/action_text.rb` (style + table allowlists), `AdminRhinoEditor` skeleton class, `<admin-rhino-editor>` tag in admin ERB, updated querySelector in ai_draft_controller, Turbo no-cache meta tag on admin layout.
+**Avoids:** Pitfalls 2, 3, 5, 7 (ActionText stripping, addExtensions timing, stale Turbo cache)
 
-### Phase 1: 크롤링 기초 — robots.txt + sitemap 보완
-**Rationale:** 다른 SEO 기능보다 선행되어야 한다. robots.txt는 크롤러가 사이트를 이해하는 첫 번째 접점이고, sitemap 카테고리 하드코딩은 v1.1 카테고리 동적화 이후 남은 기술 부채로 신규 카테고리 색인 누락을 유발한다.
-**Delivers:** Yeti/Googlebot 명시 허용, 환경별 크롤링 제어 기반, 동적 카테고리 sitemap 커버리지
-**Addresses:** FEATURES.md robots.txt 보강, sitemap 동적 카테고리
-**Avoids:** Naver Search Advisor "수집 오류", 신규 카테고리 색인 누락
+### Phase 2: Toolbar-Only Marks (Zero New Packages)
+**Rationale:** Five features already have their extensions registered — only toolbar UI is needed. This phase ships visible editor improvements with zero dependency risk and validates the Lit toolbar rendering pattern before any packages are installed.
+**Delivers:** Strikethrough button, Underline button, Blockquote button, Horizontal Rule button, Code Block button, Heading H1/H2/H3 dropdown.
+**Uses:** `starterKitOptions.heading.levels: [1,2,3]`, existing RhinoStarterKit extensions.
+**Avoids:** Pitfall 3 (do NOT add separate Strike or Heading extensions), Pitfall 6 (rhinoStrike vs Strike tag mismatch — confirm `<del>` behavior)
 
-### Phase 2: 검색엔진 인증 메타태그
-**Rationale:** robots.txt Yeti 허용(Phase 1) 완료 후 Naver Search Advisor 등록을 진행한다. 인증이 완료되어야 이후 SEO 변경사항의 효과를 Search Console에서 추적할 수 있다. 인증 토큰은 `application.html.erb`에 고정 삽입 필수.
-**Delivers:** Google Search Console 소유권 확인, 네이버 서치어드바이저 등록 가능 상태
-**Addresses:** FEATURES.md Google/Naver 인증 메타태그 (table stakes)
-**Avoids:** PITFALLS.md Pitfall 3 — `application.html.erb` 고정 삽입 패턴으로 태그 위치 오류 방지
+### Phase 3: Text Alignment
+**Rationale:** Single package with straightforward integration; validates the full extension-install-configure-toolbar cycle before tackling the more complex TextStyle-dependent features.
+**Delivers:** Left/center/right alignment buttons, `@tiptap/extension-text-align` installed and registered.
+**Implements:** Extension injection pattern via `editorOptions()` override.
+**Avoids:** Pitfall 2 (style attribute allowlisted in Phase 1, so alignment persists after save)
 
-### Phase 3: OG/Twitter Card 메타태그 보강
-**Rationale:** 검색엔진 인증(Phase 2) 후 실제 콘텐츠 메타데이터를 작업한다. ApplicationController 기본값 설정 후 게시글 상세에서 오버라이드하는 단방향 패턴. og:image 절대 URL과 seo_title fallback은 이 단계에서 반드시 처리해야 소셜 공유가 정상 동작한다.
-**Delivers:** 소셜 공유 미리보기(카카오톡/Discord/X), 게시글별 OG 타이틀/설명/이미지, 기본 OGP 이미지 에셋
-**Addresses:** FEATURES.md OG/Twitter Card (table stakes)
-**Avoids:** PITFALLS.md Pitfall 4 (og:image 상대 경로), Pitfall 9 (seo_title fallback 미구현)
+### Phase 4: Color and Highlight
+**Rationale:** Both features share the `@tiptap/extension-text-style` peer dependency. Installing and registering them together is more efficient than two separate phases. Requires color swatch UI (12 preset colors).
+**Delivers:** Text color preset palette, background highlight preset palette, `@tiptap/extension-color` + `@tiptap/extension-highlight` installed.
+**Uses:** `@tiptap/extension-text-style@2.27.2` (must be registered before Color in extensions array).
+**Avoids:** Pitfall 5 (TextStyle registered before Color)
 
-### Phase 4: canonical URL + noindex 처리
-**Rationale:** OG 메타태그(Phase 3)와 동일한 `set_meta_tags` 인프라를 사용. canonical 쿼리 파라미터 문제와 noindex+canonical 충돌은 이 단계에서 `MetaTags.configure` 설정으로 일괄 처리.
-**Delivers:** 중복 콘텐츠 방지, Admin/인증 페이지 비색인 처리, 크롤 버짓 최적화
-**Addresses:** FEATURES.md canonical URL, noindex 처리 (table stakes)
-**Avoids:** PITFALLS.md Pitfall 6 (canonical+noindex 충돌), Pitfall 7 (request.original_url canonical)
+### Phase 5: Table
+**Rationale:** Highest complexity among P1 features — 4 packages, table bubble menu, public view CSS, ActionText tag allowlist. Isolated to its own phase to contain risk. The ActionText table tag allowlist is already done in Phase 1, so this phase focuses entirely on editor UX.
+**Delivers:** Table insertion, add/remove row/column, delete table, table bubble menu with `shouldShow: isActive('table')` guard, table CSS for public post view.
+**Uses:** `@tiptap/extension-table@2.27.2`, `table-row`, `table-cell`, `table-header` (all 4 required).
+**Avoids:** Pitfall 3 (table tags allowlisted upfront), Pitfall 8 (no separate Heading extension added alongside Table)
 
-### Phase 5: JSON-LD 구조화 데이터 렌더링
-**Rationale:** Phase 0에서 XSS 패치가 완료된 SeoHelper를 비로소 뷰에 연결한다. 헬퍼는 이미 정의되어 있으므로 `content_for :head` 블록 추가만으로 완료. Phase 3-4와 독립적으로 병렬 처리 가능하나 Phase 0 선행 필수.
-**Delivers:** Google Rich Results 자격(Article + BreadcrumbList), 홈 사이트 신뢰도(WebSite + Organization)
-**Addresses:** FEATURES.md JSON-LD 구조화 데이터 렌더링 (differentiator)
-**Avoids:** XSS는 Phase 0에서 선제 해결됨
+### Phase 6: Font Size
+**Rationale:** TextStyle is already installed by Phase 4, so this phase only requires writing the local custom extension. Low risk, validates the custom extension authoring pattern.
+**Delivers:** Font size preset dropdown (12/14/16/18/20/24px), custom `FontSize` extension at `app/frontend/extensions/font-size.js`.
+**Uses:** `@tiptap/extension-text-style` (already installed in Phase 4), `addGlobalAttributes` pattern.
+**Avoids:** Pitfall 4 (`@tiptap/extension-font-size` npm package does not exist in v2)
 
-### Phase 6: Admin 게시글 에디터 2컬럼 레이아웃
-**Rationale:** SEO 기능과 완전히 독립적. `_form.html.erb` 리팩터링만으로 처리되며 모델/컨트롤러 변경 없음. Phase 1-5 진행 중 병렬 개발 가능. Ghost/WordPress Admin 표준 패턴이므로 사전 연구가 필요 없다.
-**Delivers:** 메타 정보 + 본문 에디터 2컬럼 분리, sticky 우측 설정 패널, SEO 필드 가시성 향상
-**Addresses:** FEATURES.md Admin 에디터 2컬럼 레이아웃 (differentiator)
-**Avoids:** PITFALLS.md Pitfall 8 (rhino-editor sticky 충돌) — `items-start` 필수 적용
+### Phase 7: Block Insertion Menu (P2, conditional)
+**Rationale:** Lowest priority, highest implementation complexity. Ship only if Phases 1-6 complete and discoverability of toolbar items is identified as a real usability problem. Use TipTap's built-in `FloatingMenu` extension (already bundled) before considering experimental slash commands.
+**Delivers:** `+` floating button on empty lines using `FloatingMenu`.
+**Avoids:** Building slash commands (experimental, no official npm package, high maintenance burden)
 
 ### Phase Ordering Rationale
 
-- Phase 0이 Phase 5보다 먼저인 이유: XSS 취약 헬퍼를 활성화하기 전에 반드시 패치해야 함
-- Phase 1(robots.txt)이 Phase 2(인증)보다 먼저인 이유: Naver Search Advisor는 Yeti 허용이 확인된 사이트에 대해 크롤링 진단이 정확함
-- Phase 3-4-5는 논리적 순서가 있지만 실제로는 독립적으로 병렬 처리 가능
-- Phase 6은 SEO 트랙 전체와 독립적 — 언제든 병렬로 진행 가능
+- Phase 1 must precede all others — ActionText configuration is global and its absence causes data loss that is invisible until the post detail page is viewed.
+- Phase 2 ships maximum user value with zero package risk, validating the scaffold and toolbar pattern before dependencies are introduced.
+- Phase 3 comes before Phase 4 because it is simpler (no shared-dep coordination) and validates the extension injection path.
+- Phase 4 (Color + Highlight) is grouped because they share the TextStyle peer dependency.
+- Phase 5 (Table) is isolated last among P1 features because it has the most moving parts (4 packages + bubble menu + CSS).
+- Phase 6 (FontSize) comes after Phase 4 because it depends on TextStyle already being registered.
+- Phase 7 is gated on P1 completion and a deliberate decision to address discoverability.
 
 ### Research Flags
 
-Phases with standard patterns (skip research-phase):
-- **Phase 0:** `json_escape` 헬퍼 적용 — Rails 내장 기능, 단순 래퍼 추가
-- **Phase 1:** robots.txt 정적 파일 수정 + sitemap.rb 동적화 — 확립된 Rails 패턴, 코드 예제 연구에서 완전히 검증됨
-- **Phase 2:** 인증 메타태그 — 공식 Google/Naver 문서 기반, 구현 패턴 단순
-- **Phase 3:** meta-tags gem API — 공식 gem README 기반, 코드 예제 연구에서 완전히 검증됨
-- **Phase 4:** canonical/noindex — meta-tags gem 설정 한 줄 (`skip_canonical_links_on_noindex = true`), 확립된 패턴
-- **Phase 5:** JSON-LD SeoHelper 연결 — 헬퍼 이미 정의됨, `content_for :head` 추가만
-- **Phase 6:** CSS Grid 2컬럼 — Tailwind arbitrary values 확인됨, Ghost/WordPress 표준 패턴
+Phases with standard well-documented patterns (research-phase not needed):
+- **Phase 1:** Rails ActionText sanitizer configuration is a common pattern with official documentation. Subclassing `TipTapEditor` is the documented extension approach per rhino-editor official docs.
+- **Phase 2:** Pure toolbar UI using known Lit template patterns. Extensions already registered.
+- **Phase 3:** Single official TipTap extension, official docs confirmed.
+- **Phase 4:** Official TipTap extensions, peer deps confirmed. Color swatch UI is a simple HTML pattern.
+- **Phase 6:** Custom extension using documented `addGlobalAttributes` API, community-verified for v2.
 
-Phases likely needing deeper research during planning:
-- **og:image 자동 추출 (v1.x 이후):** ActionText 첨부 이미지 URL 접근 방식이 Rails 버전별로 다르며 공식 문서가 충분하지 않음. 별도 연구 권장.
-- **sitemap ping 자동화 (v1.x 이후):** Solid Queue + after_commit 콜백 패턴 및 Kamal deploy hook 방식 검증 필요.
+Phases that may benefit from additional research during planning:
+- **Phase 5 (Table):** The table bubble menu (separate from the existing rhino-editor bubble menu) needs careful `shouldShow` implementation to avoid interfering with the existing text-selection bubble menu. May need to verify correct Lit template structure for mounting a second BubbleMenu component inside the subclass.
+- **Phase 7 (Block menu):** If slash commands are chosen over FloatingMenu, the `@tiptap/suggestion` integration has no published package and requires copying source or using a community library — needs research at planning time.
+
+---
 
 ## Confidence Assessment
 
 | Area | Confidence | Notes |
 |------|------------|-------|
-| Stack | HIGH | 기존 Gemfile.lock 직접 확인 + 공식 gem 문서. 신규 의존성 없음 — 검증 위험 없음 |
-| Features | HIGH | 공식 OGP/Schema.org/Google 문서 + meta-tags gem README 기반. 경쟁 분석(Ghost/WordPress) 포함 |
-| Architecture | HIGH | 코드베이스 직접 분석(seo_helper.rb, sitemap.rb, _form.html.erb, layouts 등) — 가장 신뢰도 높음 |
-| Pitfalls | MEDIUM-HIGH | Naver Search Advisor 공식 문서가 제한적(MEDIUM), 나머지 XSS/canonical/OG pitfall은 공식 소스 기반(HIGH) |
+| Stack | HIGH | Versions verified via live `npm view` commands and direct lockfile inspection. `@tiptap/extension-font-size` absence confirmed on npm. |
+| Features | HIGH | `rhino-starter-kit.d.ts` directly inspected to confirm which extensions are pre-registered. Feature list matches TipTap official docs. |
+| Architecture | HIGH | rhino-editor source TypeScript declarations (`tip-tap-editor-base.d.ts`, `tip-tap-editor.d.ts`) directly inspected. `editorOptions()` override confirmed as documented extension point. |
+| Pitfalls | HIGH | ActionText sanitizer source (`content_helper.rb`, `rails-html-sanitizer-1.6.2`) directly inspected. DEFAULT_ALLOWED_TAGS and DEFAULT_ALLOWED_ATTRIBUTES confirmed. |
 
 **Overall confidence:** HIGH
 
 ### Gaps to Address
 
-- **Naver Search Advisor 크롤링 동작:** Yeti의 JavaScript 렌더링 능력이 공식 문서에 명시되지 않음. Turbo Drive가 SSR에 영향을 주지 않으므로 현재 구조는 안전하나, 등록 후 Search Advisor 진단 도구로 실제 크롤링 결과 모니터링 권장.
-- **og:image Active Storage 첨부 이미지 URL 추출:** ActionText 본문에서 첫 번째 이미지 URL을 추출하는 Rails 표준 방법이 버전별로 다름. v1.x 구현 시 별도 조사 필요. 현재는 기본 OGP 이미지 폴백으로 처리.
-- **sitemap_generator 자동 실행 주기:** 현재 수동 `rake sitemap:refresh` 실행. Solid Queue cron 또는 Kamal deploy hook으로 자동화 방식은 v1.x에서 결정.
+- **TextStyle peer dep verification:** `@tiptap/extension-text-style` is believed to be a transitive dep (rhino-editor depends on it). Verify with `pnpm why @tiptap/extension-text-style` before Phase 4. If missing, add explicit `@tiptap/extension-text-style@2.27.2` install to Phase 4.
+- **Table bubble menu Lit integration:** The exact pattern for mounting a second `BubbleMenu` component inside the `AdminRhinoEditor` subclass alongside the existing rhino-editor bubble menu has not been prototyped. Low risk (BubbleMenu is a standard TipTap extension) but worth confirming at Phase 5 start.
+- **`rhinoStrike` command name:** RhinoStarterKit uses `rhinoStrike` which renders `<del>`. The toolbar toggle command may be `toggleStrike()` or a rhino-specific variant. Confirm the exact command name against the RhinoStarterKit mark definition at Phase 2 start.
+- **ActionText scrubber scope:** The global `allowed_attributes += ["style"]` initializer also applies to any future member-facing rich text inputs. This is acceptable technical debt for v1.3 (Admin only), but must be refactored before a general member editor is introduced.
+
+---
 
 ## Sources
 
 ### Primary (HIGH confidence)
-- 코드베이스 직접 분석: `app/helpers/seo_helper.rb`, `config/sitemap.rb`, `public/robots.txt`, `app/views/admin/posts/_form.html.erb`, `config/initializers/meta_tags.rb`, `db/schema.rb`
-- [meta-tags gem GitHub (kpumuk/meta-tags)](https://github.com/kpumuk/meta-tags) — OG, canonical, noindex API, `skip_canonical_links_on_noindex` 설정
-- [Open Graph protocol 공식 (ogp.me)](https://ogp.me/) — OG 스펙
-- [Schema.org BreadcrumbList](https://schema.org/BreadcrumbList) — JSON-LD 스펙
-- [Google Search Console 소유권 확인](https://support.google.com/webmasters/answer/9008080) — 인증 메타태그 방식
-- [Google 특수 메타태그 문서](https://developers.google.com/search/docs/crawling-indexing/special-tags) — noindex, canonical 공식
-- [Brakeman: Cross Site Scripting (JSON)](https://brakemanscanner.org/docs/warning_types/cross_site_scripting_to_json/) — JSON-LD XSS 취약점 근거
-- [Google: noindex + canonical 혼용 금지](https://www.searchenginejournal.com/google-dont-mix-noindex-relcanonical/262607/) — John Mueller 공식 권고
-- Tailwind CSS v4 공식 문서 — arbitrary value grid 문법, `items-start` sticky 동작
+- `teovibe/node_modules/rhino-editor/exports/elements/tip-tap-editor-base.d.ts` — `extensions`, `editorOptions()`, `addExtensions()` API
+- `teovibe/node_modules/rhino-editor/exports/elements/tip-tap-editor.d.ts` — slot names, `renderToolbar()`
+- `teovibe/node_modules/rhino-editor/exports/extensions/rhino-starter-kit.d.ts` — confirmed pre-registered extensions including Underline
+- `teovibe/pnpm-lock.yaml` — confirmed all `@tiptap/*` resolve to `2.27.2`
+- `~/.rbenv/versions/3.3.10/gems/actiontext-8.1.2/app/helpers/action_text/content_helper.rb` — sanitize logic
+- `~/.rbenv/versions/3.3.10/gems/rails-html-sanitizer-1.6.2` — DEFAULT_ALLOWED_TAGS and DEFAULT_ALLOWED_ATTRIBUTES
+- `npm view @tiptap/extension-{text-align,color,highlight,table,...} versions` (live CLI) — version availability confirmed
+- `npm view @tiptap/extension-font-size versions` — confirmed no 2.x version exists
+- [rhino-editor docs: Syntax Highlighting](https://rhino-editor.vercel.app/how-tos/syntax-highlighting) — `starterKitOptions.codeBlock: false` pattern
+- [rhino-editor docs: Customizing the toolbar](https://rhino-editor.vercel.app/how-tos/customizing-the-toolbar/) — slot system, required button attributes
+- [TipTap Table extension](https://tiptap.dev/docs/editor/extensions/nodes/table) — 4-package requirement, operations API
+- [TipTap Color extension](https://tiptap.dev/docs/editor/extensions/functionality/color) — TextStyle peer requirement
+- [TipTap FontSize extension](https://tiptap.dev/docs/editor/extensions/functionality/fontsize) — setFontSize/unsetFontSize API
+- [ActionText Rails issue #36725](https://github.com/rails/rails/issues/36725) — style attribute stripping behavior
+- [CVE-2024-53986](https://github.com/advisories/GHSA-638j-pmjw-jq48) — rails-html-sanitizer XSS: style + math tag interaction
 
 ### Secondary (MEDIUM confidence)
-- [DataDome: What is NaverBot](https://datadome.co/bots/naverbot/) — Yeti 봇 기술 특성
-- [Interad: Naver Search Advisor guide (2025)](https://www.interad.com/en/insights/naver-search-advisor-a-full-guide) — Yeti robots.txt 명시 권고
-- [Avo Blog: Structured Data in Rails](https://avohq.io/blog/structured-data-rails) — JSON-LD partial 패턴
-- [Avo Blog: Canonical URLs in Rails](https://avohq.io/blog/canonical-urls-rails) — canonical 구현 패턴
-- [Avo Blog: Sitemap Best Practices](https://avohq.io/blog/sitemap-for-rails-applications) — noindex 페이지 sitemap 제외 권장
-- [PayloadCMS: 2-column editor layout discussion](https://github.com/payloadcms/payload/discussions/5181) — Admin 2컬럼 패턴 업계 표준 검증
+- GitHub gist: font-size-for-tiptap-v2 — custom FontSize via `addGlobalAttributes` pattern (community-verified for v2)
+- [KonnorRogers: ActionText safe listing](https://dev.to/konnorrogers/actiontext-safe-listing-attributes-and-tags-1a4j) — allowed_tags extension pattern (written by rhino-editor author)
+- [TipTap table resizable bug #2041](https://github.com/ueberdosis/tiptap/issues/2041) — column widths lost when editor not editable
+- [Maquina Components: Turbo Compatibility 2026](https://maquina.app/blog/2026/02/maquina-components-0-4-0-turbo-compatibility/) — Web Component + Turbo Drive stale issue
 
 ---
 *Research completed: 2026-03-14*

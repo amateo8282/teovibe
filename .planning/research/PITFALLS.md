@@ -1,388 +1,369 @@
 # Pitfalls Research
 
-**Domain:** SEO 최적화 + Admin 2-column 에디터 레이아웃 (Rails 8 + Hotwire/Turbo 기반 블로그/커뮤니티 플랫폼)
+**Domain:** TipTap extension integration via rhino-editor 0.17.x (Rails 8 + ActionText + Hotwire/Turbo)
 **Researched:** 2026-03-14
-**Confidence:** MEDIUM-HIGH (Naver-specific 부분은 공식 문서가 제한적이어서 MEDIUM, 나머지는 HIGH)
+**Confidence:** HIGH (rhino-editor source code + ActionText source code 직접 확인, TipTap 공식 문서 확인)
 
-> Note: 이 파일은 v1.2 마일스톤 전용 연구다. v1.1 pitfalls(Category 마이그레이션, AI 초안, 예약 발행)는 이미 해결됨.
-> 기존 코드베이스 확인 사항:
-> - `seo_helper.rb` 이미 존재 (JSON-LD 헬퍼 6종 구현됨)
-> - `robots.txt` 기본 구성 완료, Yeti 전용 블록 없음
-> - `sitemap.rb` 카테고리 slug 하드코딩 방식
-> - `display_meta_tags` 레이아웃 적용됨, `set_meta_tags` 뷰 호출 없음
-> - `admin/posts/_form.html.erb` 단일 컬럼 레이아웃
+> Note: 이 파일은 v1.3 마일스톤 전용 연구다. "rhino-editor에 TipTap extension을 추가할 때 흔히 발생하는 실수"에 집중한다.
+> 핵심 전제: rhino-editor는 TipTap을 감싸는 Lit 기반 Web Component다.
+> `TipTapEditor`를 직접 인스턴스화하지 않고 `<rhino-editor>` DOM 엘리먼트의 API를 통해 확장해야 한다.
+>
+> 코드베이스 확인 사항:
+> - `application.js`에서 `import "rhino-editor"` — `TipTapEditor.define()` 자동 호출됨
+> - rhino-editor 0.17.3이 `@tiptap/starter-kit` + `RhinoStarterKit` 두 개를 함께 사용
+> - `strike: false`가 기본 starterKitOptions (rhinoStrike 대신 TipTap 기본 strike 비활성화)
+> - ActionText는 rails-html-sanitizer 1.6.2 사용 — `style` 속성 기본 차단
 
 ---
 
 ## Critical Pitfalls
 
-### Pitfall 1: JSON-LD `.to_json.html_safe`의 XSS 취약점
+### Pitfall 1: TipTap StarterKit 내장 extension 중복 등록
 
 **What goes wrong:**
-`seo_helper.rb`의 `.to_json.html_safe` 패턴이 XSS 취약점을 내포한다. `post.title`, `post.user.nickname` 등 사용자가 입력한 콘텐츠가 JSON-LD `<script>` 태그에 삽입될 때, 악성 문자열이 `</script>` 시퀀스를 포함하면 스크립트 태그를 강제 종료하고 임의 HTML을 주입할 수 있다.
+`@tiptap/starter-kit`에 이미 포함된 extension을 `addExtensions()`로 추가하면 TipTap이 "Duplicate extension names found" 경고를 내보내고, 에디터가 오작동하거나 특정 extension이 완전히 비활성화된다. 예를 들어 `CodeBlockLowlight`를 추가하면서 기존 `codeBlock`을 비활성화하지 않으면 두 codeBlock extension이 공존하여 코드 블록 입력 자체가 깨진다.
 
-예: post.title에 `바이브코딩</script><script>alert(1)//` 삽입 시 브라우저가 실행.
+rhino-editor 0.17.x의 기본 extension 구성:
+- **StarterKit 포함**: blockquote, bold, bulletList, code, codeBlock, document, dropcursor, gapcursor, hardBreak, heading, history, horizontalRule, italic, listItem, orderedList, paragraph, strike, text
+- **RhinoStarterKit 추가**: rhinoStrike (`<del>` 태그), rhinoGallery, rhinoAttachment, rhinoLink, rhinoCodemarkPlugin, rhinoPlaceholder, increaseIndentation, decreaseIndentation
 
 **Why it happens:**
-Ruby의 `Hash#to_json`은 `<`, `>`, `&` 문자를 HTML-safe하게 이스케이프하지 않는다. `html_safe` 표시는 Rails의 자동 XSS 방어를 비활성화한다. `article_json_ld(post)`, `website_json_ld`, `item_list_json_ld` 등 현재 구현된 6개 헬퍼가 모두 동일한 취약 패턴을 사용한다.
+TipTap 공식 extension 문서를 보고 단순히 `addExtensions(CodeBlockLowlight)`를 호출하면, StarterKit의 `codeBlock`이 여전히 활성화된 상태로 두 extension이 동일한 이름 `codeBlock`을 등록하게 된다.
 
 **How to avoid:**
-모든 JSON-LD 출력에 Unicode 이스케이프 처리를 추가한다:
+extension을 추가하기 전에 반드시 기존 StarterKit 항목을 비활성화한다. rhino-editor 전용 방식은 `starterKitOptions`를 수정하는 것이다:
+
+```javascript
+// rhino-before-initialize 이벤트에서 처리
+document.addEventListener("rhino-before-initialize", (event) => {
+  const rhinoEditor = event.target
+  // 1. StarterKit의 codeBlock 비활성화
+  rhinoEditor.starterKitOptions = {
+    ...rhinoEditor.starterKitOptions,
+    codeBlock: false
+  }
+  // 2. 대체 extension 추가
+  rhinoEditor.addExtensions(
+    CodeBlockLowlight.configure({ lowlight })
+  )
+})
+```
+
+비활성화 가능한 항목: `blockquote`, `bold`, `bulletList`, `code`, `codeBlock`, `document`, `dropcursor`, `gapcursor`, `hardBreak`, `heading`, `history`, `horizontalRule`, `italic`, `listItem`, `orderedList`, `paragraph`, `strike`, `text`
+RhinoStarterKit 항목 비활성화: `rhinoStrike`, `rhinoGallery`, `rhinoAttachment`, `rhinoLink`, `rhinoCodemarkPlugin`
+
+**Warning signs:**
+- 브라우저 콘솔에 `[tiptap warn]: Duplicate extension names found` 경고 출력
+- 코드 블록 입력 후 두 가지 스타일이 번갈아 적용됨
+- 특정 단축키가 작동하지 않거나 예상과 다른 extension을 호출함
+
+**Phase to address:**
+각 extension 추가 Phase 첫 번째 단계. CodeBlockLowlight 추가 시 Phase 최우선 처리.
+
+---
+
+### Pitfall 2: ActionText HTML 저장 시 style 속성 자동 삭제
+
+**What goes wrong:**
+TipTap의 Color extension, Highlight extension, TextAlign extension은 모두 인라인 `style` 속성 또는 HTML 속성을 사용한다:
+- Color: `<span style="color: #FF0000">`
+- Highlight: `<mark style="background-color: #FFFF00">`
+- TextAlign: `<p style="text-align: center">`
+
+ActionText가 `render_action_text_content`를 통해 저장된 HTML을 렌더링할 때, rails-html-sanitizer(1.6.2)의 기본 `DEFAULT_ALLOWED_ATTRIBUTES`에 `style`이 없으므로 모든 style 속성이 삭제된다. 에디터에서 색상/정렬을 적용해 저장해도 화면 출력 시 모두 제거된다.
+
+실제 `DEFAULT_ALLOWED_ATTRIBUTES` (rails-html-sanitizer 1.6.2):
+```
+abbr, alt, cite, class, datetime, height, href, lang, name, src, title, width, xml:lang
+```
+`style`, `color`, `data-text-align`, `align` 모두 없음.
+
+**Why it happens:**
+ActionText는 저장 시가 아니라 렌더링 시 sanitize한다. `@post.body = "<p style='color:red'>test</p>"`는 DB에 저장되지만, `<%= @post.body %>`로 화면에 출력할 때 `<p>test</p>`가 된다. 개발 중에는 에디터에서 색이 보이지만(에디터는 sanitize 안 함), 저장 후 상세 페이지에서는 색이 사라져 버그처럼 보인다.
+
+**How to avoid:**
+`config/initializers/action_text.rb`를 생성하여 필요한 속성을 허용한다:
 
 ```ruby
-# seo_helper.rb에 private 메서드로 추가
-def safe_json_ld(data)
-  data.to_json
-      .gsub('<', '\u003c')
-      .gsub('>', '\u003e')
-      .gsub('&', '\u0026')
-      .html_safe
+# config/initializers/action_text.rb
+Rails.application.config.after_initialize do
+  ActionText::ContentHelper.allowed_attributes += ["style"]
+  # 또는 더 안전한 방식: style 속성 범위를 좁히려면 커스텀 scrubber 작성
 end
 ```
 
-또는 Rails의 `json_escape` 헬퍼 활용 (ERB에서 직접 사용):
+보안 주의: `style` 전체를 허용하면 `expression()`, `javascript:`, `-moz-binding` 등 CSS 인젝션 위험이 있다. Admin 전용 에디터이므로 신뢰된 사용자만 접근한다면 허용 가능하나, 일반 사용자 에디터(`posts/_form.html.erb`)에 동일 설정을 적용하면 XSS 위험이 증가한다. 일반 사용자 에디터와 Admin 에디터를 별도 initializer 또는 scrubber로 분리 처리하는 것이 이상적이다.
 
-```erb
-<script type="application/ld+json">
-  <%= json_escape(article_json_ld(@post)) %>
-</script>
+TextAlign의 경우 `style="text-align: center"` 대신 class 기반으로 구현하는 대안도 있다:
+```javascript
+TextAlign.configure({
+  types: ['heading', 'paragraph'],
+  // class 방식: style 대신 data 속성 사용
+})
 ```
-
-seo_helper.rb의 모든 public 메서드가 `safe_json_ld` 래퍼를 통해 반환하도록 통일한다.
+하지만 TipTap 공식 TextAlign extension은 style 방식만 지원하므로, class 방식은 custom extension이 필요하다.
 
 **Warning signs:**
-- Brakeman 스캐너 실행 시 `Cross-Site Scripting (JSON)` 경고 출력
-- post.title에 `<script>` 문자열 포함 시 JSON-LD 검증 도구에서 파싱 오류 발생
+- 에디터에서 색상 적용 후 저장 → 상세 페이지에서 색상 사라짐
+- 에디터와 뷰어의 렌더링 결과가 다름
+- `@post.body.to_s`에 `style`이 없지만 에디터 재로드 시에는 style이 있음 (저장은 되지만 렌더링 시 제거)
 
 **Phase to address:**
-Phase 1 이전 사전 패치. 새 JSON-LD 추가 전에 기존 seo_helper.rb를 반드시 먼저 수정.
+색상/배경색 Phase 시작 전. `action_text.rb` initializer 생성을 첫 번째 태스크로 처리.
 
 ---
 
-### Pitfall 2: Naver Yeti 봇 robots.txt 명시 부재로 서치어드바이저 진단 오류
+### Pitfall 3: Table extension 사용 시 ActionText allowed_tags 미등록으로 표 삭제
 
 **What goes wrong:**
-현재 `robots.txt`는 `User-agent: *`로 전체 허용하지만, Naver Search Advisor 등록 시 Yeti 봇 전용 블록이 없으면 서치어드바이저 내부 진단 시스템이 "허용 여부 불명확"으로 처리할 수 있다. 더 큰 문제는 Yeti 봇을 서버 방화벽/Rack::Attack에서 비정상 트래픽으로 차단하면, 서치어드바이저 대시보드에서 "수집 차단됨" 오류가 발생하고 인덱싱 진단 기능이 비활성화된다.
-
-Yeti는 JavaScript 렌더링 능력이 Google보다 제한적이다(공식 문서에 명시 없음, MEDIUM confidence). Turbo Drive의 클라이언트 네비게이션 이후 콘텐츠가 변경되어도 Yeti는 초기 SSR HTML만 크롤링하므로, 서버 사이드 렌더링이 각 URL에서 올바른 콘텐츠를 제공하는지가 핵심이다.
-
-**Why it happens:**
-- `User-agent: *`는 Yeti를 포함하지만 Naver 공식 가이드라인은 `User-agent: Yeti` 명시적 블록을 권장한다
-- Yeti IP 대역이 공식 공개되지 않아 IP 기반 차단이 불가피하게 발생하는 경우 있음
-- Kamal 배포 환경에서 Docker 컨테이너 레벨의 방화벽 설정이 크롤러를 차단하는 사례 발생
-
-**How to avoid:**
-robots.txt에 Yeti 전용 블록을 명시적으로 추가한다:
+TipTap Table extension은 `<table>`, `<thead>`, `<tbody>`, `<tfoot>`, `<tr>`, `<th>`, `<td>`, `<colgroup>`, `<col>` 태그를 사용한다. 이 태그들은 rails-html-sanitizer의 `DEFAULT_ALLOWED_TAGS`에 포함되어 있지 않아 저장된 표가 렌더링 시 완전히 삭제된다.
 
 ```
-User-agent: Yeti
-Allow: /
-Disallow: /admin/
-Disallow: /auth/
-Disallow: /profile/edit
-
-User-agent: *
-Allow: /
-Disallow: /admin/
-Disallow: /auth/
-Disallow: /profile/edit
-
-Sitemap: https://teovibe.com/sitemap.xml
+DEFAULT_ALLOWED_TAGS에 없는 Table 관련 태그:
+table, thead, tbody, tfoot, tr, th, td, colgroup, col
 ```
 
-Rack::Attack 설정이 있다면 크롤러 User-Agent를 명시적 safelist에 추가한다. IP 기반 Yeti 차단은 절대 금지 (IP 대역 수시 변경됨).
-
-**Warning signs:**
-- Naver Search Advisor 대시보드에서 "수집 오류" 또는 "로봇 미허용" 상태 표시
-- 서버 액세스 로그에서 `Yeti/1.1` User-Agent가 403/429 응답을 받는 경우
-
-**Phase to address:**
-Phase 1 (robots.txt 구성). sitemap 경로 추가와 동시에 처리.
-
----
-
-### Pitfall 3: `naver-site-verification` 메타태그가 Turbo Drive 후 소실되거나 잘못된 위치에 삽입
-
-**What goes wrong:**
-`naver-site-verification` 메타태그를 특정 뷰나 컨트롤러의 `set_meta_tags` 통해 조건부로 삽입하면 루트 URL 외의 경로에서 태그가 없어 인증이 실패한다. Naver Search Advisor는 인증을 `https://teovibe.com/`(루트)에서만 검증한다.
-
-또한 메타태그를 `<frame>` 태그 안에 삽입하면 Naver가 인식하지 못한다(Naver 공식 명시). Rails의 `yield :head` 블록이나 Turbo Frame 내에서 인증 태그를 삽입하면 검증 실패.
+추가로 TipTap Table은 `colspan`, `rowspan` 속성을 사용하는데, 이것도 `DEFAULT_ALLOWED_ATTRIBUTES`에 없다.
 
 **Why it happens:**
-- `display_meta_tags`가 기본값을 제공하고 각 뷰가 override하는 패턴에서, 인증 태그를 실수로 특정 뷰에만 배치
-- `yield :head` 안에 인증 태그를 배치하면 해당 뷰가 렌더링될 때만 `<head>`에 존재
-- Google, Naver 인증 태그를 비슷한 패턴으로 처리하다가 하나는 고정, 하나는 조건부가 되는 실수
+Pitfall 2와 동일한 구조. 에디터에서는 보이지만 저장 후 렌더링 시 사라진다. 서버 재시작 없이 initializer를 추가해도 효과 없음 — ActionText sanitizer는 싱글톤이라 서버 시작 시 한 번만 초기화된다.
 
 **How to avoid:**
-`application.html.erb` 레이아웃에 직접 하드코딩으로 고정 삽입한다. `set_meta_tags`를 사용하지 않는다:
-
-```erb
-<%# application.html.erb의 <head> 내 고정 위치 %>
-<% if ENV['NAVER_SITE_VERIFICATION'].present? %>
-  <meta name="naver-site-verification" content="<%= ENV['NAVER_SITE_VERIFICATION'] %>" />
-<% end %>
-<% if ENV['GOOGLE_SITE_VERIFICATION'].present? %>
-  <meta name="google-site-verification" content="<%= ENV['GOOGLE_SITE_VERIFICATION'] %>" />
-<% end %>
-```
-
-ENV 값을 `.kamal/secrets`에 등록하고 `config/application.yml` 또는 Kamal env 블록으로 주입한다.
-
-**Warning signs:**
-- Naver Search Advisor "소유권 확인 실패" 오류 (인증 직후)
-- Google Search Console "메타태그를 찾을 수 없음" 오류
-- 루트 URL에서만 태그가 있고 다른 URL에서는 없는 경우 (HTML 검사로 확인)
-
-**Phase to address:**
-Phase 2 (검색엔진 인증 메타태그).
-
----
-
-### Pitfall 4: `og:image` 상대 경로 사용으로 소셜 공유 미리보기 실패
-
-**What goes wrong:**
-`og:image`에 `/og-default.png` 같은 상대 경로를 사용하면 카카오톡, 네이버 블로그, 페이스북, 트위터 공유 시 이미지가 표시되지 않는다. OG 크롤러는 절대 URL을 요구한다.
-
-Rails의 `image_path` 헬퍼는 `config.action_controller.asset_host`가 미설정이면 상대 경로를 반환한다. 개발환경에서는 로컬호스트 URL로 보여 정상처럼 보이지만, 실제 소셜 크롤러는 로컬호스트에 접근 불가.
-
-현재 코드베이스에 `asset_host` 설정이 없음(코드베이스 확인).
-
-**Why it happens:**
-- `set_meta_tags og: { image: image_path("og-default.png") }` 패턴의 흔한 오용
-- `image_path`와 `image_url`의 차이를 인지하지 못하는 경우
-- `seo_helper.rb`에 이미지 URL 처리 로직이 없어, 뷰에서 직접 호출하면 상대 경로가 생성됨
-
-**How to avoid:**
-`config/environments/production.rb`에 `asset_host` 설정:
+`config/initializers/action_text.rb`에 table 태그와 속성 추가:
 
 ```ruby
-config.asset_host = "https://teovibe.com"
+Rails.application.config.after_initialize do
+  # Table 태그 허용
+  ActionText::ContentHelper.allowed_tags += [
+    "table", "thead", "tbody", "tfoot", "tr", "th", "td", "colgroup", "col"
+  ]
+
+  # Table 속성 허용
+  ActionText::ContentHelper.allowed_attributes += [
+    "colspan", "rowspan", "scope", "style"
+  ]
+end
 ```
 
-모든 OG 이미지 참조에서 `image_path` 대신 `image_url` 사용:
+변경 후 반드시 서버 재시작 필요. Heroku/Kamal 환경에서 재배포 필요.
 
-```ruby
-set_meta_tags og: {
-  image: image_url("og-default.png"),  # 절대 URL 생성
-  image_width: 1200,
-  image_height: 630,
-  image_type: "image/png"
+**Warning signs:**
+- 에디터에서 표 삽입 후 저장 → 상세 페이지에서 표가 완전히 사라짐
+- `@post.body.to_s`에 `<table>` 태그 없음
+- 개발 서버에서 initializer 수정 후 서버 재시작 없이 테스트하면 변경 효과 없음
+
+**Phase to address:**
+Table 삽입 Phase 시작 전. `action_text.rb` initializer에 style 허용과 함께 통합 처리.
+
+---
+
+### Pitfall 4: addExtensions() 중복 호출로 extension 중복 등록
+
+**What goes wrong:**
+`rhino-before-initialize` 이벤트 리스너를 `document.addEventListener`로 등록할 때, Turbo Drive 페이지 이동으로 동일한 페이지를 재방문하면 이벤트 리스너가 누적되어 `addExtensions()`가 여러 번 호출된다. rhino-editor 0.17.3의 `addExtensions()` 구현은 이름 기반 중복 체크를 수행하지만, 리스너 자체가 중복으로 쌓이면 불필요한 rebuildEditor() 호출이 반복된다.
+
+```javascript
+// 코드 내부 동작 (chunk-2NB236ZC.js 584행):
+addExtensions(...extensions) {
+  const existingExtensions = this.extensions.map(ext => ext.name)
+  ary = ary.filter(ext => !existingExtensions.includes(ext.name)) // 중복 필터 존재
+  this.extensions = this.extensions.concat(ary)  // 배열 할당 → willUpdate 트리거
 }
 ```
 
-게시글 대표 이미지가 없을 경우를 위한 기본 OG 이미지(`public/og-default.png`, 1200x630px)를 미리 준비한다.
-
-**Warning signs:**
-- 카카오톡/네이버 블로그에 링크 공유 시 이미지 없이 텍스트만 표시됨
-- Facebook Sharing Debugger에서 "og:image could not be processed" 오류
-- OG 이미지 URL이 `/og-default.png` 형식(상대 경로)으로 렌더링됨
-
-**Phase to address:**
-Phase 3 (OG/Twitter Card 메타태그 보강).
-
----
-
-### Pitfall 5: `sitemap.xml`에 noindex 페이지 또는 카테고리 slug 하드코딩으로 신규 카테고리 누락
-
-**What goes wrong:**
-두 가지 독립적인 문제가 있다:
-
-1. **noindex 페이지의 sitemap 포함**: `noindex: true` 처리된 페이지(Admin 경로, 사용자 프로필, 알림, 포인트 내역 등)가 sitemap에 포함되면 검색엔진에 혼란을 주고 크롤 버짓을 낭비한다. Google은 sitemap과 noindex의 모순을 "noindex 우선"으로 처리하지만, 경고를 발생시킨다.
-
-2. **카테고리 slug 하드코딩 (`sitemap.rb`)**: 현재 `sitemap.rb`는 `when "blog"`, `when "tutorial"` 등 6개 슬러그를 case/when으로 하드코딩한다. v1.1에서 카테고리 CRUD가 구현되어 관리자가 새 카테고리를 추가할 수 있게 됐지만, 신규 카테고리는 sitemap에 자동으로 반영되지 않는다. 신규 카테고리 게시글이 sitemap에서 누락된 채 배포된다.
+단순 중복 extension 추가는 내부 필터로 방지되지만, `starterKitOptions` 재할당 자체가 `rebuildEditor()`를 트리거한다.
 
 **Why it happens:**
-- sitemap.rb가 v1.0 때 정적 카테고리를 가정하고 작성된 이후 v1.1 카테고리 동적화 때 업데이트되지 않음
-- noindex 처리 대상 목록이 명시적으로 관리되지 않아 sitemap 제외 여부를 개별 확인해야 함
+Turbo Drive는 페이지 이동 시 `<script>` 태그를 재실행하지 않지만, custom element의 `connectedCallback`은 매번 호출된다. `document.addEventListener`로 등록한 리스너는 페이지 이동 후에도 유지되며, 새 페이지에서 또 등록되면 동일 이벤트에 복수 리스너가 달린다.
 
 **How to avoid:**
-sitemap.rb의 카테고리 루프를 동적으로 교체한다:
+방법 1 — Stimulus 컨트롤러 사용 (권장):
+```javascript
+// app/frontend/controllers/rhino_extensions_controller.js
+import { Controller } from "@hotwired/stimulus"
 
-```ruby
-# 카테고리 인덱스 (동적 처리)
-Category.for_posts.ordered.each do |category|
-  begin
-    path = category_posts_path(category_slug: category.slug)
-    add path, changefreq: "daily", priority: 0.8
-  rescue ActionController::UrlGenerationError
-    # 라우트 없는 카테고리 skip
-  end
-end
-
-# 게시글 (동적 처리)
-Post.published.includes(:category).find_each do |post|
-  next unless post.category&.slug
-  begin
-    # route_key 메서드 활용
-    url = url_for(post.route_key + [only_path: false])
-    add url, lastmod: post.updated_at, changefreq: "weekly", priority: 0.8
-  rescue
-    next
-  end
-end
+export default class extends Controller {
+  connect() {
+    this.element.addEventListener("rhino-before-initialize", this.extendEditor)
+  }
+  disconnect() {
+    this.element.removeEventListener("rhino-before-initialize", this.extendEditor)
+  }
+  extendEditor = (event) => {
+    const rhinoEditor = event.target
+    rhinoEditor.addExtensions(/* extensions */)
+  }
+}
 ```
 
-noindex 처리 예정 페이지는 sitemap에 절대 추가하지 않는다(현재 sitemap.rb 검토 기준으로 현재는 괜찮음).
-
-**Warning signs:**
-- 새 카테고리를 Admin에서 추가했지만 sitemap.xml에 누락됨
-- Google Search Console에서 "사이트맵에서 제외됨 - noindex로 인해" 경고 다수 발생
-
-**Phase to address:**
-Phase 1 (robots.txt/sitemap 기초 SEO). sitemap.rb 동적화는 robots.txt 작업과 동시에 처리.
-
----
-
-### Pitfall 6: `canonical`과 `noindex` 동시 적용으로 SEO 신호 충돌
-
-**What goes wrong:**
-Admin 경로, 사용자 프로필 편집, 알림 등 noindex 처리 페이지에 canonical URL이 함께 설정되면 검색엔진에 상충하는 신호를 보낸다. Google John Mueller 공식 권고: "둘 중 하나만 사용하라". noindex+canonical 동시 사용 시 canonical 대상 URL의 신뢰도가 하락할 수 있다.
-
-현재 코드베이스에서 레이아웃 수준의 `display_meta_tags`는 전역 기본값을 렌더링하므로, canonical을 전역 설정하면 noindex 처리 페이지에도 canonical이 함께 출력된다.
-
-**Why it happens:**
-- meta-tags gem의 기본 동작: `set_meta_tags noindex: true`를 뷰에서 호출해도, 레이아웃에서 canonical을 전역으로 설정한 경우 noindex 페이지에도 canonical이 렌더링됨
-- Admin 레이아웃(`admin.html.erb`)에 `noindex: true`를 전역 설정하는 것을 잊어버림
-
-**How to avoid:**
-meta-tags gem 설정으로 자동 처리:
-
-```ruby
-# config/initializers/meta_tags.rb
-MetaTags.configure do |config|
-  config.skip_canonical_links_on_noindex = true  # noindex 페이지의 canonical 자동 제거
-end
+방법 2 — `{ once: true }` 옵션 사용 (일회성이면):
+```javascript
+document.addEventListener("rhino-before-initialize", handler, { once: true })
 ```
 
-Admin 레이아웃에 전역 noindex 설정:
-
-```erb
-<%# layouts/admin.html.erb의 <head> %>
-<meta name="robots" content="noindex, nofollow" />
+방법 3 — TipTapEditor 서브클래스 정의 (전역 확장 시):
+```javascript
+import { TipTapEditor } from "rhino-editor/exports/elements/tip-tap-editor.js"
+class EnhancedEditor extends TipTapEditor {
+  constructor() {
+    super()
+    this.extensions = [...this.extensions, MyExtension]
+  }
+}
+EnhancedEditor.define("rhino-editor")  // 기존 등록명 override
 ```
 
 **Warning signs:**
-- Google Search Console에서 "canonical이 noindex 페이지를 가리킴" 경고
-- noindex 페이지를 HTML 검사 시 `<link rel="canonical">` 태그가 동시에 존재
+- Turbo 이동 후 에디터가 여러 번 rebuild되며 콘솔에 반복 경고 출력
+- 페이지를 여러 번 방문할수록 에디터 초기화 시간이 길어짐
+- `document.addEventListener` 호출이 `application.js` 최상위에 위치하는 경우
 
 **Phase to address:**
-Phase 4 (canonical / noindex 처리).
+Stimulus 컨트롤러 방식을 표준 패턴으로 채택. extension 추가 Phase 초반에 아키텍처 결정.
 
 ---
 
-### Pitfall 7: `request.original_url`을 canonical로 사용 시 쿼리 파라미터 포함 문제
+### Pitfall 5: toolbar 슬롯 커스텀 버튼에서 타입 누락으로 폼 submit 트리거
 
 **What goes wrong:**
-canonical URL에 `request.original_url`을 사용하면 `?page=2`, `?sort=latest`, `?turbo_stream=1` 같은 쿼리 파라미터가 포함된 URL이 canonical로 설정된다. 페이지네이션 URL이 각각 다른 canonical을 가지면 크롤 버짓 낭비와 중복 콘텐츠 인식이 발생한다.
+rhino-editor의 toolbar 커스텀 버튼에 `type="button"`을 생략하면, 버튼의 기본 타입이 `submit`이 되어 클릭 시 폼이 전송된다. Admin 글쓰기 폼에서 툴바 버튼을 클릭할 때마다 글이 저장되거나 페이지가 이동한다.
 
 **Why it happens:**
-뷰에서 `set_meta_tags canonical: request.original_url` 처럼 편의상 `request.original_url`을 사용하는 경우 흔히 발생. Turbo Streams 요청에서 URL에 내부 파라미터가 붙는 경우도 있다.
+rhino-editor는 HTML 슬롯 방식으로 커스텀 버튼을 삽입한다. `<rhino-editor>` 엘리먼트가 `<form>` 내부에 있으므로, `type` 속성이 없는 버튼은 폼의 submit 버튼으로 동작한다.
+
+공식 문서에서 요구하는 필수 속성:
+- `type="button"` — 폼 submit 방지 (가장 중요)
+- `slot="[위치명]"` — 슬롯 배치
+- `class="rhino-toolbar-button"` — 스타일 통일
+- `data-role="toolbar-item"` — 툴바 포커스 관리
+- `tabindex="-1"` — 키보드 내비게이션
 
 **How to avoid:**
-canonical에는 반드시 쿼리 파라미터 없는 라우트 헬퍼를 사용한다:
-
-```ruby
-# 게시글 상세 페이지
-set_meta_tags canonical: post_url(@post)  # request.original_url 사용 금지
-
-# 목록 페이지 (1페이지 canonical)
-set_meta_tags canonical: category_posts_url(category_slug: @category.slug)
-```
-
-**Warning signs:**
-- sitemap.xml URL과 실제 페이지의 canonical URL이 다른 경우
-- Google Search Console에서 "사용자가 선택한 canonical과 다름" 경고
-
-**Phase to address:**
-Phase 4 (canonical / noindex 처리). OG 태그 설정 시 동시에 검토.
-
----
-
-### Pitfall 8: Admin 2-column 레이아웃에서 rhino-editor 높이와 sticky 사이드바 충돌
-
-**What goes wrong:**
-`rhino-editor` 웹 컴포넌트는 기본적으로 `display: block`으로 렌더링되며, 내부 TipTap 에디터의 높이가 콘텐츠에 따라 가변적이다. 2컬럼 CSS Grid 레이아웃에서 왼쪽(메타 정보)을 sticky 사이드바로 고정하면, 왼쪽 컬럼 높이가 오른쪽(에디터) 컬럼 높이를 따라가지 못해 sticky가 작동하지 않는 현상이 발생한다.
-
-Tailwind CSS의 `sticky` 포지셔닝은 부모 컨테이너의 `overflow` 속성에 영향을 받는다. Grid 또는 Flex 컨테이너의 `overflow: hidden`이 설정되면 sticky가 무력화된다.
-
-**Why it happens:**
-- CSS Grid의 `align-items: stretch` 기본값으로 인해 두 컬럼이 동일 높이로 맞춰짐
-- `sticky` 포지셔닝이 grid cell 내에서 작동하려면 grid cell 자체가 스크롤 컨테이너여야 함
-- Tailwind `prose` 클래스가 rhino-editor 내부 콘텐츠 스타일과 충돌할 수 있음(prose는 자식 요소에 cascade)
-
-**How to avoid:**
-2컬럼 레이아웃 구조:
-
 ```html
-<%# 2컬럼 그리드: 오른쪽(에디터)이 메인, 왼쪽(메타)이 sticky %>
-<div class="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-6 items-start">
-  <%# 왼쪽: 메타 정보 (sticky) %>
-  <div class="lg:sticky lg:top-6 space-y-4">
-    <%# 카테고리, 상태, SEO 필드 등 %>
-  </div>
-
-  <%# 오른쪽: 에디터 (스크롤 허용) %>
-  <div class="space-y-4 min-h-[600px]">
-    <%# rhino-editor %>
-  </div>
-</div>
+<rhino-editor input="post_body">
+  <!-- 필수: type="button" 없으면 폼 submit됨 -->
+  <button
+    type="button"
+    slot="before-bold-button"
+    class="rhino-toolbar-button"
+    data-role="toolbar-item"
+    tabindex="-1"
+    data-action="click->rhino-extensions#insertTable"
+  >
+    표 삽입
+  </button>
+</rhino-editor>
 ```
 
-`items-start`는 sticky가 작동하기 위해 필수 (기본 `stretch` 대신). 부모 컨테이너에 `overflow: hidden` 사용 금지.
-
 **Warning signs:**
-- 긴 글 작성 시 왼쪽 메타 패널이 화면 밖으로 스크롤되어 사라짐
-- `position: sticky`가 적용됐지만 실제로 고정되지 않음 (부모 `overflow` 확인 필요)
-- 모바일(375px)에서 에디터와 메타 필드가 겹치거나 레이아웃 깨짐
+- 툴바 버튼 클릭 시 폼이 제출되며 페이지 이동 발생
+- 개발자 도구 Network 탭에서 버튼 클릭 시 POST 요청 발생
+- 버튼에 `type` 속성이 없는 경우 (HTML 검사로 즉시 확인 가능)
 
 **Phase to address:**
-Phase 5 (Admin 에디터 2-column 레이아웃 구현).
+커스텀 툴바 버튼 추가 Phase. 첫 번째 커스텀 버튼 구현 전에 체크리스트화.
 
 ---
 
-### Pitfall 9: seo_title/seo_description 미입력 시 OG 태그 fallback 미구현
+### Pitfall 6: rhinoStrike와 TipTap Strike 혼용으로 `<del>` / `<s>` 태그 불일치
 
 **What goes wrong:**
-게시글의 `seo_title`과 `seo_description`이 비어있을 때 OG 태그에 값이 없으면 소셜 공유 시 제목 없음 또는 사이트 기본값이 표시된다. 현재 `post_params`에 `:seo_title`, `:seo_description`이 허용되어 있지만, 뷰에서 이를 OG 태그로 연결하는 로직이 없다.
+rhino-editor 0.17.3은 기본적으로 `strike: false`(StarterKit의 `<s>` 기반 strike 비활성화)를 설정하고, 대신 `rhinoStrike`(`<del>` 태그 기반)를 사용한다. ActionText는 `<del>` 태그를 `DEFAULT_ALLOWED_TAGS`에 포함하고 있다. 그런데 `Underline` extension을 추가하면서 실수로 `rhinoStrike`도 비활성화하거나, 반대로 `strike: true`로 복원하면 저장된 기존 `<del>` 콘텐츠와 새 `<s>` 콘텐츠가 혼재하게 된다.
+
+`<del>`은 기본 허용되지만 `<s>`는 `DEFAULT_ALLOWED_TAGS`에 없어 렌더링 시 삭제된다.
 
 **Why it happens:**
-SEO 필드를 저장하는 기능과 실제로 메타태그에 사용하는 기능이 분리되어 구현될 때 발생. 필드는 있지만 사용되지 않는 "half-implemented" 상태.
+`disableStarterKitOptions` 또는 `starterKitOptions` 수정 시, 이미 기본값이 `strike: false`임을 모르고 `strike: true`로 복원하는 실수.
 
 **How to avoid:**
-`posts/show.html.erb`에 항상 fallback 체인을 적용:
+취소선 기능 수정 시 현재 기본값을 먼저 확인한다:
+- 기본값: `strike: false`, `rhinoStrike` 활성 → `<del>` 태그 생성 → ActionText 허용
+- `strike: true`로 변경 시: `<s>` 태그 생성 → ActionText 기본 차단 → 렌더링 삭제
 
-```erb
-<%
-  seo_title = @post.seo_title.presence || @post.title
-  seo_desc  = @post.seo_description.presence || @post.body.to_plain_text.truncate(160)
-  set_meta_tags(
-    title:       seo_title,
-    description: seo_desc,
-    canonical:   post_url(@post),
-    og: {
-      title:       seo_title,
-      description: seo_desc,
-      type:        "article",
-      url:         post_url(@post),
-      image:       image_url("og-default.png")
-    },
-    twitter: {
-      card:        "summary_large_image",
-      title:       seo_title,
-      description: seo_desc
-    }
-  )
-%>
-```
-
-`@post.body.to_plain_text`는 ActionText 리치 텍스트에서 HTML을 제거한 순수 텍스트를 반환한다.
+취소선을 커스터마이즈할 때는 `rhinoStrike`를 유지하거나, `strike: true`로 변경 시 `allowed_tags += ["s"]` 추가.
 
 **Warning signs:**
-- 소셜 공유 시 제목이 "TeoVibe" 사이트 기본값으로 표시됨
-- og:description이 빈 문자열로 렌더링됨
+- 취소선 텍스트가 에디터에서는 보이지만 저장 후 사라짐
+- HTML 검사 시 `<s>` 태그가 저장됐지만 `to_s` 출력에는 없음
 
 **Phase to address:**
-Phase 3 (OG/Twitter Card 메타태그 보강).
+취소선/밑줄 서식 확장 Phase. 기본 동작 변경 전 확인.
+
+---
+
+### Pitfall 7: Turbo Drive 캐시에서 rhino-editor가 stale 상태로 복원
+
+**What goes wrong:**
+Turbo Drive는 페이지 이동 시 현재 페이지의 스냅샷을 캐시한다. 뒤로 가기로 돌아오면 캐시된 스냅샷을 먼저 보여주고, 새 요청 결과로 교체한다. rhino-editor(Lit 기반 Web Component)의 Shadow DOM 내부 상태(에디터 내용, 포커스 상태)는 캐시 스냅샷과 실제 DOM이 불일치할 수 있다.
+
+특히 `defer-initialize` 속성이 없는 경우, 캐시에서 복원된 rhino-editor가 이미 초기화된 상태에서 `connectedCallback`을 다시 호출하여 에디터 내용이 초기화되는 현상이 발생한다.
+
+**Why it happens:**
+Lit Web Component는 `connectedCallback` / `disconnectedCallback`을 Turbo의 페이지 이동과 독립적으로 처리한다. Turbo의 `turbo:before-cache` 이벤트 시점에 에디터 상태를 저장하지 않으면, 캐시 스냅샷에는 현재 에디터 DOM이 그대로 담기지만 내부 TipTap 인스턴스는 소멸된다.
+
+**How to avoid:**
+방법 1 — 편집 페이지 캐시 비활성화:
+```html
+<!-- layouts/admin.html.erb 또는 편집 뷰 -->
+<meta name="turbo-cache-control" content="no-cache">
+```
+
+방법 2 — `turbo:before-cache` 이벤트로 에디터 정리:
+```javascript
+document.addEventListener("turbo:before-cache", () => {
+  document.querySelectorAll("rhino-editor").forEach(el => {
+    el.editor?.destroy()
+  })
+})
+```
+
+방법 3 — Turbo를 에디터 폼에서만 비활성화:
+```html
+<form data-turbo="false">
+  <!-- 에디터 폼 -->
+</form>
+```
+
+**Warning signs:**
+- 뒤로 가기 후 에디터 내용이 초기화되거나 비어있음
+- 콘솔에 "Cannot read properties of undefined (reading 'chain')" 류의 에러 (TipTap 인스턴스 소멸 후 접근)
+- 에디터가 표시되지만 타이핑이 불가능한 상태
+
+**Phase to address:**
+모든 extension 추가 Phase와 독립적으로, 에디터 페이지에 `no-cache` 메타태그를 초반에 추가.
+
+---
+
+### Pitfall 8: TipTap Table + Heading extension이 빈 `<p>` 태그를 생성하는 ProseMirror 스키마 충돌
+
+**What goes wrong:**
+TipTap Table extension은 `tableRow`, `tableCell`, `tableHeader`를 별도 Node로 등록하며, 이 Node들의 content schema는 `block+`(한 개 이상의 block 노드)를 요구한다. Heading extension과 함께 사용할 때, 표 안에서 제목을 입력하면 ProseMirror가 스키마 유효성을 맞추기 위해 빈 `<p>` 노드를 자동 삽입하는 경우가 있다.
+
+더 심각한 경우: Heading extension이 `levels: [1, 2, 3]`을 기본으로 사용하는데, rhino-editor의 StarterKit도 이미 `heading`을 포함한다. Heading을 `disableStarterKitOptions("heading")`으로 비활성화하지 않고 별도 Heading extension을 추가하면 Pitfall 1의 중복 등록이 발생한다.
+
+**Why it happens:**
+TipTap 제공 Heading extension은 StarterKit에 이미 포함되어 있다. 레벨(H1~H3)만 조정하려면 별도 extension 추가가 아니라 `starterKitOptions` 설정으로 처리해야 한다.
+
+**How to avoid:**
+제목 레벨 드롭다운 구현 시:
+```javascript
+// 별도 Heading extension 추가가 아니라 StarterKit 옵션 설정
+rhinoEditor.starterKitOptions = {
+  ...rhinoEditor.starterKitOptions,
+  heading: { levels: [1, 2, 3] }  // levels 제한
+}
+// addExtensions(Heading.configure(...))는 사용하지 않음 — 중복 등록
+```
+
+Table extension은 공식 `@tiptap/extension-table`, `@tiptap/extension-table-row`, `@tiptap/extension-table-cell`, `@tiptap/extension-table-header` 4개를 함께 설치해야 한다. 누락 시 스키마 오류 발생.
+
+**Warning signs:**
+- 표 안에 제목 입력 후 저장 → 빈 `<p>` 태그가 포함된 HTML 생성
+- H1/H2 적용 시 헤딩이 중복으로 감싸지는 현상
+- 표 관련 패키지 일부 누락 시 "Unknown node type" 에러
+
+**Phase to address:**
+Table 삽입 Phase. 제목 드롭다운 Phase에서 starterKitOptions heading 설정 방식 채택 강제.
 
 ---
 
@@ -390,11 +371,11 @@ Phase 3 (OG/Twitter Card 메타태그 보강).
 
 | Shortcut | Immediate Benefit | Long-term Cost | When Acceptable |
 |----------|-------------------|----------------|-----------------|
-| `sitemap.rb` 카테고리 slug 하드코딩 유지 | 구현 단순, 직관적 | 신규 카테고리 추가 시 sitemap 누락 (관리자가 코드 수정 필요) | v1.2에서 동적으로 교체 권장. 유지 불가 |
-| `seo_helper.rb`의 `.to_json.html_safe` 유지 | 간결한 코드 | XSS 취약점 (admin-only라도 안전 관행 필요) | 절대 허용 안 됨 |
-| OG 이미지 없이 SEO 배포 | 초기 구현 빠름 | 소셜 공유 미리보기 없음, 클릭률 감소 | 최종 공개 전에는 수용 가능하나 배포 전 반드시 추가 |
-| canonical을 `request.original_url`로 설정 | 편의성 | 쿼리 파라미터 포함 시 비정규 canonical | 절대 허용 안 됨 |
-| Admin 레이아웃 noindex를 ERB 직접 삽입 대신 meta-tags gem으로 설정 | 일관성 | `set_meta_tags`를 admin 전용 before_action에 넣어야 함 | meta-tags gem 사용이 더 일관적이나 ERB 직접 삽입이 간단하고 신뢰성 높음 |
+| `ActionText::ContentHelper.allowed_attributes += ["style"]` 전역 설정 | 구현 단순 | 일반 사용자 에디터에도 적용되어 CSS 인젝션 위험 | Admin 전용 에디터만 있는 동안. 일반 사용자 에디터 도입 전에 분리 처리 필요 |
+| `rhino-before-initialize`를 `document.addEventListener`로 등록 | 구현 단순 | Turbo 이동으로 리스너 누적, 잠재적 메모리 누수 | 절대 권장 안 됨. Stimulus 컨트롤러 방식 사용 |
+| 표 스타일을 ActionText 이후 CSS로 처리 (allowed_tags 미등록) | ActionText 변경 불필요 | 표 콘텐츠가 DB에 저장되지만 렌더링 시 삭제됨 | 절대 허용 안 됨 |
+| `no-cache` 메타태그로 에디터 페이지 캐시 전체 비활성화 | 에디터 stale 문제 완전 해결 | Turbo Drive 뒤로 가기 성능 저하 | Admin 에디터 페이지는 캐시 불필요, 허용 가능 |
+| Stimulus 컨트롤러 대신 인라인 `<script>` 태그로 addExtensions | 빠른 구현 | Turbo 캐시와의 충돌, 리스너 관리 어려움 | 절대 권장 안 됨 |
 
 ---
 
@@ -402,13 +383,13 @@ Phase 3 (OG/Twitter Card 메타태그 보강).
 
 | Integration | Common Mistake | Correct Approach |
 |-------------|----------------|------------------|
-| Naver Search Advisor 인증 | HTML 파일 업로드 방식 -- Kamal 재배포 시 파일이 Docker 이미지에 포함되지 않으면 인증 실패 | 메타태그 방식 사용, `application.html.erb`에 ENV 변수로 고정 삽입 |
-| Google Search Console | `google-site-verification` 태그를 특정 뷰에만 삽입 | 루트 레이아웃에 고정 삽입 (모든 경로에서 접근 가능해야 함) |
-| `sitemap_generator` | `rake sitemap:refresh` 없이 배포하면 sitemap.xml이 갱신되지 않음 | Kamal deploy hook 또는 cron(Solid Queue)으로 자동화 고려 |
-| meta-tags gem + Turbo Drive | `set_meta_tags`를 호출하지 않은 페이지에서 이전 페이지 title 유지 | 최소한 레이아웃에서 기본값 설정, 뷰에서 override |
-| JSON-LD + ActionText body | `post.body` (ActionText::RichText)를 JSON-LD description으로 직접 사용 | `post.body.to_plain_text.truncate(160)` 으로 HTML 제거 후 사용 |
-| rhino-editor + 2-column Grid | sticky 사이드바가 grid의 `align-items: stretch` 기본값으로 무력화됨 | 부모 grid에 `items-start` 반드시 추가 |
-| Naver Search Advisor 소유권 인증 후 URL 관리 | 서브폴더(예: `/blog`) 단위 등록 시도 -- Naver는 서브폴더 미지원 | 도메인 또는 서브도메인 단위로만 등록 (`https://teovibe.com`) |
+| rhino-editor + Color extension | `allowed_attributes += ["style"]` 없이 배포 | `config/initializers/action_text.rb`에 style 속성 추가, 서버 재시작 |
+| rhino-editor + Table extension | table 태그만 추가하고 표 관련 패키지 4개 중 일부 누락 | `@tiptap/extension-table`, `table-row`, `table-cell`, `table-header` 모두 설치 + allowed_tags에 전체 table 관련 태그 추가 |
+| rhino-editor + CodeBlockLowlight | `codeBlock: false` 설정 없이 CodeBlockLowlight 추가 | starterKitOptions에서 `codeBlock: false` 선행 설정 필수 |
+| rhino-editor + Heading dropdown | Heading extension 별도 추가 | StarterKit의 heading 옵션(starterKitOptions)으로 레벨 설정 |
+| toolbar 슬롯 + Stimulus action | `type="button"` 없는 버튼 | 모든 커스텀 버튼에 `type="button"` 필수 |
+| rhino-editor + Turbo Drive | 에디터 페이지 뒤로 가기 시 stale 상태 | Admin 에디터 레이아웃에 `<meta name="turbo-cache-control" content="no-cache">` 추가 |
+| slash command + TipTap Suggestion | tippy.js 팝업이 z-index 충돌로 sticky 사이드바 뒤에 렌더링됨 | `appendTo: () => document.body` 옵션으로 팝업을 body에 마운트 |
 
 ---
 
@@ -416,9 +397,9 @@ Phase 3 (OG/Twitter Card 메타태그 보강).
 
 | Trap | Symptoms | Prevention | When It Breaks |
 |------|----------|------------|----------------|
-| sitemap 생성 시 N+1 쿼리 (`post.category` 별도 쿼리) | `rake sitemap:refresh` 속도 저하 | `Post.published.includes(:category).find_each` 사용 | 게시글 500건 이상 |
-| Admin 에디터 폼마다 `Category.for_posts.ordered` 호출 | 불필요한 쿼리 반복 | 카테고리 목록을 `Rails.cache.fetch`로 캐싱 (TTL 5분) | 카테고리 수 증가 + 관리자 동시 접속 시 |
-| `post.body.to_plain_text`를 OG description 생성마다 실행 | 리치 텍스트 파싱 비용이 매 요청마다 발생 | `seo_description` 컬럼이 비어있을 때만 fallback 계산, 결과를 저장 | 일 10만 PV 이상, 롱-폼 콘텐츠 비중 높을 때 |
+| Table extension의 선택 핸들러 | 표 내 클릭마다 ProseMirror transaction 발생, 대용량 표에서 렌더링 지연 | 표 크기 제한 UI 제공 (행/열 최대값 가이드) | 50행 이상 표 |
+| CodeBlockLowlight + lowlight 모든 언어 import | 번들 크기 대폭 증가 | `createLowlight({ javascript, python, ... })` 방식으로 필요 언어만 등록 | 초기 페이지 로드 2MB+ 시 |
+| slash command + 대규모 명령 목록 | 슬래시 입력 시마다 DOM 업데이트 비용 | 명령 목록 10-15개로 제한, fuzzy search에 디바운스 적용 | 명령 30개 이상 |
 
 ---
 
@@ -426,10 +407,9 @@ Phase 3 (OG/Twitter Card 메타태그 보강).
 
 | Mistake | Risk | Prevention |
 |---------|------|------------|
-| `seo_helper.rb`의 `.to_json.html_safe` 유지 | 사용자 콘텐츠가 JSON-LD 스크립트 태그를 이탈하는 XSS | `json_escape` 또는 Unicode 이스케이프 래퍼 사용 |
-| `seo_title`, `seo_description`을 `h()` 없이 og 태그에 삽입 | Admin이 악의적 메타 값 삽입 시 XSS 가능 | meta-tags gem은 자체 escape 처리하나, 직접 ERB 삽입 시 `<%= h(@post.seo_title) %>` 명시 |
-| `ENV['NAVER_SITE_VERIFICATION']` 값을 `.env`에 커밋 | 인증 키 노출 (위험도는 낮으나 관행상 비권장) | `.env`는 gitignore 처리, Kamal secrets에 등록 |
-| robots.txt에서 sitemap URL을 `http://`로 선언 | 크롤러가 http로 접근 후 https 리다이렉트 만남 (불필요한 리다이렉트 체인) | `Sitemap: https://teovibe.com/sitemap.xml` (현재 올바름, 변경 금지) |
+| `ActionText::ContentHelper.allowed_tags += ["style"]` | CSS `expression()`, `-moz-binding`, `javascript:` URI 실행 가능 (XSS) | `style` 대신 허용 가능한 속성을 HTML 속성으로 처리하거나, `style` 허용 범위를 커스텀 scrubber로 whitelist CSS 속성 목록으로 제한 |
+| rails-html-sanitizer 1.6.x에서 `table`과 `style` 동시 허용 | CVE-2024-53986 취약점: math + style 태그 동시 허용 시 XSS 가능 | `style` 태그(엘리먼트)가 아닌 `style` 속성만 허용. `"math"` 태그는 절대 추가하지 않음 |
+| 일반 사용자 에디터에 Admin과 동일한 allowed_tags 적용 | 사용자가 `<table>` + `style` 등을 이용한 UI 조작 | Admin 에디터(신뢰된 사용자)와 일반 사용자 에디터를 분리된 scrubber로 처리 |
 
 ---
 
@@ -437,27 +417,26 @@ Phase 3 (OG/Twitter Card 메타태그 보강).
 
 | Pitfall | User Impact | Better Approach |
 |---------|-------------|-----------------|
-| Admin 2-column 레이아웃 모바일 미대응 | 모바일에서 에디터와 메타 필드가 겹치거나 너무 좁음 | `grid-cols-1 lg:grid-cols-[380px_1fr]` 반응형 분기. 모바일에서 세로 스택 |
-| SEO 필드(seo_title, seo_description)에 글자수 표시 없음 | Admin이 title 60자, description 160자 권장 범위 초과 여부 모름 | Stimulus 컨트롤러로 실시간 글자수 + 권장 범위 색상 표시 (간단한 5줄 구현) |
-| rhino-editor 최소 높이 미설정으로 에디터 너무 작음 | 작성 화면이 좁아 불편 | 에디터 컬럼에 `min-h-[600px]` 지정 |
-| seo_title 비어있을 때 OG 태그 fallback 없음 | 소셜 공유 시 제목이 비어있거나 사이트 기본값으로 표시 | `@post.seo_title.presence \|\| @post.title` 패턴을 모든 OG 설정에 적용 |
-| Admin 에디터에서 SEO 미리보기 없음 | seo_title, seo_description 입력 결과가 어떻게 보일지 모름 | 글자수 표시로 충분 (Google/Naver 미리보기 시뮬레이션은 과도한 구현) |
+| 표 삽입 후 셀 밖으로 커서 이동 불가 | 표 아래에 새 단락을 추가할 수 없어 글 작성 중단 | TipTap Table extension의 `addColumnAfter/addRowAfter` 버튼 제공 + 표 다음 빈 단락 자동 삽입 처리 |
+| slash command 팝업이 에디터 하단에서 화면 밖으로 잘림 | 슬래시 명령 목록이 잘려 일부 항목 선택 불가 | tippy.js `placement: "auto"` 설정으로 자동 위치 조정 |
+| 색상 선택기 UI 없이 hex 코드 직접 입력 | Admin이 색상 코드를 외워야 함 | `<input type="color">` 또는 preset 색상 버튼 제공 |
+| 표 삽입 메뉴에서 행/열 수 선택 UI 없이 기본값(3x3)만 | 원하는 크기 표를 바로 삽입 불가 | 행/열 수 입력 다이얼로그 또는 그리드 선택 UI |
+| CodeBlock 언어 선택 없이 plain text로만 저장 | 코드 하이라이팅 무효 | language dropdown 또는 자동 감지 표시 |
 
 ---
 
 ## "Looks Done But Isn't" Checklist
 
-- [ ] **JSON-LD XSS 패치**: `seo_helper.rb`의 모든 `.to_json.html_safe` 호출이 `json_escape` 또는 Unicode 이스케이프로 보호되어 있는지 확인. Brakeman 경고 0건 확인
-- [ ] **robots.txt Yeti 블록**: `User-agent: Yeti` 명시적 블록이 추가되어 있는지 확인
-- [ ] **naver-site-verification 고정 삽입**: 태그가 `application.html.erb`에 직접 삽입되어 있는지, Turbo 네비게이션 후에도 `<head>` DOM에 존재하는지 브라우저 확인
-- [ ] **og:image 절대 URL**: 모든 OG 이미지 URL이 `https://teovibe.com/...` 형식인지 확인. `image_path` 대신 `image_url` 사용 여부
-- [ ] **canonical URL 파라미터 제거**: `canonical: request.original_url` 사용 금지. 라우트 헬퍼(`post_url(@post)`) 사용 여부
-- [ ] **noindex + canonical 충돌**: `MetaTags.config.skip_canonical_links_on_noindex = true` 설정 확인. noindex 페이지 HTML에 canonical 태그가 없는지 확인
-- [ ] **Admin 레이아웃 noindex**: `/admin/**` 경로의 HTML에 `<meta name="robots" content="noindex">` 존재 여부 확인
-- [ ] **sitemap 동적 카테고리**: 새 카테고리를 Admin에서 추가 후 `rake sitemap:refresh` 실행 시 sitemap.xml에 포함되는지 확인
-- [ ] **2-column sticky 사이드바**: 긴 글 작성 시 왼쪽 메타 패널이 뷰포트에 고정되어 스크롤 따라 이동하는지 확인
-- [ ] **2-column 반응형**: `375px` 모바일 너비에서 에디터가 단일 컬럼으로 올바르게 표시되는지 확인
-- [ ] **seo_title fallback**: seo_title 비어있는 게시글의 og:title이 post.title로 fallback되는지 Facebook Sharing Debugger 또는 소셜 공유로 확인
+- [ ] **색상/정렬 저장**: 색상/배경색/텍스트 정렬 적용 후 저장 → 상세 페이지에서 동일하게 렌더링되는지 확인 (`action_text.rb` initializer 없으면 style 삭제됨)
+- [ ] **표 저장**: 표 삽입 후 저장 → 상세 페이지에서 표가 완전히 렌더링되는지 확인 (allowed_tags 미등록 시 표 전체 삭제)
+- [ ] **서버 재시작**: `config/initializers/action_text.rb` 추가 또는 수정 후 개발 서버 재시작 없이 테스트하면 변경 미적용 상태
+- [ ] **취소선 태그 확인**: 취소선이 `<del>`(ActionText 허용)인지 `<s>`(허용 안 됨)인지 HTML 소스로 확인
+- [ ] **폼 submit 방어**: 커스텀 툴바 버튼 클릭 시 폼 제출이 발생하지 않는지 확인 (`type="button"` 누락 여부)
+- [ ] **Turbo 재방문**: Admin 편집 페이지 → 다른 페이지 → 뒤로 가기 후 에디터가 정상 작동하는지 확인
+- [ ] **중복 extension**: 브라우저 콘솔에 "Duplicate extension names found" 경고가 없는지 확인
+- [ ] **Table 패키지 4종**: `@tiptap/extension-table`, `table-row`, `table-cell`, `table-header` 모두 설치됐는지 `package.json` 확인
+- [ ] **allowed_attributes 범위**: `style` 속성 허용 후 일반 사용자 에디터(`posts/_form.html.erb`)에도 동일하게 적용되는지 확인 (Admin 전용 의도라면 분리 처리 필요)
+- [ ] **initializer 로딩 순서**: `Rails.application.config.after_initialize` 블록 사용 확인 (즉시 실행 시 ActionText 아직 초기화 안 됨)
 
 ---
 
@@ -465,12 +444,12 @@ Phase 3 (OG/Twitter Card 메타태그 보강).
 
 | Pitfall | Recovery Cost | Recovery Steps |
 |---------|---------------|----------------|
-| JSON-LD XSS 취약점 발견 (배포 후) | LOW | seo_helper.rb 전체 JSON-LD 메서드에 `json_escape` 래퍼 즉시 추가 후 재배포. 10분 내 수정 가능 |
-| Naver 인증 실패 (메타태그 위치 오류) | LOW | `application.html.erb`에 메타태그 고정 삽입 후 재배포. 서치어드바이저에서 재인증 클릭 |
-| og:image 상대 경로 (이미 소셜 공유됨) | MEDIUM | `asset_host` 설정 + `image_url` 교체 후 재배포. Facebook Sharing Debugger "Scrape Again"으로 캐시 갱신. 카카오톡은 캐시 갱신 불가 (기존 공유 URL은 이미지 없음 유지됨) |
-| sitemap에 noindex 페이지 포함 (이미 제출됨) | MEDIUM | sitemap.rb 수정 후 `rake sitemap:refresh`. Google Search Console에서 sitemap 재제출. 잘못 인덱싱된 URL은 "URL 삭제" 도구 활용 |
-| canonical + noindex 충돌 (이미 인덱싱됨) | HIGH | 올바른 정책 적용 후 재배포. Google Search Console 재크롤링 요청. 인덱스 제거는 수주 소요 가능 |
-| 2-column 레이아웃 sticky 미작동 | LOW | CSS `items-start` 추가 + 부모 `overflow` 확인. 순수 CSS 수정이므로 즉시 배포 가능 |
+| Extension 중복 등록 (에디터 오작동) | LOW | `starterKitOptions`에 해당 extension `false` 추가 → 서버 재시작 없이 Vite HMR 적용 가능 |
+| style 속성 저장 안 됨 (기존 콘텐츠 이미 style 없이 저장됨) | MEDIUM | `action_text.rb` initializer 추가 → 서버 재시작 → 이미 저장된 콘텐츠는 style 없음 (재편집 필요) |
+| Table 태그 저장 안 됨 (기존 콘텐츠 이미 표 없이 저장됨) | HIGH | allowed_tags 추가 → 서버 재시작 → 이미 저장된 콘텐츠에서 표 삭제됨 (원본 HTML DB에 없으므로 복구 불가, 재입력 필요) |
+| Turbo stale editor (에디터 응답 없음) | LOW | Admin 에디터 레이아웃에 `no-cache` 메타태그 추가, 즉시 배포 가능 |
+| slash command z-index 충돌 | LOW | `appendTo` 옵션 수정, CSS z-index 조정 |
+| toolbar 버튼이 폼 제출 트리거 | LOW | 버튼에 `type="button"` 추가, 즉시 수정 가능 |
 
 ---
 
@@ -478,34 +457,34 @@ Phase 3 (OG/Twitter Card 메타태그 보강).
 
 | Pitfall | Prevention Phase | Verification |
 |---------|------------------|--------------|
-| JSON-LD XSS (`html_safe`) | Phase 0 (사전 패치, 즉시) | Brakeman 스캔 0 경고 + 특수문자 포함 게시글 JSON-LD 렌더링 확인 |
-| Yeti 봇 robots.txt 명시 부재 | Phase 1 (robots.txt 구성) | Naver Search Advisor 진단 도구 "수집 허용" 상태 확인 |
-| sitemap 카테고리 하드코딩 | Phase 1 (sitemap 보완) | 신규 카테고리 추가 후 sitemap.xml 포함 여부 확인 |
-| naver-site-verification 위치 오류 | Phase 2 (검색엔진 인증) | 서치어드바이저 "소유권 확인 완료" 상태 확인 |
-| og:image 상대 경로 | Phase 3 (OG/Twitter Card) | Facebook Sharing Debugger에서 이미지 정상 표시 확인 |
-| seo_title fallback 미구현 | Phase 3 (OG/Twitter Card) | seo_title 비어있는 게시글 소셜 공유 테스트 |
-| OG 메타태그 stale (Turbo) | Phase 3 (OG/Twitter Card) | 복수 게시글 순차 방문 후 `<head>` og:title 확인 |
-| canonical + noindex 충돌 | Phase 4 (canonical/noindex) | `MetaTags.config` 설정 확인 + noindex 페이지 HTML 검사 |
-| `request.original_url` canonical | Phase 4 (canonical/noindex) | 페이지네이션 URL 접근 시 canonical이 파라미터 없는 기본 URL인지 확인 |
-| Admin 레이아웃 noindex 누락 | Phase 4 (canonical/noindex) | `/admin/posts` HTML에 noindex 메타 존재 확인 |
-| rhino-editor sticky 충돌 | Phase 5 (Admin UX) | 긴 글 작성 시 사이드바 고정 동작 확인 |
-| 2-column 반응형 누락 | Phase 5 (Admin UX) | 모바일(375px)에서 단일 컬럼 전환 확인 |
+| Extension 중복 등록 (codeBlock 등) | 각 extension 추가 Phase 첫 태스크 | 브라우저 콘솔 경고 0건 확인 |
+| style 속성 ActionText 차단 | 색상/배경색/정렬 Phase 시작 전 (`action_text.rb` initializer) | 색상 적용 저장 후 상세 페이지 HTML에 style 존재 확인 |
+| Table 태그 ActionText 차단 | Table 삽입 Phase 시작 전 (`action_text.rb` initializer) | 표 저장 후 상세 페이지에서 `<table>` 태그 존재 확인 |
+| toolbar 버튼 폼 submit | 커스텀 버튼 추가 Phase 코드 리뷰 | 버튼 클릭 시 Network 탭에서 불필요한 POST 요청 없음 확인 |
+| addExtensions 중복 호출 | Stimulus 컨트롤러 아키텍처 결정 Phase | Turbo 이동 후 에디터 재방문 시 콘솔 경고 없음 확인 |
+| rhinoStrike vs Strike 혼용 | 취소선 서식 Phase | HTML에 `<del>` 태그 확인, `<s>` 태그 없음 확인 |
+| Turbo Drive stale editor | 에디터 폼 페이지 초기 설정 Phase | 뒤로 가기 후 에디터 정상 작동 확인 |
+| Table + Heading 스키마 충돌 | Table Phase에서 starterKitOptions heading 설정 확인 | 표 안에 제목 입력 후 저장된 HTML에 빈 `<p>` 없음 확인 |
 
 ---
 
 ## Sources
 
-- [BubbleShare: Naver Technical SEO 2024 Checklist](https://bubbleshare.io/blog/how-to-do-naver-technical-seo-2024-and-checklist) — Naver Search Advisor 공식 요구사항 (MEDIUM confidence)
-- [Enhancing SEO in Rails Applications with Turbo](https://reintech.io/blog/enhancing-seo-rails-applications-turbo) — Turbo SEO 이슈 및 해결 패턴 (MEDIUM confidence)
-- [meta-tags gem GitHub (kpumuk)](https://github.com/kpumuk/meta-tags) — `skip_canonical_links_on_noindex` 옵션 포함 (HIGH confidence)
-- [Canonical URLs in Rails applications - Avo](https://avohq.io/blog/canonical-urls-rails) — Rails canonical URL 구현 패턴 (MEDIUM confidence)
-- [Google: Don't Mix Noindex & Rel=Canonical - Search Engine Journal](https://www.searchenginejournal.com/google-dont-mix-noindex-relcanonical/262607/) — noindex + canonical 충돌 공식 권고 (HIGH confidence)
-- [Brakeman: Cross Site Scripting (JSON)](https://brakemanscanner.org/docs/warning_types/cross_site_scripting_to_json/) — Rails JSON XSS 취약점 (HIGH confidence)
-- [Sitemap Best Practices for Rails - Avo](https://avohq.io/blog/sitemap-for-rails-applications) — noindex/비정규 URL 제외 권장 사항 (MEDIUM confidence)
-- [DataDome: What is NaverBot](https://datadome.co/bots/naverbot/) — Yeti 봇 기술 특성 (MEDIUM confidence)
-- [Rails SEO Guide - Avo](https://avohq.io/rails-seo) — Rails SEO 종합 가이드 (MEDIUM confidence)
-- 프로젝트 코드베이스 직접 분석: `seo_helper.rb`, `sitemap.rb`, `public/robots.txt`, `admin/posts/_form.html.erb`, `layouts/application.html.erb` (HIGH confidence)
+- 프로젝트 코드베이스 직접 분석 (HIGH confidence)
+  - `teovibe/node_modules/rhino-editor/exports/chunks/chunk-2NB236ZC.js` — TipTapEditorBase 소스, addExtensions 구현 확인
+  - `teovibe/node_modules/rhino-editor/exports/elements/tip-tap-editor-base.d.ts` — TypeScript 선언, starterKitOptions 확인
+  - `teovibe/node_modules/rhino-editor/exports/chunks/chunk-7E7MURG2.js` — RhinoStarterKit extension 목록 확인
+  - `~/.rbenv/versions/3.3.10/gems/actiontext-8.1.2/app/helpers/action_text/content_helper.rb` — sanitize 로직 확인
+  - `~/.rbenv/versions/3.3.10/gems/rails-html-sanitizer-1.6.2/lib/rails/html/sanitizer.rb` — DEFAULT_ALLOWED_TAGS, DEFAULT_ALLOWED_ATTRIBUTES 전체 목록 확인
+- [Rhino Editor: Customizing the toolbar](https://rhino-editor.vercel.app/how-tos/customizing-the-toolbar/) — 슬롯 방식, 필수 속성 (HIGH confidence)
+- [Rhino Editor: Syntax Highlighting how-to](https://rhino-editor.vercel.app/how-tos/syntax-highlighting) — codeBlock: false 패턴 (HIGH confidence)
+- [ActionText ContentHelper stripping inline style · rails/rails#36725](https://github.com/rails/rails/issues/36725) — style 속성 차단 공식 이슈 (HIGH confidence)
+- [TipTap: Duplicate extension names found · Discussion #3030](https://github.com/ueberdosis/tiptap/discussions/3030) — 중복 extension 원인 및 해결 (HIGH confidence)
+- [ActionText: Safe listing attributes and tags — KonnorRogers (rhino-editor 제작자)](https://dev.to/konnorrogers/actiontext-safe-listing-attributes-and-tags-1a4j) — allowed_tags 확장 패턴 (HIGH confidence)
+- [GitHub: OnRailsBlog/actiontext-table](https://github.com/OnRailsBlog/actiontext-table) — Rails Table extension ActionText 통합 (MEDIUM confidence)
+- [CVE-2024-53986 rails-html-sanitizer XSS advisory](https://github.com/advisories/GHSA-638j-pmjw-jq48) — style + math 태그 동시 허용 취약점 (HIGH confidence)
+- [Maquina Components: Turbo Compatibility (2026)](https://maquina.app/blog/2026/02/maquina-components-0-4-0-turbo-compatibility/) — Web Component + Turbo Drive stale 문제 (MEDIUM confidence)
 
 ---
-*Pitfalls research for: v1.2 SEO 최적화 + Admin 에디터 2-column UX (Rails 8 + Hotwire)*
+*Pitfalls research for: v1.3 TipTap extension integration via rhino-editor 0.17.x (Rails 8 + ActionText)*
 *Researched: 2026-03-14*

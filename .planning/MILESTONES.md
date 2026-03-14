@@ -1,5 +1,27 @@
 # Milestones
 
+## v1.3 Admin 에디터 고도화 (Shipped: 2026-03-15)
+
+**Phases completed:** 5 phases, 5 plans
+**Files modified:** 34 (6,387 insertions, 61 deletions)
+**Timeline:** 2026-03-14 ~ 2026-03-15
+
+**Key accomplishments:**
+- ActionText 허용목록 + AdminRhinoEditor 서브클래스 스캐폴드 — 후속 에디터 확장의 토대 구축 (INFRA-01~03)
+- 취소선/밑줄/인용구/구분선/코드블록/제목 드롭다운 — renderToolbarEnd() 오버라이드 패턴으로 기존 toolbar 보존하며 확장 (MARK-01~06)
+- 텍스트 정렬/글자색/배경색/폰트 크기 — 커스텀 FontSize extension 포함 5개 TipTap extension 등록 (STYL-01~04)
+- Table extension 4종 + Light DOM 컨텍스트 메뉴 — 표 삽입/행열 편집/셀 이동 완전 구현 (TABL-01~02)
+- Light DOM 플로팅 메뉴 (+버튼) — 빈 단락에서 구분선/인용구/코드블록/표 빠른 삽입 (BLCK-01)
+
+**Tech debt carried forward:**
+- actiontext.css에 table/th/td CSS 미정의 — 상세 페이지에서 표가 보더 없이 렌더링됨
+- Post slug constraint 불일치 — tech debt from v1.1
+- ANTHROPIC_API_KEY 프로덕션 환경변수 등록 필요 — tech debt from v1.1
+
+**Archive:** `.planning/milestones/v1.3-ROADMAP.md`, `.planning/milestones/v1.3-REQUIREMENTS.md`
+
+---
+
 ## v1.2 SEO + Admin UX (Shipped: 2026-03-14)
 
 **Phases completed:** 5 phases, 7 plans, 10 tasks

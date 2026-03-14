@@ -2,7 +2,7 @@
 
 ## What This Is
 
-사업화 영역(바이브코딩, 부업 아이템 등)을 블로그형 커뮤니티로 운영하는 Rails 기반 플랫폼. vite_ruby + React 기반 인터랙티브 랜딩페이지, rhino-editor 리치 에디터, 토스페이먼츠 결제 기반, Admin CMS 대시보드를 갖추고 SEO 최적화(JSON-LD, OG/Twitter Card, robots.txt, sitemap)와 Admin 2단 에디터 레이아웃까지 완성한 상태.
+사업화 영역(바이브코딩, 부업 아이템 등)을 블로그형 커뮤니티로 운영하는 Rails 기반 플랫폼. vite_ruby + React 기반 인터랙티브 랜딩페이지, rhino-editor 리치 에디터(TipTap 기반 서식/표/블록 삽입 확장 완료), 토스페이먼츠 결제 기반, Admin CMS 대시보드를 갖추고 SEO 최적화와 네이버 블로그 수준의 Admin 에디터까지 완성한 상태.
 
 ## Core Value
 
@@ -45,17 +45,15 @@
 - ✓ OG/Twitter Card/canonical 메타태그 + Admin/인증 noindex -- v1.2
 - ✓ Article/BreadcrumbList/WebSite/Organization JSON-LD 구조화 데이터 -- v1.2
 - ✓ Admin 게시글 에디터 2단 레이아웃 (sticky 메타 패널 + 모바일 fallback) -- v1.2
+- ✓ ActionText 허용목록 + AdminRhinoEditor 서브클래스 스캐폴드 -- v1.3
+- ✓ TipTap 서식 확장 (취소선/밑줄/인용구/구분선/코드블록/제목 드롭다운) -- v1.3
+- ✓ 텍스트 스타일링 (정렬/글자색/배경색/폰트 크기) -- v1.3
+- ✓ 표(Table) 삽입 및 행/열 편집 -- v1.3
+- ✓ 블록 삽입 메뉴 (+ 버튼으로 빠른 삽입) -- v1.3
 
 ### Active
 
-#### v1.3 Admin 에디터 고도화
-- [ ] TipTap 서식 확장 (구분선, 인용구, 소스코드 블록, 취소선, 밑줄)
-- [ ] 텍스트 정렬 (좌/중/우)
-- [ ] 제목 레벨 드롭다운 (H1~H3)
-- [ ] 글자색 / 배경색 (하이라이트)
-- [ ] 표(Table) 삽입 및 편집
-- [ ] 블록 삽입 메뉴 (+ 버튼 또는 슬래시 커맨드)
-- [ ] 폰트 크기 조절
+(다음 마일스톤에서 정의)
 
 ### Out of Scope
 
@@ -82,8 +80,9 @@
 - sitemap_generator gem (동적 sitemap)
 - Sortable.js 1.15.7 (카테고리 DnD)
 - Kamal + Docker 배포 구성 완료
+- TipTap extension 10+ 등록 (Underline, TextAlign, Color, TextStyle, Highlight, FontSize, Table 4종)
 - 1인 운영 프로젝트, SEO 최적화 완료 상태
-- v1.0~v1.2 총 3개 마일스톤 출시 (13 phases, 29 plans)
+- v1.0~v1.3 총 4개 마일스톤 출시 (18 phases, 34 plans)
 
 ## Constraints
 
@@ -115,6 +114,12 @@
 | Admin 레이아웃 noindex 하드코딩 | display_meta_tags 미사용 레이아웃이므로 직접 meta 태그 삽입이 안전 | ✓ Good |
 | content_for :head로 JSON-LD 배치 | 레이아웃의 yield :head 위치에 자동 삽입, 뷰 독립적 | ✓ Good |
 | Admin 에디터 2단 flex 레이아웃 (sticky) | JS 없이 Tailwind만으로 구현, sticky 부모에 overflow 금지 주의 | ✓ Good |
+| AdminRhinoEditor 서브클래스 패턴 | TipTapEditor 상속 + addExtensions() + renderToolbarEnd() override — 기존 toolbar 보존하며 확장 | ✓ Good |
+| renderToolbarEnd() override (renderToolbar 전체 재작성 대신) | 기존 Strike/Blockquote/CodeBlock 기본 버튼 자동 보존 | ✓ Good |
+| 커스텀 FontSize extension (로컬 구현) | @tiptap/extension-font-size는 v3 전용, Extension.create() 30줄로 동일 기능 | ✓ Good |
+| Light DOM 컨텍스트/플로팅 메뉴 | Shadow DOM 경계 외부 배치로 position:absolute 뷰포트 기준 동작 보장 | ✓ Good |
+| @tiptap/extension-floating-menu 미사용 | tippy.js 의존성 + Shadow DOM 충돌, 네이티브 JS로 직접 구현 | ✓ Good |
+| Table resizable: false | drag handle이 rhino-editor 포인터 이벤트와 충돌 | ✓ Good |
 
 ### Future (deferred from v1.1)
 
@@ -133,15 +138,13 @@
 - sitemap ping 자동화 (Google/Naver 제출)
 - SEO 제목/설명 글자수 카운터 Stimulus 컨트롤러
 
----
-## Current Milestone: v1.3 Admin 에디터 고도화
+### Future (deferred from v1.3)
 
-**Goal:** Admin 글쓰기 에디터를 네이버 블로그 수준으로 고도화 — TipTap extension 기반 서식/블록 확장
-
-**Target features:**
-- 서식 확장 (구분선, 인용구, 코드블록, 취소선, 밑줄, 정렬, 글자색/배경색)
-- 블록 타입 (표, 제목 드롭다운, 폰트 크기)
-- UX 개선 (블록 삽입 메뉴)
+- 동영상 임베드 (YouTube URL 붙여넣기)
+- 파일 첨부 (Active Storage 확장)
+- 슬래시 커맨드 (/ 입력으로 블록 삽입)
+- 일반 사용자 에디터 확대 적용
+- actiontext.css table CSS 스타일 추가 (표 보더/패딩)
 
 ---
-*Last updated: 2026-03-14 after v1.3 milestone start*
+*Last updated: 2026-03-15 after v1.3 milestone*

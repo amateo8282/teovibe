@@ -36,6 +36,47 @@
 
 ---
 
+## Milestone: v1.3 — Admin 에디터 고도화
+
+**Shipped:** 2026-03-15
+**Phases:** 5 | **Plans:** 5
+
+### What Was Built
+- ActionText 허용목록 + AdminRhinoEditor 서브클래스 (TipTapEditor 상속, 커스텀 엘리먼트 등록)
+- 취소선/밑줄/인용구/구분선/코드블록/제목 드롭다운 툴바 확장
+- 텍스트 정렬(좌/중/우)/글자색/배경색/폰트 크기 스타일링 UI
+- Table extension 4종 + Light DOM 컨텍스트 메뉴 (행/열 추가/삭제)
+- 빈 단락 플로팅 메뉴 (+버튼) — 구분선/인용구/코드블록/표 빠른 삽입
+
+### What Worked
+- AdminRhinoEditor 서브클래스 패턴이 모든 후속 phase의 확장 포인트로 효과적 — 1개 파일에 누적 구현
+- renderToolbarEnd() override 패턴이 기존 rhino-editor 기본 버튼(Strike/Blockquote/CodeBlock)을 자연스럽게 보존
+- Phase 14에서 ActionText 허용목록을 선행 설정해 Phase 15-18에서 저장/렌더링 이슈 없음
+- Light DOM 메뉴 패턴(Phase 17)이 Phase 18 플로팅 메뉴에 그대로 재활용됨
+
+### What Was Inefficient
+- 전체 5개 phase를 하루 만에 실행 — VERIFICATION.md가 모두 human_needed 상태로 브라우저 검증 일괄 보류
+- SUMMARY.md frontmatter에 one_liner 필드가 누락되어 자동 추출 실패 — 수동으로 accomplishments 작성 필요
+- Nyquist VALIDATION.md가 Phase 14만 compliant, 나머지 4개 phase는 draft — 빠른 실행에 검증 전략이 뒤처짐
+
+### Patterns Established
+- Light DOM 메뉴 패턴: Shadow DOM 경계 밖에 position:absolute 요소 배치 — rhino-editor 에디터 확장 시 표준 패턴
+- startEditor() override 패턴: connectedCallback 시점에는 this.editor가 null이므로 editor 이벤트 리스너는 startEditor()에서 등록
+- pnpm transitive dep 직접 설치: lit, @tiptap/core 등 Vite 빌드 시 transitive dep 해석 오류 방지를 위해 직접 추가
+- Extension.create()로 커스텀 extension 로컬 구현: v3 전용 패키지 대신 30줄로 동일 기능
+
+### Key Lessons
+1. ActionText 허용목록은 에디터 확장의 최우선 선행 작업 — 미설정 시 style/table 태그가 무음 삭제됨
+2. rhino-editor의 Shadow DOM 경계가 TipTap 공식 플러그인(@tiptap/extension-floating-menu 등)과 충돌 — 네이티브 JS 직접 구현이 더 안정적
+3. Table resizable:true는 rhino-editor 포인터 이벤트와 충돌 — resizable:false 필수
+4. TipTap v2/v3 패키지 혼용 금지 — @tiptap/extension-font-size 등 v3 전용 패키지 주의
+
+### Cost Observations
+- 5 phases를 단일 세션에서 실행 — 고속 출시에 적합하나 검증 부채 누적
+- 코드 레벨 검증은 모두 통과, 브라우저 검증은 사용자가 일괄 승인
+
+---
+
 ## Cross-Milestone Trends
 
 ### Process Evolution
@@ -44,6 +85,8 @@
 |-----------|--------|-------|------------|
 | v1.0 | 5 | 13 | 초기 구축, ImportMap→Vite 전환 |
 | v1.1 | 3 | 9 | GSD 워크플로우 도입, audit-milestone로 통합 검증 |
+| v1.2 | 5 | 7 | SEO 최적화, JSON-LD/메타태그/크롤링 기반 |
+| v1.3 | 5 | 5 | Admin 에디터 고도화, TipTap extension 확장 |
 
 ### Cumulative Quality
 
@@ -51,8 +94,12 @@
 |-----------|------------|--------------|
 | v1.0 | 기존 테스트 | 기본 CRUD |
 | v1.1 | 45+ | 모델 13 + 컨트롤러 14 + 통합 11 + AI 7 |
+| v1.2 | 보안/SEO | XSS 패치, 메타태그 검증 |
+| v1.3 | 코드 검증 | TipTap extension 정적 분석, 브라우저 검증 일괄 |
 
 ### Top Lessons (Verified Across Milestones)
 
 1. 빌드 시스템 전환 시 레거시 파일 즉시 정리 (v1.0 ImportMap→Vite, v1.1 sortable 사건)
 2. 1인 운영이라도 자동 테스트 커버리지가 리팩토링 안전망 역할 (PostsController 6→1 통합)
+3. 에디터 확장 시 허용목록(sanitizer)을 최우선 선행 작업으로 처리 (v1.3 Phase 14 패턴)
+4. Shadow DOM 경계가 있는 Web Component에서는 공식 플러그인보다 네이티브 JS가 안정적 (v1.3 Light DOM 메뉴 패턴)

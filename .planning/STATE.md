@@ -2,45 +2,35 @@
 gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: Admin 에디터 고도화
-status: unknown
-stopped_at: Completed 18-01-PLAN.md (18-블록-삽입-메뉴)
-last_updated: "2026-03-14T15:18:19.056Z"
+status: completed
+stopped_at: Milestone v1.3 completed and archived
+last_updated: "2026-03-15T00:00:00Z"
 progress:
-  total_phases: 10
+  total_phases: 5
   completed_phases: 5
   total_plans: 5
   completed_plans: 5
-  percent: 0
+  percent: 100
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-03-14)
+See: .planning/PROJECT.md (updated 2026-03-15)
 
 **Core value:** 사용자가 재방문하고 싶은 수준의 콘텐츠 품질과 UX를 갖춘 커뮤니티 플랫폼
-**Current focus:** v1.3 Admin 에디터 고도화 — Phase 14 시작 대기
+**Current focus:** 다음 마일스톤 기획 대기
 
 ## Current Position
 
-Milestone: v1.3 Admin 에디터 고도화
-Phase: 14 (에디터 기반 설정) — Not started
+Milestone: v1.3 Admin 에디터 고도화 — SHIPPED
+Phase: All complete
 Plan: None
 
 ```
-Progress: ░░░░░░░░░░░░░░░░░░░░ 0% (0/5 phases)
+Progress: ████████████████████ 100% (5/5 phases)
 ```
-
-## v1.3 Phase Map
-
-| Phase | Name | Requirements | Status |
-|-------|------|--------------|--------|
-| 14 | 에디터 기반 설정 | INFRA-01, INFRA-02, INFRA-03 | Not started |
-| 15 | 툴바 서식 확장 | MARK-01~06 | Not started |
-| 16 | 텍스트 스타일링 | STYL-01~04 | Not started |
-| 17 | 표 삽입 | TABL-01, TABL-02 | Not started |
-| 18 | 블록 삽입 메뉴 | BLCK-01 | Not started |
 
 ## Performance Metrics
 
@@ -51,45 +41,13 @@ Progress: ░░░░░░░░░░░░░░░░░░░░ 0% (0/5 p
 | v1.0 MVP | 5 | 13 | Complete | 2026-02-22 |
 | v1.1 Admin 고도화 | 3 | 9 | Complete | 2026-03-06 |
 | v1.2 SEO + Admin UX | 5 | 7 | Complete | 2026-03-14 |
-| v1.3 Admin 에디터 고도화 | 5 | - | Active | - |
-| Phase 14-에디터-기반-설정 P01 | 15 | 1 tasks | 5 files |
-| Phase 14-에디터-기반-설정 P01 | 15 | 1 tasks | 5 files |
-| Phase 15-툴바-서식-확장 P01 | 10min | 1 tasks | 4 files |
-| Phase 15-툴바-서식-확장 P01 | 10min | 2 tasks | 4 files |
-| Phase 16-텍스트-스타일링 P01 | 12min | 2 tasks | 4 files |
-| Phase 16-텍스트-스타일링 P01 | 12min | 3 tasks | 4 files |
-| Phase 17-표-삽입 P01 | 2 | 1 tasks | 1 files |
-| Phase 18-블록-삽입-메뉴 P01 | 20min | 2 tasks | 1 files |
+| v1.3 Admin 에디터 고도화 | 5 | 5 | Complete | 2026-03-15 |
 
 ## Accumulated Context
 
 ### Decisions
 
 Full decision log in PROJECT.md Key Decisions table.
-
-**v1.3 key decisions:**
-- Phase 14 must precede all feature phases — ActionText 허용목록 미설정 시 style/table 태그가 렌더 시 무음 삭제됨
-- STYL-01~04를 Phase 16으로 통합 — 정렬/색상/하이라이트/폰트 크기 모두 style 속성 의존, TextStyle 공유, 단일 배포 단위로 충분
-- @tiptap/extension-font-size npm 패키지 사용 금지 — v2에 존재하지 않음, v3 패키지 끌어당김
-- 슬래시 커맨드 미구현 — TipTap experimental, FloatingMenu로 대체 (BLCK-01)
-- [Phase 14-에디터-기반-설정]: ActionText::ContentHelper.allowed_tags/allowed_attributes는 nil 기본값이므로 += 전에 sanitizer 기본값으로 ||= 초기화 필요 (Rails 8.1 확인)
-- [Phase 14-에디터-기반-설정]: AdminRhinoEditor.define() 사용 — customElements.define() 대신 rhino-editor 내장 메서드로 등록
-- [Phase 14-에디터-기반-설정]: ActionText::ContentHelper.allowed_tags/allowed_attributes는 nil 기본값이므로 += 전에 sanitizer 기본값으로 ||= 초기화 필요 (Rails 8.1 확인)
-- [Phase 14-에디터-기반-설정]: AdminRhinoEditor.define() 사용 — customElements.define() 대신 rhino-editor 내장 메서드로 등록
-- [Phase 15-툴바-서식-확장]: lit 직접 의존성 설치: pnpm transitive dep은 Vite 빌드 시 해석 불가, pnpm add lit로 직접 추가
-- [Phase 15-툴바-서식-확장]: renderToolbarEnd() override 패턴: renderToolbar() 전체 재작성 대신 끝에만 추가하여 기존 버튼 보존
-- [Phase 15-툴바-서식-확장]: renderToolbarEnd() override 패턴 채택 — renderToolbar() 전체 재작성 대신 끝에만 추가하여 기존 버튼 보존
-- [Phase 15-툴바-서식-확장]: 사용자 브라우저 검증 완료 — MARK-01~06 전체 서식 버튼 정상 동작 확인
-- [Phase 16-텍스트-스타일링]: @tiptap/core 직접 설치 필요 — font_size_extension.js Vite transitive dep 해석 오류 (Phase 15 lit 동일 패턴)
-- [Phase 16-텍스트-스타일링]: 커스텀 FontSize extension 로컬 구현 — @tiptap/extension-font-size v3.x 전용 확인, Extension.create() 30줄로 동일 기능 구현
-- [Phase 16-텍스트-스타일링]: 사용자 브라우저 검증 완료 — STYL-01~04 전체 스타일링 기능 (정렬/글자색/하이라이트/폰트크기) 동작 및 저장 후 유지 확인
-- [Phase 17-표-삽입]: resizable: false 필수 — true는 drag handle 이벤트가 rhino-editor 포인터 이벤트와 충돌
-- [Phase 17-표-삽입]: startEditor() override 사용 — connectedCallback 시점에는 this.editor가 null이므로 editor 이벤트 리스너 등록 불가
-- [Phase 17-표-삽입]: Light DOM 컨텍스트 메뉴 — shadow DOM 경계 외부에 배치해야 position:absolute가 뷰포트 기준으로 동작
-- [Phase 18-블록-삽입-메뉴]: @tiptap/extension-floating-menu 설치 금지 — tippy.js 의존성 + Shadow DOM 충돌. Light DOM 네이티브 구현
-- [Phase 18-블록-삽입-메뉴]: depth===1 조건으로 표 셀/리스트 내부(depth>1)에서 플로팅 메뉴 미표시 보장
-- [Phase 18-블록-삽입-메뉴]: @tiptap/extension-floating-menu 설치 금지 — tippy.js 의존성 + Shadow DOM 충돌. 네이티브 JS로 직접 구현
-- [Phase 18-블록-삽입-메뉴]: depth===1 조건으로 표 셀 내부(depth>1) 플로팅 메뉴 미표시 보장
 
 ### Pending Todos
 
@@ -100,12 +58,11 @@ None.
 - Post slug constraint 불일치 (영문자 시작 slug 미매칭) — tech debt from v1.1
 - ANTHROPIC_API_KEY 프로덕션 환경변수 등록 필요 — tech debt from v1.1
 - SRCH-01/SRCH-02: credentials 인증 토큰 설정 + 외부 서비스 확인 필요
-- Phase 17 계획 시 주의: 표 버블 메뉴가 기존 텍스트 선택 버블 메뉴와 충돌 가능 (shouldShow 가드 필수)
-- Phase 15 계획 시 주의: rhinoStrike 커맨드명 확인 필요 (toggleStrike vs rhino-specific variant)
+- actiontext.css table CSS 미정의 — tech debt from v1.3
 
 ## Session Continuity
 
-Last session: 2026-03-14T15:16:14.176Z
-Stopped at: Completed 18-01-PLAN.md (18-블록-삽입-메뉴)
+Last session: 2026-03-15
+Stopped at: Milestone v1.3 completed and archived
 Resume file: None
-Next action: `/gsd:plan-phase 14`
+Next action: `/gsd:new-milestone`

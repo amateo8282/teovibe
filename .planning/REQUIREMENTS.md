@@ -9,9 +9,9 @@ Admin 에디터를 네이버 블로그 수준으로 고도화. rhino-editor(TipT
 
 ### 기반 설정
 
-- [ ] **INFRA-01**: ActionText initializer에 style 속성 + table 태그 허용 설정
-- [ ] **INFRA-02**: AdminRhinoEditor 서브클래스 스캐폴드 (커스텀 엘리먼트 등록, Admin 폼 적용)
-- [ ] **INFRA-03**: ai_draft_controller.js의 editor selector를 AdminRhinoEditor로 변경
+- [x] **INFRA-01**: ActionText initializer에 style 속성 + table 태그 허용 설정
+- [x] **INFRA-02**: AdminRhinoEditor 서브클래스 스캐폴드 (커스텀 엘리먼트 등록, Admin 폼 적용)
+- [x] **INFRA-03**: ai_draft_controller.js의 editor selector를 AdminRhinoEditor로 변경
 
 ### 서식 확장
 
@@ -59,9 +59,9 @@ Admin 에디터를 네이버 블로그 수준으로 고도화. rhino-editor(TipT
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| INFRA-01 | Phase 14 | Pending |
-| INFRA-02 | Phase 14 | Pending |
-| INFRA-03 | Phase 14 | Pending |
+| INFRA-01 | Phase 14 | Complete |
+| INFRA-02 | Phase 14 | Complete |
+| INFRA-03 | Phase 14 | Complete |
 | MARK-01 | Phase 15 | Pending |
 | MARK-02 | Phase 15 | Pending |
 | MARK-03 | Phase 15 | Pending |

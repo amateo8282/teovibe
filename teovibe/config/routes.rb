@@ -115,6 +115,7 @@ Rails.application.routes.draw do
         delete :bulk_destroy
       end
     end
+    resource :link_preview, only: [:show]
     resource :ai_draft, only: [] do
       collection do
         post :outline

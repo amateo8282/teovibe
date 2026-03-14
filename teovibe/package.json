@@ -24,6 +24,7 @@
     "@tiptap/extension-text-align": "^2.27.2",
     "@tiptap/extension-text-style": "^2.27.2",
     "@tiptap/extension-underline": "^2.27.2",
+    "@tiptap/extension-youtube": "^2.27.2",
     "@tosspayments/payment-widget-sdk": "^0.12.1",
     "chart.js": "^4.5.1",
     "chartkick": "^5.0.1",

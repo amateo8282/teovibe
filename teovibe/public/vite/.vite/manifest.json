@@ -12,13 +12,13 @@
     "integrity": "sha384-ez/iH/A9tRfo1kXiA25Og1JtIGsZuttGOV3goTSupyciuKGLi1KBcXXmHkvf1naI"
   },
   "entrypoints/application.css": {
-    "file": "assets/application-B7CDZtwL.css",
+    "file": "assets/application-u6PDpC71.css",
     "src": "entrypoints/application.css",
     "isEntry": true,
-    "integrity": "sha384-bwrAyPYXnFa2UlVApipGRy+rbdsJOLtt9+kAO8f9UwDRHmJ3A06IaGhMw+f3EaRO"
+    "integrity": "sha384-TtnBxwXDYqiAqt47IEdkxnHN+YkFV0uChYf2dWtt62Lo2JLdQ2xeXDXTBEbBndBD"
   },
   "entrypoints/application.js": {
-    "file": "assets/application-DTjN8zCG.js",
+    "file": "assets/application-Bn1bsVKs.js",
     "name": "entrypoints/application.js",
     "src": "entrypoints/application.js",
     "isEntry": true,
@@ -27,9 +27,19 @@
     ],
     "css": [
       "assets/application-DoA7TFRg.css",
-      "assets/application-B7CDZtwL.css"
+      "assets/application-u6PDpC71.css"
     ],
-    "integrity": "sha384-HUivXvO5Vk2AVPPUEMy6cB7SUzsf/P4smzFhmvG+wL4vzJ24vbs/EJ9DyftSJthm"
+    "integrity": "sha384-+bWZYM4+eAEkwRxjcG/6Godtytu94wUf135aQXjv/9ISp4mizgUL0jfbEqdixjXv"
+  },
+  "entrypoints/checkout.jsx": {
+    "file": "assets/checkout-CH-Rt8aR.js",
+    "name": "entrypoints/checkout.jsx",
+    "src": "entrypoints/checkout.jsx",
+    "isEntry": true,
+    "imports": [
+      "_client-C8RhVn0h.js"
+    ],
+    "integrity": "sha384-DfXgsSyWBw8lHhtoOD206sWcmRT19xLl896WEmuZP0niJ7hw+EyPSampfwnPMKfx"
   },
   "entrypoints/landing.jsx": {
     "file": "assets/landing-Cw4JUmx0.js",

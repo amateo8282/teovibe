@@ -127,7 +127,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 14-01-PLAN.md — ActionText 허용목록 + AdminRhinoEditor 스캐폴드 + AI selector 수정
+- [ ] 16-01-PLAN.md — TextAlign/Color/Highlight/FontSize extension 등록 + 스타일링 툴바 UI
 
 ### Phase 17: 표 삽입
 **Goal**: Admin 에디터에서 표를 삽입하고 행/열을 추가 및 삭제할 수 있다
@@ -175,6 +175,6 @@ Plans:
 | 13. Admin 에디터 UX | v1.2 | 1/1 | Complete | 2026-03-14 |
 | 14. 에디터 기반 설정 | 1/1 | Complete    | 2026-03-14 | - |
 | 15. 툴바 서식 확장 | 1/1 | Complete    | 2026-03-14 | - |
-| 16. 텍스트 스타일링 | v1.3 | 0/? | Not started | - |
+| 16. 텍스트 스타일링 | v1.3 | 0/1 | Not started | - |
 | 17. 표 삽입 | v1.3 | 0/? | Not started | - |
 | 18. 블록 삽입 메뉴 | v1.3 | 0/? | Not started | - |

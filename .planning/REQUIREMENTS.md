@@ -24,10 +24,10 @@ Admin 에디터를 네이버 블로그 수준으로 고도화. rhino-editor(TipT
 
 ### 텍스트 스타일
 
-- [ ] **STYL-01**: 텍스트 정렬 (좌/중/우) extension + 툴바 버튼
-- [ ] **STYL-02**: 글자색(Color) extension + 색상 선택 UI
-- [ ] **STYL-03**: 배경색(Highlight) extension + 색상 선택 UI
-- [ ] **STYL-04**: 폰트 크기 조절 커스텀 extension + 드롭다운 UI
+- [x] **STYL-01**: 텍스트 정렬 (좌/중/우) extension + 툴바 버튼
+- [x] **STYL-02**: 글자색(Color) extension + 색상 선택 UI
+- [x] **STYL-03**: 배경색(Highlight) extension + 색상 선택 UI
+- [x] **STYL-04**: 폰트 크기 조절 커스텀 extension + 드롭다운 UI
 
 ### 표
 
@@ -68,10 +68,10 @@ Admin 에디터를 네이버 블로그 수준으로 고도화. rhino-editor(TipT
 | MARK-04 | Phase 15 | Complete |
 | MARK-05 | Phase 15 | Complete |
 | MARK-06 | Phase 15 | Complete |
-| STYL-01 | Phase 16 | Pending |
-| STYL-02 | Phase 16 | Pending |
-| STYL-03 | Phase 16 | Pending |
-| STYL-04 | Phase 16 | Pending |
+| STYL-01 | Phase 16 | Complete |
+| STYL-02 | Phase 16 | Complete |
+| STYL-03 | Phase 16 | Complete |
+| STYL-04 | Phase 16 | Complete |
 | TABL-01 | Phase 17 | Pending |
 | TABL-02 | Phase 17 | Pending |
 | BLCK-01 | Phase 18 | Pending |

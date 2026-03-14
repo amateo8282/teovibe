@@ -66,12 +66,12 @@
         <%= f.hidden_field :body,
               id: f.field_id(:body),
               value: f.object.body.try(:to_trix_html) || f.object.body %>
-        <rhino-editor
+        <admin-rhino-editor
           input="<%= f.field_id(:body) %>"
           data-blob-url-template="<%= rails_service_blob_url(":signed_id", ":filename") %>"
           data-direct-upload-url="<%= rails_direct_uploads_url %>"
           class="w-full min-h-[400px] rounded-2xl border border-gray-300"
-        ></rhino-editor>
+        ></admin-rhino-editor>
       </div>
     </div>
 

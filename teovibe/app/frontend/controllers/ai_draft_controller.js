@@ -70,8 +70,8 @@ export default class extends Controller {
         return
       }
 
-      // AIDR-03: rhino-editor에 삽입 (updateInputElementValue 필수)
-      const rhinoEditor = document.querySelector("rhino-editor")
+      // AIDR-03: admin-rhino-editor에 삽입 (updateInputElementValue 필수)
+      const rhinoEditor = document.querySelector("admin-rhino-editor")
       if (rhinoEditor && rhinoEditor.editor) {
         rhinoEditor.editor.commands.setContent(data.body_html, false)
         rhinoEditor.updateInputElementValue()

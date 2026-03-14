@@ -9,6 +9,6 @@ Rails.application.config.after_initialize do
   ActionText::ContentHelper.allowed_attributes ||=
     sanitizer_class.allowed_attributes + ActionText::Attachment::ATTRIBUTES
 
-  ActionText::ContentHelper.allowed_tags += %w[table thead tbody tfoot tr th td colgroup col caption]
+  ActionText::ContentHelper.allowed_tags += %w[table thead tbody tfoot tr th td colgroup col caption u]
   ActionText::ContentHelper.allowed_attributes += ["style", "colspan", "rowspan", "scope"]
 end

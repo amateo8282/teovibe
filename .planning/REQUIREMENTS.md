@@ -36,7 +36,7 @@ Admin 에디터를 네이버 블로그 수준으로 고도화. rhino-editor(TipT
 
 ### 블록 삽입
 
-- [ ] **BLCK-01**: FloatingMenu 기반 + 블록 삽입 버튼 (구분선/인용구/코드블록/표 빠른 삽입)
+- [x] **BLCK-01**: FloatingMenu 기반 + 블록 삽입 버튼 (구분선/인용구/코드블록/표 빠른 삽입)
 
 ## Future Requirements
 
@@ -74,7 +74,7 @@ Admin 에디터를 네이버 블로그 수준으로 고도화. rhino-editor(TipT
 | STYL-04 | Phase 16 | Complete |
 | TABL-01 | Phase 17 | Complete |
 | TABL-02 | Phase 17 | Complete |
-| BLCK-01 | Phase 18 | Pending |
+| BLCK-01 | Phase 18 | Complete |
 
 **Coverage:**
 - v1.3 requirements: 16 total

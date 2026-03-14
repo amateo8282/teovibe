@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: Admin 에디터 고도화
 status: unknown
-stopped_at: "Checkpoint: Task 2 브라우저 검증 대기 중 (17-01-PLAN.md)"
-last_updated: "2026-03-14T14:38:34.750Z"
+stopped_at: "Checkpoint: Task 2 브라우저 검증 대기 중 (18-01-PLAN.md)"
+last_updated: "2026-03-14T15:14:33.797Z"
 progress:
   total_phases: 10
-  completed_phases: 4
-  total_plans: 4
-  completed_plans: 4
+  completed_phases: 5
+  total_plans: 5
+  completed_plans: 5
   percent: 0
 ---
 
@@ -85,6 +85,8 @@ Full decision log in PROJECT.md Key Decisions table.
 - [Phase 17-표-삽입]: resizable: false 필수 — true는 drag handle 이벤트가 rhino-editor 포인터 이벤트와 충돌
 - [Phase 17-표-삽입]: startEditor() override 사용 — connectedCallback 시점에는 this.editor가 null이므로 editor 이벤트 리스너 등록 불가
 - [Phase 17-표-삽입]: Light DOM 컨텍스트 메뉴 — shadow DOM 경계 외부에 배치해야 position:absolute가 뷰포트 기준으로 동작
+- [Phase 18-블록-삽입-메뉴]: @tiptap/extension-floating-menu 설치 금지 — tippy.js 의존성 + Shadow DOM 충돌. Light DOM 네이티브 구현
+- [Phase 18-블록-삽입-메뉴]: depth===1 조건으로 표 셀/리스트 내부(depth>1)에서 플로팅 메뉴 미표시 보장
 
 ### Pending Todos
 
@@ -100,7 +102,7 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-14T14:34:23.315Z
-Stopped at: Checkpoint: Task 2 브라우저 검증 대기 중 (17-01-PLAN.md)
+Last session: 2026-03-14T15:14:29.771Z
+Stopped at: Checkpoint: Task 2 브라우저 검증 대기 중 (18-01-PLAN.md)
 Resume file: None
 Next action: `/gsd:plan-phase 14`

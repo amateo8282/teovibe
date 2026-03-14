@@ -21,7 +21,7 @@ export default function CtaSection({ section }: CtaSectionProps) {
             <p className="text-lg mb-10 opacity-90">{section.subtitle}</p>
           )}
           <a
-            href="/registrations/new"
+            href="/registration/new"
             className="inline-block bg-white text-tv-orange rounded-pill px-10 py-4 text-lg font-bold hover:opacity-90 transition-opacity"
           >
             시작하기

@@ -87,7 +87,7 @@ export default function HeroSection({ section }: HeroSectionProps) {
           variants={itemVariants}
         >
           <a
-            href="/registrations/new"
+            href="/registration/new"
             className="bg-tv-black text-white rounded-pill px-7 py-4 text-lg font-bold hover:opacity-90 transition-opacity"
           >
             시작하기 -&gt;

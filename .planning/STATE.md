@@ -4,7 +4,7 @@ milestone: v1.3
 milestone_name: Admin 에디터 고도화
 status: unknown
 stopped_at: Completed 18-01-PLAN.md (18-블록-삽입-메뉴)
-last_updated: "2026-03-14T15:16:14.179Z"
+last_updated: "2026-03-14T15:18:19.056Z"
 progress:
   total_phases: 10
   completed_phases: 5

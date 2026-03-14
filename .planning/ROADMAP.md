@@ -99,7 +99,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 14-01-PLAN.md — ActionText 허용목록 + AdminRhinoEditor 스캐폴드 + AI selector 수정
+- [x] 14-01-PLAN.md — ActionText 허용목록 + AdminRhinoEditor 스캐폴드 + AI selector 수정
 
 ### Phase 15: 툴바 서식 확장
 **Goal**: 취소선, 밑줄, 인용구, 구분선, 코드블록, 제목 드롭다운이 Admin 에디터 툴바에 추가되어 작성자가 풍부한 서식을 적용할 수 있다
@@ -113,7 +113,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 15-01-PLAN.md — Underline extension + renderToolbarEnd 오버라이드 + ActionText u 태그 허용 + 서식 검증
+- [x] 15-01-PLAN.md — Underline extension + renderToolbarEnd 오버라이드 + ActionText u 태그 허용 + 서식 검증
 
 ### Phase 16: 텍스트 스타일링
 **Goal**: 텍스트 정렬(좌/중/우), 글자색, 배경 하이라이트, 폰트 크기를 Admin 에디터에서 조절할 수 있다
@@ -127,7 +127,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 16-01-PLAN.md — TextAlign/Color/Highlight/FontSize extension 등록 + 스타일링 툴바 UI
+- [x] 16-01-PLAN.md — TextAlign/Color/Highlight/FontSize extension 등록 + 스타일링 툴바 UI
 
 ### Phase 17: 표 삽입
 **Goal**: Admin 에디터에서 표를 삽입하고 행/열을 추가 및 삭제할 수 있다
@@ -141,7 +141,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 14-01-PLAN.md — ActionText 허용목록 + AdminRhinoEditor 스캐폴드 + AI selector 수정
+- [ ] 17-01-PLAN.md — Table extension 4종 등록 + 삽입 버튼 + Light DOM 컨텍스트 메뉴
 
 ### Phase 18: 블록 삽입 메뉴
 **Goal**: 빈 줄에서 + 버튼이 나타나 구분선/인용구/코드블록/표를 빠르게 삽입할 수 있다
@@ -154,7 +154,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 14-01-PLAN.md — ActionText 허용목록 + AdminRhinoEditor 스캐폴드 + AI selector 수정
+- [ ] 18-01-PLAN.md — [To be planned]
 
 ## Progress
 
@@ -173,8 +173,8 @@ Plans:
 | 11. 소셜/색인 메타태그 | v1.2 | 2/2 | Complete | 2026-03-13 |
 | 12. 구조화 데이터 | v1.2 | 1/1 | Complete | 2026-03-13 |
 | 13. Admin 에디터 UX | v1.2 | 1/1 | Complete | 2026-03-14 |
-| 14. 에디터 기반 설정 | 1/1 | Complete    | 2026-03-14 | - |
-| 15. 툴바 서식 확장 | 1/1 | Complete    | 2026-03-14 | - |
-| 16. 텍스트 스타일링 | 1/1 | Complete    | 2026-03-14 | - |
-| 17. 표 삽입 | v1.3 | 0/? | Not started | - |
+| 14. 에디터 기반 설정 | v1.3 | 1/1 | Complete | 2026-03-14 |
+| 15. 툴바 서식 확장 | v1.3 | 1/1 | Complete | 2026-03-14 |
+| 16. 텍스트 스타일링 | v1.3 | 1/1 | Complete | 2026-03-14 |
+| 17. 표 삽입 | v1.3 | 0/1 | Not started | - |
 | 18. 블록 삽입 메뉴 | v1.3 | 0/? | Not started | - |

@@ -165,4 +165,4 @@ Phases execute in numeric order: 9 → 10 → 11 → 12 (depends on 9) → 13 (i
 | 10. 크롤링 기초 | v1.2 | 2/2 | Complete | 2026-03-13 |
 | 11. 소셜/색인 메타태그 | v1.2 | 2/2 | Complete | 2026-03-13 |
 | 12. 구조화 데이터 | v1.2 | 1/1 | Complete | 2026-03-13 |
-| 13. Admin 에디터 UX | 1/1 | Complete   | 2026-03-14 | — |
+| 13. Admin 에디터 UX | 1/1 | Complete    | 2026-03-14 | — |

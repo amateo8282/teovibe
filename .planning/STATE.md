@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: Admin 에디터 고도화
 status: unknown
-stopped_at: Completed 16-01-PLAN.md
-last_updated: "2026-03-14T12:53:00.754Z"
+stopped_at: "Checkpoint: Task 2 브라우저 검증 대기 중 (17-01-PLAN.md)"
+last_updated: "2026-03-14T14:34:23.317Z"
 progress:
   total_phases: 10
-  completed_phases: 3
-  total_plans: 3
-  completed_plans: 3
+  completed_phases: 4
+  total_plans: 4
+  completed_plans: 4
   percent: 0
 ---
 
@@ -58,6 +58,7 @@ Progress: ░░░░░░░░░░░░░░░░░░░░ 0% (0/5 p
 | Phase 15-툴바-서식-확장 P01 | 10min | 2 tasks | 4 files |
 | Phase 16-텍스트-스타일링 P01 | 12min | 2 tasks | 4 files |
 | Phase 16-텍스트-스타일링 P01 | 12min | 3 tasks | 4 files |
+| Phase 17-표-삽입 P01 | 2 | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -81,6 +82,9 @@ Full decision log in PROJECT.md Key Decisions table.
 - [Phase 16-텍스트-스타일링]: @tiptap/core 직접 설치 필요 — font_size_extension.js Vite transitive dep 해석 오류 (Phase 15 lit 동일 패턴)
 - [Phase 16-텍스트-스타일링]: 커스텀 FontSize extension 로컬 구현 — @tiptap/extension-font-size v3.x 전용 확인, Extension.create() 30줄로 동일 기능 구현
 - [Phase 16-텍스트-스타일링]: 사용자 브라우저 검증 완료 — STYL-01~04 전체 스타일링 기능 (정렬/글자색/하이라이트/폰트크기) 동작 및 저장 후 유지 확인
+- [Phase 17-표-삽입]: resizable: false 필수 — true는 drag handle 이벤트가 rhino-editor 포인터 이벤트와 충돌
+- [Phase 17-표-삽입]: startEditor() override 사용 — connectedCallback 시점에는 this.editor가 null이므로 editor 이벤트 리스너 등록 불가
+- [Phase 17-표-삽입]: Light DOM 컨텍스트 메뉴 — shadow DOM 경계 외부에 배치해야 position:absolute가 뷰포트 기준으로 동작
 
 ### Pending Todos
 
@@ -96,7 +100,7 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-14T12:49:53.648Z
-Stopped at: Completed 16-01-PLAN.md
+Last session: 2026-03-14T14:34:23.315Z
+Stopped at: Checkpoint: Task 2 브라우저 검증 대기 중 (17-01-PLAN.md)
 Resume file: None
 Next action: `/gsd:plan-phase 14`

@@ -31,8 +31,8 @@ Admin 에디터를 네이버 블로그 수준으로 고도화. rhino-editor(TipT
 
 ### 표
 
-- [ ] **TABL-01**: Table extension 설치 (table/row/cell/header 4개 패키지)
-- [ ] **TABL-02**: 표 삽입 버튼 + 행/열 추가/삭제 컨텍스트 메뉴
+- [x] **TABL-01**: Table extension 설치 (table/row/cell/header 4개 패키지)
+- [x] **TABL-02**: 표 삽입 버튼 + 행/열 추가/삭제 컨텍스트 메뉴
 
 ### 블록 삽입
 
@@ -72,8 +72,8 @@ Admin 에디터를 네이버 블로그 수준으로 고도화. rhino-editor(TipT
 | STYL-02 | Phase 16 | Complete |
 | STYL-03 | Phase 16 | Complete |
 | STYL-04 | Phase 16 | Complete |
-| TABL-01 | Phase 17 | Pending |
-| TABL-02 | Phase 17 | Pending |
+| TABL-01 | Phase 17 | Complete |
+| TABL-02 | Phase 17 | Complete |
 | BLCK-01 | Phase 18 | Pending |
 
 **Coverage:**

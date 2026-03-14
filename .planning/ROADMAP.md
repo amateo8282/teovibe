@@ -82,7 +82,7 @@ Plans:
 - [x] **Phase 14: 에디터 기반 설정** — ActionText 허용목록 + AdminRhinoEditor 서브클래스 스캐폴드 (completed 2026-03-14)
 - [x] **Phase 15: 툴바 서식 확장** — 취소선/밑줄/인용구/구분선/코드블록/제목 드롭다운 (패키지 설치 없음) (completed 2026-03-14)
 - [x] **Phase 16: 텍스트 스타일링** — 정렬/글자색/배경색/폰트 크기 통합 구현 (completed 2026-03-14)
-- [ ] **Phase 17: 표 삽입** — Table extension 4개 패키지 + 행/열 편집 컨텍스트 메뉴
+- [x] **Phase 17: 표 삽입** — Table extension 4개 패키지 + 행/열 편집 컨텍스트 메뉴 (completed 2026-03-14)
 - [ ] **Phase 18: 블록 삽입 메뉴** — FloatingMenu 기반 + 버튼 빠른 삽입
 
 ## Phase Details
@@ -176,5 +176,5 @@ Plans:
 | 14. 에디터 기반 설정 | v1.3 | 1/1 | Complete | 2026-03-14 |
 | 15. 툴바 서식 확장 | v1.3 | 1/1 | Complete | 2026-03-14 |
 | 16. 텍스트 스타일링 | v1.3 | 1/1 | Complete | 2026-03-14 |
-| 17. 표 삽입 | v1.3 | 0/1 | Not started | - |
+| 17. 표 삽입 | 1/1 | Complete   | 2026-03-14 | - |
 | 18. 블록 삽입 메뉴 | v1.3 | 0/? | Not started | - |

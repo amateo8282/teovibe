@@ -1,5 +1,6 @@
 // Phase 15: Underline extension 추가 + renderToolbarEnd() 오버라이드
 // Phase 16: TextAlign, Color, TextStyle, Highlight, FontSize 추가
+// Phase 17: Table 4종 extension + 툴바 삽입 버튼 + Light DOM 컨텍스트 메뉴
 // 기존 Bold/Italic/Strike/Blockquote/CodeBlock 버튼은 기본 renderToolbar()에서 그대로 유지
 import { TipTapEditor } from "rhino-editor/exports/elements/tip-tap-editor.js"
 import Underline from "@tiptap/extension-underline"
@@ -8,6 +9,10 @@ import TextStyle from "@tiptap/extension-text-style"
 import Color from "@tiptap/extension-color"
 import Highlight from "@tiptap/extension-highlight"
 import { FontSize } from "../editor/font_size_extension.js"
+import Table from "@tiptap/extension-table"
+import TableRow from "@tiptap/extension-table-row"
+import TableCell from "@tiptap/extension-table-cell"
+import TableHeader from "@tiptap/extension-table-header"
 import { html } from "lit"
 
 export class AdminRhinoEditor extends TipTapEditor {
@@ -21,6 +26,131 @@ export class AdminRhinoEditor extends TipTapEditor {
     this.addExtensions(TextStyle, Color, FontSize)
     // Phase 16: multicolor: true 필수 (false는 노란색 고정)
     this.addExtensions(Highlight.configure({ multicolor: true }))
+    // Phase 17: Table extension 4종 (resizable: false — true는 drag handle 이벤트 충돌)
+    this.addExtensions(
+      Table.configure({ resizable: false }),
+      TableRow,
+      TableCell,
+      TableHeader
+    )
+  }
+
+  // Phase 17: editor 생성 후 컨텍스트 메뉴 초기화 (connectedCallback이 아닌 startEditor에서)
+  async startEditor() {
+    await super.startEditor()
+    this._initTableContextMenu()
+    // selectionUpdate: 표 셀 커서 위치/텍스트 선택 여부에 따라 메뉴 표시/숨김
+    this.editor?.on("selectionUpdate", () => this._updateTableMenu())
+    // blur: 에디터 포커스 해제 시 메뉴 숨김
+    this.editor?.on("blur", () => {
+      if (this._tableMenu) this._tableMenu.style.display = "none"
+    })
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback()
+    this._tableMenu?.remove()
+    this._tableMenu = null
+  }
+
+  // Phase 17: Light DOM 컨텍스트 메뉴 초기화
+  // Light DOM 사용 이유: position:absolute가 shadow DOM 경계에 갇히지 않도록
+  _initTableContextMenu() {
+    const menu = document.createElement("div")
+    menu.style.cssText = [
+      "position:absolute",
+      "z-index:100",
+      "display:none",
+      "background:white",
+      "border:1px solid #e5e7eb",
+      "border-radius:6px",
+      "box-shadow:0 2px 8px rgba(0,0,0,0.15)",
+      "padding:4px",
+      "min-width:140px",
+    ].join(";")
+
+    const buttonStyle = [
+      "display:block",
+      "width:100%",
+      "text-align:left",
+      "padding:4px 12px",
+      "border:none",
+      "background:none",
+      "cursor:pointer",
+      "font-size:13px",
+      "border-radius:4px",
+    ].join(";")
+
+    const buttons = [
+      { action: "add-row-before", label: "위에 행 추가" },
+      { action: "add-row-after",  label: "아래 행 추가" },
+      { action: "delete-row",     label: "행 삭제" },
+      { action: "add-col-before", label: "왼쪽 열 추가" },
+      { action: "add-col-after",  label: "오른쪽 열 추가" },
+      { action: "delete-col",     label: "열 삭제" },
+      { action: "delete-table",   label: "표 삭제" },
+    ]
+
+    buttons.forEach(({ action, label }) => {
+      const btn = document.createElement("button")
+      btn.type = "button"
+      btn.setAttribute("data-action", action)
+      btn.style.cssText = buttonStyle
+      btn.textContent = label
+      btn.onmouseenter = () => { btn.style.background = "#f3f4f6" }
+      btn.onmouseleave = () => { btn.style.background = "none" }
+      menu.appendChild(btn)
+    })
+
+    menu.addEventListener("click", (e) => this._handleTableMenuClick(e))
+
+    const container = this.closest("form") || document.body
+    container.appendChild(menu)
+    this._tableMenu = menu
+  }
+
+  // Phase 17: selectionUpdate 시 메뉴 표시/위치 계산
+  _updateTableMenu() {
+    if (!this._tableMenu) return
+    const isInTable = this.editor.isActive("table")
+    const isEmpty = this.editor.state.selection.empty
+
+    // 표 밖이거나 텍스트 선택 중이면 숨김 (텍스트 버블 메뉴에 양보)
+    if (!isInTable || !isEmpty) {
+      this._tableMenu.style.display = "none"
+      return
+    }
+
+    // 커서 위치 기반 절대 좌표 계산
+    const { from } = this.editor.state.selection
+    const coords = this.editor.view.coordsAtPos(from)
+
+    // 뷰포트 상단을 넘으면 커서 아래로 fallback
+    const top = coords.top > 20
+      ? coords.top + window.scrollY - this._tableMenu.offsetHeight - 8
+      : coords.top + window.scrollY + 20
+
+    this._tableMenu.style.left = (coords.left + window.scrollX) + "px"
+    this._tableMenu.style.top = top + "px"
+    this._tableMenu.style.display = "block"
+  }
+
+  // Phase 17: 컨텍스트 메뉴 버튼 클릭 처리
+  _handleTableMenuClick(e) {
+    const action = e.target.closest("[data-action]")?.getAttribute("data-action")
+    if (!action) return
+    e.preventDefault()
+
+    const chain = this.editor.chain().focus()
+    switch (action) {
+      case "add-row-before":  chain.addRowBefore().run();    break
+      case "add-row-after":   chain.addRowAfter().run();     break
+      case "delete-row":      chain.deleteRow().run();       break
+      case "add-col-before":  chain.addColumnBefore().run(); break
+      case "add-col-after":   chain.addColumnAfter().run();  break
+      case "delete-col":      chain.deleteColumn().run();    break
+      case "delete-table":    chain.deleteTable().run();     break
+    }
   }
 
   // MARK-06: 제목 드롭다운 (H1/H2/H3 + 단락)
@@ -218,7 +348,30 @@ export class AdminRhinoEditor extends TipTapEditor {
     `
   }
 
-  // 기존 toolbar 유지 + 스타일링 버튼 4종 추가
+  // Phase 17: 표 삽입 버튼 (표 안에서는 비활성화 — 중첩 삽입 방지)
+  renderInsertTableButton() {
+    const isDisabled = this.editor == null || !this.editor.can().insertTable()
+    return html`
+      <button
+        class="toolbar__button rhino-toolbar-button"
+        type="button"
+        tabindex="-1"
+        part="toolbar__button toolbar__button--insert-table"
+        aria-disabled=${isDisabled}
+        aria-label="표 삽입"
+        data-role="toolbar-item"
+        title="표 삽입 (3x3)"
+        @click=${(e) => {
+          if (isDisabled) return
+          this.editor?.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()
+        }}
+      >
+        &#8862;
+      </button>
+    `
+  }
+
+  // 기존 toolbar 유지 + 스타일링 버튼 4종 + 표 삽입 버튼 추가
   renderToolbarEnd() {
     return html`
       ${this.renderHeadingDropdown()}
@@ -228,6 +381,7 @@ export class AdminRhinoEditor extends TipTapEditor {
       ${this.renderColorPicker()}
       ${this.renderHighlightPicker()}
       ${this.renderFontSizeDropdown()}
+      ${this.renderInsertTableButton()}
     `
   }
 }

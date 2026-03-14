@@ -116,8 +116,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 11-01-PLAN.md — OG/Twitter Card/canonical 메타태그 (게시글 + 홈 + 목록)
-- [ ] 11-02-PLAN.md — Admin/인증 페이지 noindex 처리
+- [x] 11-01-PLAN.md — OG/Twitter Card/canonical 메타태그 (게시글 + 홈 + 목록)
+- [x] 11-02-PLAN.md — Admin/인증 페이지 noindex 처리
 
 ### Phase 12: 구조화 데이터
 **Goal**: 게시글이 Google Rich Results 자격을 갖추고 홈페이지가 사이트 신뢰도 구조화 데이터를 제공한다
@@ -131,20 +131,20 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 12-01-PLAN.md — Article/BreadcrumbList/WebSite/Organization JSON-LD 뷰 배선 + 통합 테스트
+- [x] 12-01-PLAN.md — Article/BreadcrumbList/WebSite/Organization JSON-LD 뷰 배선 + 통합 테스트
 
 ### Phase 13: Admin 에디터 UX
 **Goal**: Admin 게시글 에디터가 메타 정보와 본문을 분리된 2단 레이아웃으로 제공한다
 **Depends on**: Nothing (independent of SEO track)
 **Requirements**: ADMN-01, ADMN-02, ADMN-03
 **Success Criteria** (what must be TRUE):
-  1. Admin 게시글 작성/수정 페이지에서 좌측에 메타 패널(제목, 카테고리, SEO 필드 등), 우측에 본문 에디터가 나란히 표시된다
+  1. Admin 게시글 작성/수정 페이지에서 좌측에 본문 에디터, 우측에 메타 패널(제목, 카테고리, SEO 필드 등)이 나란히 표시된다
   2. 본문 에디터를 스크롤해도 메타 패널이 뷰포트 상단에 고정되어 따라온다 (sticky)
-  3. 모바일 화면에서 2단 레이아웃이 1단으로 자동 전환되어 메타 패널이 에디터 위에 쌓인다
+  3. 모바일 화면에서 2단 레이아웃이 1단으로 자동 전환되어 메타 패널이 본문 아래에 쌓인다
 **Plans**: 1 plan
 
 Plans:
-- [ ] 12-01-PLAN.md — Article/BreadcrumbList/WebSite/Organization JSON-LD 뷰 배선 + 통합 테스트
+- [ ] 13-01-PLAN.md — 2단 레이아웃 (에디터 + 메타 패널 sticky) + 모바일 fallback
 
 ## Progress
 
@@ -163,6 +163,6 @@ Phases execute in numeric order: 9 → 10 → 11 → 12 (depends on 9) → 13 (i
 | 8. AI 초안 작성 | v1.1 | 2/2 | Complete | 2026-03-06 |
 | 9. XSS 보안 패치 | v1.2 | 1/1 | Complete | 2026-03-13 |
 | 10. 크롤링 기초 | v1.2 | 2/2 | Complete | 2026-03-13 |
-| 11. 소셜/색인 메타태그 | 2/2 | Complete    | 2026-03-13 | — |
-| 12. 구조화 데이터 | 1/1 | Complete    | 2026-03-13 | — |
-| 13. Admin 에디터 UX | v1.2 | 0/? | Not started | — |
+| 11. 소셜/색인 메타태그 | v1.2 | 2/2 | Complete | 2026-03-13 |
+| 12. 구조화 데이터 | v1.2 | 1/1 | Complete | 2026-03-13 |
+| 13. Admin 에디터 UX | v1.2 | 0/1 | Not started | — |

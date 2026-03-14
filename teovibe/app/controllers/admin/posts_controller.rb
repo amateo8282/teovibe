@@ -46,6 +46,12 @@ module Admin
       redirect_to admin_posts_path, notice: "게시글이 삭제되었습니다.", status: :see_other
     end
 
+    def bulk_destroy
+      post_ids = params[:post_ids] || []
+      deleted_count = Post.where(id: post_ids).destroy_all.size
+      redirect_to admin_posts_path, notice: "#{deleted_count}개의 게시글이 삭제되었습니다.", status: :see_other
+    end
+
     private
 
     def set_post

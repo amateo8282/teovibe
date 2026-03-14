@@ -3,46 +3,73 @@
   <%= link_to "새 게시글", new_admin_post_path, class: "bg-tv-gold text-tv-black rounded-pill px-6 py-3 text-sm font-bold hover:opacity-90 transition-opacity" %>
 </div>
 
-<div class="bg-white rounded-card overflow-hidden">
-  <table class="w-full text-sm">
-    <thead class="bg-gray-50 border-b">
-      <tr>
-        <th class="text-left px-4 py-3 font-bold">제목</th>
-        <th class="text-left px-4 py-3 font-bold">카테고리</th>
-        <th class="text-left px-4 py-3 font-bold">작성자</th>
-        <th class="text-left px-4 py-3 font-bold">상태</th>
-        <th class="text-left px-4 py-3 font-bold">날짜</th>
-        <th class="text-right px-4 py-3 font-bold">액션</th>
-      </tr>
-    </thead>
-    <tbody class="divide-y">
-      <% @posts.each do |post| %>
+<div data-controller="bulk-select">
+  <%# 일괄 삭제 액션 바 %>
+  <div data-bulk-select-target="bulkActions" class="hidden mb-4 flex items-center gap-4 bg-red-50 border border-red-200 rounded-lg px-4 py-3">
+    <span class="text-sm text-red-700">
+      <strong data-bulk-select-target="count">0</strong>개 선택됨
+    </span>
+    <button type="submit" form="bulk_delete_form"
+            data-action="click->bulk-select#confirmBulkDelete"
+            class="bg-red-500 text-white text-sm font-bold px-4 py-2 rounded hover:bg-red-600 transition-colors">
+      선택 삭제
+    </button>
+  </div>
+
+  <div class="bg-white rounded-card overflow-hidden">
+    <table class="w-full text-sm">
+      <thead class="bg-gray-50 border-b">
         <tr>
-          <td class="px-4 py-3"><%= post.title.truncate(40) %></td>
-          <td class="px-4 py-3"><%= post.category_name %></td>
-          <td class="px-4 py-3"><%= post.user.nickname %></td>
-          <td class="px-4 py-3">
-            <% if post.scheduled? %>
-              <span class="text-yellow-600 font-bold">예약됨</span>
-              <span class="text-xs text-tv-gray block">
-                <%= post.scheduled_at.in_time_zone("Seoul").strftime("%m/%d %H:%M") %>
-              </span>
-            <% elsif post.published? %>
-              <span class="text-green-600">published</span>
-            <% else %>
-              <span class="text-tv-gray">draft</span>
-            <% end %>
-          </td>
-          <td class="px-4 py-3 text-tv-gray"><%= post.created_at.strftime("%m/%d") %></td>
-          <td class="px-4 py-3 text-right">
-            <%= link_to "편집", edit_admin_post_path(post), class: "text-tv-orange hover:underline" %>
-            <%= button_to "삭제", admin_post_path(post), method: :delete,
-              data: { turbo_confirm: "삭제하시겠습니까?" }, class: "text-red-500 hover:underline ml-2" %>
-          </td>
+          <th class="px-4 py-3 w-10">
+            <input type="checkbox" data-bulk-select-target="selectAll" data-action="change->bulk-select#toggleAll"
+                   class="w-4 h-4 rounded border-gray-300 text-tv-orange focus:ring-tv-orange cursor-pointer">
+          </th>
+          <th class="text-left px-4 py-3 font-bold">제목</th>
+          <th class="text-left px-4 py-3 font-bold">카테고리</th>
+          <th class="text-left px-4 py-3 font-bold">작성자</th>
+          <th class="text-left px-4 py-3 font-bold">상태</th>
+          <th class="text-left px-4 py-3 font-bold">날짜</th>
+          <th class="text-right px-4 py-3 font-bold">액션</th>
         </tr>
-      <% end %>
-    </tbody>
-  </table>
+      </thead>
+      <tbody class="divide-y">
+        <% @posts.each do |post| %>
+          <tr>
+            <td class="px-4 py-3">
+              <input type="checkbox" name="post_ids[]" value="<%= post.id %>" form="bulk_delete_form"
+                     data-bulk-select-target="checkbox" data-action="change->bulk-select#toggle"
+                     class="w-4 h-4 rounded border-gray-300 text-tv-orange focus:ring-tv-orange cursor-pointer">
+            </td>
+            <td class="px-4 py-3"><%= post.title.truncate(40) %></td>
+            <td class="px-4 py-3"><%= post.category_name %></td>
+            <td class="px-4 py-3"><%= post.user.nickname %></td>
+            <td class="px-4 py-3">
+              <% if post.scheduled? %>
+                <span class="text-yellow-600 font-bold">예약됨</span>
+                <span class="text-xs text-tv-gray block">
+                  <%= post.scheduled_at.in_time_zone("Seoul").strftime("%m/%d %H:%M") %>
+                </span>
+              <% elsif post.published? %>
+                <span class="text-green-600">published</span>
+              <% else %>
+                <span class="text-tv-gray">draft</span>
+              <% end %>
+            </td>
+            <td class="px-4 py-3 text-tv-gray"><%= post.created_at.strftime("%m/%d") %></td>
+            <td class="px-4 py-3 text-right">
+              <%= link_to "편집", edit_admin_post_path(post), class: "text-tv-orange hover:underline" %>
+              <%= button_to "삭제", admin_post_path(post), method: :delete,
+                data: { turbo_confirm: "삭제하시겠습니까?" }, class: "text-red-500 hover:underline ml-2" %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <%# 체크박스가 form 속성으로 참조하는 폼 %>
+  <%= form_with url: bulk_destroy_admin_posts_path, method: :delete, id: "bulk_delete_form", class: "hidden" do %>
+  <% end %>
 </div>
 
 <div class="mt-6">

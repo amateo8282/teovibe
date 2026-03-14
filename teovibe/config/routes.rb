@@ -110,7 +110,11 @@ Rails.application.routes.draw do
       resources :section_cards, except: %i[index]
     end
     resources :skill_packs
-    resources :posts, only: %i[index show new create edit update destroy]
+    resources :posts, only: %i[index show new create edit update destroy] do
+      collection do
+        delete :bulk_destroy
+      end
+    end
     resource :ai_draft, only: [] do
       collection do
         post :outline

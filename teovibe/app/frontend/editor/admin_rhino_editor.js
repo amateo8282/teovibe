@@ -105,12 +105,129 @@ export class AdminRhinoEditor extends TipTapEditor {
     `
   }
 
-  // 기존 toolbar 유지 + 새 버튼 3개 추가 (제목 드롭다운, 구분선, 밑줄)
+  // STYL-01: 좌/중/우 정렬 버튼 3개
+  renderAlignButtons() {
+    const isLeft = Boolean(this.editor?.isActive({ textAlign: "left" }))
+    const isCenter = Boolean(this.editor?.isActive({ textAlign: "center" }))
+    const isRight = Boolean(this.editor?.isActive({ textAlign: "right" }))
+
+    return html`
+      <button
+        class="toolbar__button rhino-toolbar-button ${isLeft ? 'toolbar__button--active' : ''}"
+        type="button"
+        tabindex="-1"
+        data-role="toolbar-item"
+        aria-label="왼쪽 정렬"
+        title="왼쪽 정렬"
+        @click=${() => this.editor?.chain().focus().setTextAlign("left").run()}
+      >&#8676;</button>
+      <button
+        class="toolbar__button rhino-toolbar-button ${isCenter ? 'toolbar__button--active' : ''}"
+        type="button"
+        tabindex="-1"
+        data-role="toolbar-item"
+        aria-label="가운데 정렬"
+        title="가운데 정렬"
+        @click=${() => this.editor?.chain().focus().setTextAlign("center").run()}
+      >&#8677;</button>
+      <button
+        class="toolbar__button rhino-toolbar-button ${isRight ? 'toolbar__button--active' : ''}"
+        type="button"
+        tabindex="-1"
+        data-role="toolbar-item"
+        aria-label="오른쪽 정렬"
+        title="오른쪽 정렬"
+        @click=${() => this.editor?.chain().focus().setTextAlign("right").run()}
+      >&#8678;</button>
+    `
+  }
+
+  // STYL-02: 글자색 color picker (숨겨진 input type="color" + 색상 해제 버튼)
+  renderColorPicker() {
+    return html`
+      <label
+        class="toolbar__button rhino-toolbar-button"
+        title="글자색"
+        data-role="toolbar-item"
+      >
+        <span style="text-decoration: underline; text-decoration-color: currentColor">A</span>
+        <input
+          type="color"
+          style="width: 0; height: 0; opacity: 0; position: absolute;"
+          @input=${(e) => this.editor?.chain().focus().setColor(e.target.value).run()}
+        />
+      </label>
+      <button
+        class="toolbar__button rhino-toolbar-button"
+        type="button"
+        tabindex="-1"
+        data-role="toolbar-item"
+        aria-label="글자색 해제"
+        title="글자색 해제"
+        @click=${() => this.editor?.chain().focus().unsetColor().run()}
+      >A&#8416;</button>
+    `
+  }
+
+  // STYL-03: 배경 하이라이트 picker (숨겨진 input type="color" + 하이라이트 해제 버튼)
+  renderHighlightPicker() {
+    return html`
+      <label
+        class="toolbar__button rhino-toolbar-button"
+        title="배경 하이라이트"
+        data-role="toolbar-item"
+      >
+        <mark style="padding: 0 2px;">H</mark>
+        <input
+          type="color"
+          style="width: 0; height: 0; opacity: 0; position: absolute;"
+          @input=${(e) => this.editor?.chain().focus().setHighlight({ color: e.target.value }).run()}
+        />
+      </label>
+      <button
+        class="toolbar__button rhino-toolbar-button"
+        type="button"
+        tabindex="-1"
+        data-role="toolbar-item"
+        aria-label="하이라이트 해제"
+        title="하이라이트 해제"
+        @click=${() => this.editor?.chain().focus().unsetHighlight().run()}
+      >H&#8416;</button>
+    `
+  }
+
+  // STYL-04: 폰트 크기 드롭다운 (12~32px 6단계)
+  renderFontSizeDropdown() {
+    const sizes = ["12px", "14px", "16px", "18px", "24px", "32px"]
+    return html`
+      <select
+        class="toolbar__button rhino-toolbar-button"
+        aria-label="폰트 크기"
+        data-role="toolbar-item"
+        @change=${(e) => {
+          if (e.target.value === "") {
+            this.editor?.chain().focus().unsetFontSize().run()
+          } else {
+            this.editor?.chain().focus().setFontSize(e.target.value).run()
+          }
+        }}
+      >
+        <option value="">크기</option>
+        ${sizes.map(size => html`<option value=${size}>${size}</option>`)}
+      </select>
+    `
+  }
+
+  // 기존 toolbar 유지 + 스타일링 버튼 4종 추가
   renderToolbarEnd() {
     return html`
       ${this.renderHeadingDropdown()}
       ${this.renderHorizontalRuleButton()}
       ${this.renderUnderlineButton()}
+      ${this.renderAlignButtons()}
+      ${this.renderColorPicker()}
+      ${this.renderHighlightPicker()}
+      ${this.renderFontSizeDropdown()}
     `
   }
 }

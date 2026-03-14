@@ -65,7 +65,7 @@ completed: 2026-03-14
 - **Duration:** 12 min
 - **Started:** 2026-03-14T12:44:07Z
 - **Completed:** 2026-03-14T12:56:00Z
-- **Tasks:** 2/3 (Task 3: 브라우저 수동 검증 — checkpoint)
+- **Tasks:** 3/3 (Task 3: 브라우저 수동 검증 — checkpoint 승인 완료)
 - **Files modified:** 4
 
 ## Accomplishments
@@ -118,12 +118,13 @@ completed: 2026-03-14
 
 ## User Setup Required
 
-None - 브라우저 수동 검증(Task 3 checkpoint)만 남음. 서버 재시작 후 Admin 폼에서 STYL-01~04 동작 확인 필요.
+None - no external service configuration required.
 
 ## Next Phase Readiness
 
-- Task 3 (브라우저 수동 검증) checkpoint 완료 후 Phase 17 진입 가능
-- 검증 방법: `cd teovibe && bin/dev` 후 Admin 게시글 작성/수정 페이지에서 정렬/글자색/하이라이트/폰트크기 기능 확인
+- STYL-01~04 전체 완료 — 사용자 브라우저 검증 승인 완료
+- Phase 17 표 삽입 진행 가능 — ActionText allowed_tags에 table/tr/td/th 이미 허용됨 (Phase 14)
+- Phase 17 주의: 표 버블 메뉴가 기존 텍스트 선택 버블 메뉴와 충돌 가능 (shouldShow 가드 필수)
 
 ---
 *Phase: 16-텍스트-스타일링*

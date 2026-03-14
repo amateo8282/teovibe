@@ -2,7 +2,7 @@
 
 ## What This Is
 
-사업화 영역(바이브코딩, 부업 아이템 등)을 블로그형 커뮤니티로 운영하는 Rails 기반 플랫폼. vite_ruby + React 기반 인터랙티브 랜딩페이지, rhino-editor 리치 에디터, 토스페이먼츠 결제 기반, Admin CMS 대시보드를 갖추고 외부 홍보에 사용할 수 있는 수준의 완성도를 달성한 상태.
+사업화 영역(바이브코딩, 부업 아이템 등)을 블로그형 커뮤니티로 운영하는 Rails 기반 플랫폼. vite_ruby + React 기반 인터랙티브 랜딩페이지, rhino-editor 리치 에디터, 토스페이먼츠 결제 기반, Admin CMS 대시보드를 갖추고 SEO 최적화(JSON-LD, OG/Twitter Card, robots.txt, sitemap)와 Admin 2단 에디터 레이아웃까지 완성한 상태.
 
 ## Core Value
 
@@ -39,20 +39,16 @@
 - ✓ 게시판/스킬팩 카테고리 동적 CRUD + DnD 순서 변경 + 관리자 전용 토글 -- v1.1
 - ✓ 게시글 예약 발행 (KST 날짜/시간 지정, SolidQueue 자동 전환) -- v1.1
 - ✓ AI 초안 작성 (Anthropic API, 개요→본문 2단계, rhino-editor 삽입, SEO/AEO) -- v1.1
+- ✓ JSON-LD XSS 보안 패치 (safe_json_ld 래퍼) -- v1.2
+- ✓ 동적 robots.txt + sitemap 카테고리 동적화 (Googlebot/Yeti 크롤링 기반) -- v1.2
+- ✓ Google/Naver 검색엔진 소유권 인증 메타태그 -- v1.2
+- ✓ OG/Twitter Card/canonical 메타태그 + Admin/인증 noindex -- v1.2
+- ✓ Article/BreadcrumbList/WebSite/Organization JSON-LD 구조화 데이터 -- v1.2
+- ✓ Admin 게시글 에디터 2단 레이아웃 (sticky 메타 패널 + 모바일 fallback) -- v1.2
 
 ### Active
 
-**Current Milestone: v1.2 SEO + Admin UX**
-
-**Goal:** 네이버/구글 검색엔진 크롤링 최적화 및 Admin 게시글 에디터 UX 개선
-
-**Target features:**
-- robots.txt (Googlebot, Yeti/네이버봇 허용 규칙 + sitemap 경로)
-- 네이버 서치어드바이저 / Google Search Console 인증 메타태그
-- JSON-LD 구조화 데이터 (Article, BreadcrumbList 등)
-- Open Graph / Twitter Card 메타태그 보강
-- canonical URL + 불필요 페이지 noindex 처리
-- Admin 게시글 에디터 2단 레이아웃 (메타 정보 | 본문 에디터 분리)
+(다음 마일스톤에서 정의)
 
 ### Out of Scope
 
@@ -64,6 +60,8 @@
 - 사용자 마켓플레이스 -- 정산/분쟁/세금 등 완전히 다른 제품
 - 협업 편집 (Y.js) -- 1인 저자 플랫폼에 불필요한 복잡도
 - 알고리즘 피드 -- 현재 트래픽에서 과도한 엔지니어링
+- AMP 페이지 -- Google AMP 우대 종료, 유지보수 비용 대비 효과 없음
+- Schema.org FAQ/HowTo -- 현재 콘텐츠 유형과 불일치
 
 ## Context
 
@@ -73,10 +71,12 @@
 - chartkick + groupdate (Admin 차트)
 - @tosspayments/payment-widget-sdk 0.12.1 (v1 SDK)
 - anthropic gem v1.23.0 (AI 초안 작성)
+- meta-tags gem (OG/Twitter/canonical/noindex)
+- sitemap_generator gem (동적 sitemap)
 - Sortable.js 1.15.7 (카테고리 DnD)
 - Kamal + Docker 배포 구성 완료
-- 20,615 LOC (Ruby/ERB/JS/JSX/TS/TSX/CSS)
-- 1인 운영 프로젝트, 외부 홍보를 통해 사용자 유입 목표 단계
+- 1인 운영 프로젝트, SEO 최적화 완료 상태
+- v1.0~v1.2 총 3개 마일스톤 출시 (13 phases, 29 plans)
 
 ## Constraints
 
@@ -102,6 +102,12 @@
 | Post 예약: scheduled_at 컬럼 (enum 대신) | status enum에 scheduled 추가는 안티패턴, 별도 컬럼이 유연 | ✓ Good |
 | Anthropic API 동기 JSON 방식 | 스트리밍은 Future scope, 동기 방식이 구현 단순 | ✓ Good |
 | Stimulus Vite glob 자동 등록 | stimulus-vite-helpers의 import.meta.glob으로 수동 등록 불필요 | ✓ Good |
+| safe_json_ld 래퍼로 XSS 패치 | .to_json.html_safe 직접 사용 제거, Unicode 이스케이프 후 html_safe | ✓ Good |
+| 동적 robots.txt 컨트롤러 (정적 파일 대체) | 환경별 분기(프로덕션/비프로덕션) 필요, 정적 파일은 라우터 우선하여 컨트롤러 무시 | ✓ Good |
+| credentials.dig 방식 인증 메타태그 | set_meta_tags 대신 직접 출력 — yield :head 이전 배치로 모든 경로 일관 출력 | ✓ Good |
+| Admin 레이아웃 noindex 하드코딩 | display_meta_tags 미사용 레이아웃이므로 직접 meta 태그 삽입이 안전 | ✓ Good |
+| content_for :head로 JSON-LD 배치 | 레이아웃의 yield :head 위치에 자동 삽입, 뷰 독립적 | ✓ Good |
+| Admin 에디터 2단 flex 레이아웃 (sticky) | JS 없이 Tailwind만으로 구현, sticky 부모에 overflow 금지 주의 | ✓ Good |
 
 ### Future (deferred from v1.1)
 
@@ -113,5 +119,12 @@
 - 스킬팩 미리보기 콘텐츠 제공
 - Admin 콘텐츠 분석 고도화 (차트, 기간별 필터, 내보내기)
 
+### Future (deferred from v1.2)
+
+- og:image Active Storage 본문 이미지 자동 추출
+- 게시글별 noindex 토글 (Post 모델 컬럼)
+- sitemap ping 자동화 (Google/Naver 제출)
+- SEO 제목/설명 글자수 카운터 Stimulus 컨트롤러
+
 ---
-*Last updated: 2026-03-14 after v1.2 milestone started*
+*Last updated: 2026-03-14 after v1.2 milestone*

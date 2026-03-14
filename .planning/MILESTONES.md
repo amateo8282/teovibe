@@ -1,5 +1,27 @@
 # Milestones
 
+## v1.2 SEO + Admin UX (Shipped: 2026-03-14)
+
+**Phases completed:** 5 phases, 7 plans, 10 tasks
+**Timeline:** 2026-03-14 (single day)
+
+**Key accomplishments:**
+- JSON-LD XSS 보안 패치 — safe_json_ld 래퍼로 seo_helper.rb 전체 헬퍼 안전화 (SEC-01)
+- 동적 robots.txt 컨트롤러 + sitemap 카테고리 동적화 — Googlebot/Yeti 크롤링 기반 확보 (CRAWL-01~03)
+- Google Search Console / Naver 서치어드바이저 소유권 인증 메타태그 삽입 (SRCH-01~02)
+- OG/Twitter Card/canonical 메타태그 + Admin/인증 페이지 noindex 처리 (SOCL-01~03, INDX-01~03)
+- Article/BreadcrumbList/WebSite/Organization JSON-LD 구조화 데이터 렌더링 (STRD-01~03)
+- Admin 게시글 에디터 2단 레이아웃 — sticky 메타 패널 + 모바일 1단 fallback (ADMN-01~03)
+
+**Tech debt carried forward:**
+- Post slug constraint 불일치 (영문자 시작 slug 미매칭) — tech debt from v1.1
+- ANTHROPIC_API_KEY 프로덕션 환경변수 등록 필요 — tech debt from v1.1
+- SRCH-01/SRCH-02: credentials에 실제 인증 토큰 설정 후 외부 서비스 대시보드 확인 필요
+
+**Archive:** `.planning/milestones/v1.2-ROADMAP.md`, `.planning/milestones/v1.2-REQUIREMENTS.md`
+
+---
+
 ## v1.0 MVP (Shipped: 2026-02-22)
 
 **Phases completed:** 5 phases, 13 plans, 26 feat commits

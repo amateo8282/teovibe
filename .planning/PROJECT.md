@@ -48,7 +48,14 @@
 
 ### Active
 
-(다음 마일스톤에서 정의)
+#### v1.3 Admin 에디터 고도화
+- [ ] TipTap 서식 확장 (구분선, 인용구, 소스코드 블록, 취소선, 밑줄)
+- [ ] 텍스트 정렬 (좌/중/우)
+- [ ] 제목 레벨 드롭다운 (H1~H3)
+- [ ] 글자색 / 배경색 (하이라이트)
+- [ ] 표(Table) 삽입 및 편집
+- [ ] 블록 삽입 메뉴 (+ 버튼 또는 슬래시 커맨드)
+- [ ] 폰트 크기 조절
 
 ### Out of Scope
 
@@ -127,4 +134,14 @@
 - SEO 제목/설명 글자수 카운터 Stimulus 컨트롤러
 
 ---
-*Last updated: 2026-03-14 after v1.2 milestone*
+## Current Milestone: v1.3 Admin 에디터 고도화
+
+**Goal:** Admin 글쓰기 에디터를 네이버 블로그 수준으로 고도화 — TipTap extension 기반 서식/블록 확장
+
+**Target features:**
+- 서식 확장 (구분선, 인용구, 코드블록, 취소선, 밑줄, 정렬, 글자색/배경색)
+- 블록 타입 (표, 제목 드롭다운, 폰트 크기)
+- UX 개선 (블록 삽입 메뉴)
+
+---
+*Last updated: 2026-03-14 after v1.3 milestone start*

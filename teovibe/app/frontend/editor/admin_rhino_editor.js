@@ -1,6 +1,7 @@
 // Phase 15: Underline extension 추가 + renderToolbarEnd() 오버라이드
 // Phase 16: TextAlign, Color, TextStyle, Highlight, FontSize 추가
 // Phase 17: Table 4종 extension + 툴바 삽입 버튼 + Light DOM 컨텍스트 메뉴
+// Phase 18: 빈 단락 플로팅 메뉴 (+ 버튼) — 구분선/인용구/코드블록/표 빠른 삽입
 // 기존 Bold/Italic/Strike/Blockquote/CodeBlock 버튼은 기본 renderToolbar()에서 그대로 유지
 import { TipTapEditor } from "rhino-editor/exports/elements/tip-tap-editor.js"
 import Underline from "@tiptap/extension-underline"
@@ -36,6 +37,7 @@ export class AdminRhinoEditor extends TipTapEditor {
   }
 
   // Phase 17: editor 생성 후 컨텍스트 메뉴 초기화 (connectedCallback이 아닌 startEditor에서)
+  // Phase 18: 플로팅 메뉴 초기화 및 이벤트 리스너 등록
   async startEditor() {
     await super.startEditor()
     this._initTableContextMenu()
@@ -45,12 +47,28 @@ export class AdminRhinoEditor extends TipTapEditor {
     this.editor?.on("blur", () => {
       if (this._tableMenu) this._tableMenu.style.display = "none"
     })
+
+    // Phase 18: 플로팅 메뉴 초기화
+    this._initFloatingMenu()
+    // selectionUpdate: 커서 이동 시 플로팅 메뉴 표시/위치 갱신
+    this.editor?.on("selectionUpdate", () => this._updateFloatingMenu())
+    // update: 텍스트 입력 시 즉시 감지
+    this.editor?.on("update", () => this._updateFloatingMenu())
+    // blur: 에디터 포커스 해제 시 플로팅 메뉴 + 패널 숨김
+    this.editor?.on("blur", () => {
+      if (this._floatingMenu) this._floatingMenu.style.display = "none"
+      if (this._floatingPanel) this._floatingPanel.style.display = "none"
+    })
   }
 
   disconnectedCallback() {
     super.disconnectedCallback()
     this._tableMenu?.remove()
     this._tableMenu = null
+    // Phase 18: 플로팅 메뉴 정리
+    this._floatingMenu?.remove()
+    this._floatingMenu = null
+    this._floatingPanel = null
   }
 
   // Phase 17: Light DOM 컨텍스트 메뉴 초기화
@@ -150,6 +168,163 @@ export class AdminRhinoEditor extends TipTapEditor {
       case "add-col-after":   chain.addColumnAfter().run();  break
       case "delete-col":      chain.deleteColumn().run();    break
       case "delete-table":    chain.deleteTable().run();     break
+    }
+  }
+
+  // Phase 18: 빈 단락 감지 — TipTap FloatingMenu shouldShow 알고리즘 기반
+  // 8개 조건 모두 AND: 표 셀/리스트 내부(depth > 1)에서는 표시 안 함
+  _isEmptyParagraph() {
+    const { view, state } = this.editor
+    if (!view.hasFocus()) return false
+    if (!this.editor.isEditable) return false
+    const { selection } = state
+    if (!selection.empty) return false
+    const { $anchor } = selection
+    if ($anchor.depth !== 1) return false
+    if (!$anchor.parent.isTextblock) return false
+    if ($anchor.parent.type.spec.code) return false
+    if ($anchor.parent.childCount !== 0) return false
+    if ($anchor.parent.textContent !== "") return false
+    return true
+  }
+
+  // Phase 18: Light DOM 플로팅 메뉴 생성 (Phase 17 _initTableContextMenu 패턴 동일)
+  _initFloatingMenu() {
+    // 외부 div: 위치 컨테이너
+    const menu = document.createElement("div")
+    menu.style.cssText = [
+      "position:absolute",
+      "z-index:50",
+      "display:none",
+    ].join(";")
+
+    // + 버튼 (24x24px 원형)
+    const trigger = document.createElement("button")
+    trigger.type = "button"
+    trigger.textContent = "+"
+    trigger.style.cssText = [
+      "width:24px",
+      "height:24px",
+      "border-radius:50%",
+      "border:1px solid #d1d5db",
+      "background:white",
+      "cursor:pointer",
+      "font-size:16px",
+      "line-height:1",
+      "display:flex",
+      "align-items:center",
+      "justify-content:center",
+      "padding:0",
+      "color:#6b7280",
+    ].join(";")
+    trigger.onmouseenter = () => { trigger.style.background = "#f3f4f6" }
+    trigger.onmouseleave = () => { trigger.style.background = "white" }
+
+    // 서브 메뉴 패널 (기본 숨김, + 버튼 오른쪽에 표시)
+    const panel = document.createElement("div")
+    panel.style.cssText = [
+      "position:absolute",
+      "left:30px",
+      "top:0",
+      "display:none",
+      "background:white",
+      "border:1px solid #e5e7eb",
+      "border-radius:6px",
+      "box-shadow:0 2px 8px rgba(0,0,0,0.15)",
+      "padding:4px",
+      "min-width:130px",
+    ].join(";")
+
+    const buttonStyle = [
+      "display:block",
+      "width:100%",
+      "text-align:left",
+      "padding:4px 12px",
+      "border:none",
+      "background:none",
+      "cursor:pointer",
+      "font-size:13px",
+      "border-radius:4px",
+    ].join(";")
+
+    const items = [
+      { action: "horizontal-rule", label: "구분선" },
+      { action: "blockquote",      label: "인용구" },
+      { action: "code-block",      label: "코드블록" },
+      { action: "table",           label: "표" },
+    ]
+
+    items.forEach(({ action, label }) => {
+      const btn = document.createElement("button")
+      btn.type = "button"
+      btn.setAttribute("data-action", action)
+      btn.style.cssText = buttonStyle
+      btn.textContent = label
+      btn.onmouseenter = () => { btn.style.background = "#f3f4f6" }
+      btn.onmouseleave = () => { btn.style.background = "none" }
+      panel.appendChild(btn)
+    })
+
+    // + 버튼 클릭 시 패널 토글
+    trigger.addEventListener("click", (e) => {
+      e.stopPropagation()
+      panel.style.display = panel.style.display === "none" ? "block" : "none"
+    })
+
+    // 패널 클릭 시 블록 삽입
+    panel.addEventListener("click", (e) => this._handleFloatingMenuClick(e))
+
+    menu.appendChild(trigger)
+    menu.appendChild(panel)
+
+    const container = this.closest("form") || document.body
+    container.appendChild(menu)
+    this._floatingMenu = menu
+    this._floatingPanel = panel
+  }
+
+  // Phase 18: 플로팅 메뉴 표시/위치 업데이트
+  _updateFloatingMenu() {
+    if (!this._floatingMenu) return
+
+    // 빈 단락이 아니면 메뉴 + 패널 모두 숨김
+    if (!this._isEmptyParagraph()) {
+      this._floatingMenu.style.display = "none"
+      this._floatingPanel.style.display = "none"
+      return
+    }
+
+    // 커서 위치 기반 뷰포트 좌표 계산
+    const { from } = this.editor.state.selection
+    const coords = this.editor.view.coordsAtPos(from)
+    const editorRect = this.editor.view.dom.getBoundingClientRect()
+
+    // 버튼 크기 24px 기준, 커서 행 수직 중앙에 배치
+    const top = coords.top + window.scrollY - 12
+    // 에디터 왼쪽 여백 기준 배치 (left - 24 - 8)
+    const left = Math.max(0, editorRect.left + window.scrollX - 24 - 8)
+
+    this._floatingMenu.style.top = top + "px"
+    this._floatingMenu.style.left = left + "px"
+    this._floatingMenu.style.display = "block"
+  }
+
+  // Phase 18: 플로팅 메뉴 블록 삽입 커맨드 실행
+  _handleFloatingMenuClick(e) {
+    const action = e.target.closest("[data-action]")?.getAttribute("data-action")
+    if (!action) return
+    e.preventDefault()
+
+    // 클릭 즉시 메뉴 + 패널 숨김
+    this._floatingMenu.style.display = "none"
+    this._floatingPanel.style.display = "none"
+
+    const chain = this.editor.chain().focus()
+    switch (action) {
+      case "horizontal-rule": chain.setHorizontalRule().run();                                     break
+      case "blockquote":      chain.toggleBlockquote().run();                                      break
+      case "code-block":      chain.toggleCodeBlock().run();                                       break
+      case "table":           chain.insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run();  break
     }
   }
 

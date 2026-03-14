@@ -1,13 +1,26 @@
 // Phase 15: Underline extension 추가 + renderToolbarEnd() 오버라이드
+// Phase 16: TextAlign, Color, TextStyle, Highlight, FontSize 추가
 // 기존 Bold/Italic/Strike/Blockquote/CodeBlock 버튼은 기본 renderToolbar()에서 그대로 유지
 import { TipTapEditor } from "rhino-editor/exports/elements/tip-tap-editor.js"
 import Underline from "@tiptap/extension-underline"
+import TextAlign from "@tiptap/extension-text-align"
+import TextStyle from "@tiptap/extension-text-style"
+import Color from "@tiptap/extension-color"
+import Highlight from "@tiptap/extension-highlight"
+import { FontSize } from "../editor/font_size_extension.js"
 import { html } from "lit"
 
 export class AdminRhinoEditor extends TipTapEditor {
   connectedCallback() {
     super.connectedCallback()
+    // Phase 15: Underline
     this.addExtensions(Underline)
+    // Phase 16: TextAlign (types 필수 — 없으면 어떤 노드에도 적용 안 됨)
+    this.addExtensions(TextAlign.configure({ types: ["heading", "paragraph"] }))
+    // Phase 16: TextStyle → Color → FontSize 순서 의존 (TextStyle이 먼저여야 함)
+    this.addExtensions(TextStyle, Color, FontSize)
+    // Phase 16: multicolor: true 필수 (false는 노란색 고정)
+    this.addExtensions(Highlight.configure({ multicolor: true }))
   }
 
   // MARK-06: 제목 드롭다운 (H1/H2/H3 + 단락)

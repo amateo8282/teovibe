@@ -1,4 +1,5 @@
 <%= form_with(model: [:admin, post], class: "space-y-4") do |f| %>
+  <%# 에러 블록 — 전체 너비 유지 %>
   <% if post.errors.any? %>
     <div class="bg-red-50 border border-red-200 rounded-card p-4">
       <ul class="list-disc pl-5 text-sm text-red-600">
@@ -9,100 +10,138 @@
     </div>
   <% end %>
 
-  <%# AI 초안 작성 패널 %>
-  <div class="bg-gray-50 rounded-2xl border border-gray-200 p-5"
-       data-controller="ai-draft"
-       data-ai-draft-outline-url-value="<%= outline_admin_ai_draft_path %>"
-       data-ai-draft-body-url-value="<%= body_admin_ai_draft_path %>">
-    <h3 class="text-sm font-black text-tv-black mb-3">AI 초안 작성</h3>
+  <%# 2단 컨테이너: 모바일 1단(flex-col), 데스크탑 2단(md:flex-row) %>
+  <div class="flex flex-col md:flex-row gap-6 items-start">
 
-    <%# AIDR-01: 주제 입력 %>
-    <div class="flex gap-2 mb-3">
-      <input type="text"
-             placeholder="주제 또는 키워드를 입력하세요 (예: Rails 성능 최적화 팁)"
-             class="flex-1 px-3 py-2 text-sm rounded-xl border border-gray-300 focus:outline-none"
-             data-ai-draft-target="topic" />
-      <button type="button"
-              class="px-4 py-2 text-sm font-bold bg-tv-black text-white rounded-xl hover:bg-gray-800 disabled:opacity-50"
-              data-action="click->ai-draft#generateOutline">
-        개요 생성
-      </button>
+    <%# 좌측 에디터 컬럼 %>
+    <div class="flex-1 min-w-0 space-y-4">
+
+      <%# AI 초안 작성 패널 %>
+      <div class="bg-gray-50 rounded-2xl border border-gray-200 p-5"
+           data-controller="ai-draft"
+           data-ai-draft-outline-url-value="<%= outline_admin_ai_draft_path %>"
+           data-ai-draft-body-url-value="<%= body_admin_ai_draft_path %>">
+        <h3 class="text-sm font-black text-tv-black mb-3">AI 초안 작성</h3>
+
+        <%# AIDR-01: 주제 입력 %>
+        <div class="flex gap-2 mb-3">
+          <input type="text"
+                 placeholder="주제 또는 키워드를 입력하세요 (예: Rails 성능 최적화 팁)"
+                 class="flex-1 px-3 py-2 text-sm rounded-xl border border-gray-300 focus:outline-none"
+                 data-ai-draft-target="topic" />
+          <button type="button"
+                  class="px-4 py-2 text-sm font-bold bg-tv-black text-white rounded-xl hover:bg-gray-800 disabled:opacity-50"
+                  data-action="click->ai-draft#generateOutline">
+            개요 생성
+          </button>
+        </div>
+
+        <%# 로딩 인디케이터 %>
+        <div class="hidden text-sm text-tv-gray mb-2" data-ai-draft-target="loading">
+          생성 중... (10-30초 소요)
+        </div>
+
+        <%# 에러 메시지 %>
+        <div class="hidden text-sm text-red-600 mb-2" data-ai-draft-target="error"></div>
+
+        <%# AIDR-02: 개요 표시 + 수정 영역 %>
+        <div class="hidden" data-ai-draft-target="outlinePanel">
+          <label class="block text-xs font-bold text-tv-gray mb-1">생성된 개요 (수정 가능)</label>
+          <textarea rows="8"
+                    class="w-full px-3 py-2 text-sm rounded-xl border border-gray-300 focus:outline-none resize-y mb-2"
+                    data-ai-draft-target="outline"
+                    placeholder="개요가 여기에 표시됩니다"></textarea>
+          <button type="button"
+                  class="px-4 py-2 text-sm font-bold bg-tv-gold text-tv-black rounded-xl hover:bg-yellow-400 disabled:opacity-50"
+                  data-action="click->ai-draft#generateBody">
+            본문 생성 후 에디터에 삽입
+          </button>
+        </div>
+      </div>
+
+      <%# 본문 에디터 %>
+      <div>
+        <label class="block text-sm font-bold mb-1">본문</label>
+        <%# 기존 ActionText 데이터를 rhino-editor가 이해하는 HTML로 변환 (to_trix_html 필수) %>
+        <%= f.hidden_field :body,
+              id: f.field_id(:body),
+              value: f.object.body.try(:to_trix_html) || f.object.body %>
+        <rhino-editor
+          input="<%= f.field_id(:body) %>"
+          data-blob-url-template="<%= rails_service_blob_url(":signed_id", ":filename") %>"
+          data-direct-upload-url="<%= rails_direct_uploads_url %>"
+          class="w-full min-h-[400px] rounded-2xl border border-gray-300"
+        ></rhino-editor>
+      </div>
     </div>
 
-    <%# 로딩 인디케이터 %>
-    <div class="hidden text-sm text-tv-gray mb-2" data-ai-draft-target="loading">
-      생성 중... (10-30초 소요)
+    <%# 우측 메타 패널 — 스크롤 시 뷰포트에 고정(sticky), 내부 스크롤 방어 처리 %>
+    <div class="w-full md:w-80 md:sticky md:top-8 md:self-start">
+      <div class="bg-white rounded-card border border-gray-200 p-5 space-y-4 max-h-[calc(100vh-4rem)] overflow-y-auto">
+
+        <h2 class="text-sm font-black text-tv-gray uppercase tracking-wide">메타 정보</h2>
+
+        <%# 제목 %>
+        <div>
+          <label class="block text-sm font-bold mb-1">제목</label>
+          <%= f.text_field :title, class: "w-full px-4 py-3 rounded-2xl border border-gray-300 focus:outline-none" %>
+        </div>
+
+        <%# 카테고리 %>
+        <div>
+          <label class="block text-sm font-bold mb-1">카테고리</label>
+          <%= f.collection_select :category_id, Category.for_posts.ordered, :id, :name,
+            { selected: post.category_id },
+            class: "w-full px-4 py-3 rounded-2xl border border-gray-300 focus:outline-none" %>
+        </div>
+
+        <%# 상태 %>
+        <div>
+          <label class="block text-sm font-bold mb-1">상태</label>
+          <%= f.select :status, Post.statuses.keys, {}, class: "w-full px-4 py-3 rounded-2xl border border-gray-300 focus:outline-none" %>
+        </div>
+
+        <%# 예약 발행 %>
+        <div>
+          <label class="block text-sm font-bold mb-1">예약 발행 시각 (KST)</label>
+          <% scheduled_kst = post.scheduled_at&.in_time_zone("Seoul")&.strftime("%Y-%m-%dT%H:%M") %>
+          <%= f.text_field :scheduled_at,
+                type: "datetime-local",
+                value: scheduled_kst,
+                min: Time.current.in_time_zone("Seoul").strftime("%Y-%m-%dT%H:%M"),
+                class: "w-full px-4 py-3 rounded-2xl border border-gray-300 focus:outline-none" %>
+          <p class="text-xs text-tv-gray mt-1">비워두면 즉시 발행됩니다</p>
+        </div>
+
+        <%# 고정글 %>
+        <div class="flex items-center gap-2">
+          <%= f.check_box :pinned, class: "rounded" %>
+          <label class="text-sm font-bold">고정글</label>
+        </div>
+
+        <hr class="border-gray-100">
+
+        <%# SEO 섹션 %>
+        <h3 class="text-xs font-bold text-tv-gray">SEO</h3>
+
+        <div>
+          <label class="block text-sm font-bold mb-1">SEO 제목</label>
+          <%= f.text_field :seo_title, class: "w-full px-4 py-3 rounded-2xl border border-gray-300 focus:outline-none" %>
+        </div>
+
+        <div>
+          <label class="block text-sm font-bold mb-1">SEO 설명</label>
+          <%= f.text_area :seo_description, rows: 2, class: "w-full px-4 py-3 rounded-2xl border border-gray-300 focus:outline-none resize-none" %>
+        </div>
+
+        <%# 액션 버튼 %>
+        <div class="flex gap-3 pt-2">
+          <%= link_to "취소", admin_posts_path, class: "border border-gray-300 rounded-pill px-6 py-3 text-sm font-bold" %>
+          <%= f.submit post.persisted? ? "수정" : "작성", class: "bg-tv-gold text-tv-black rounded-pill px-6 py-3 text-sm font-bold cursor-pointer" %>
+        </div>
+
+      </div>
     </div>
 
-    <%# 에러 메시지 %>
-    <div class="hidden text-sm text-red-600 mb-2" data-ai-draft-target="error"></div>
-
-    <%# AIDR-02: 개요 표시 + 수정 영역 %>
-    <div class="hidden" data-ai-draft-target="outlinePanel">
-      <label class="block text-xs font-bold text-tv-gray mb-1">생성된 개요 (수정 가능)</label>
-      <textarea rows="8"
-                class="w-full px-3 py-2 text-sm rounded-xl border border-gray-300 focus:outline-none resize-y mb-2"
-                data-ai-draft-target="outline"
-                placeholder="개요가 여기에 표시됩니다"></textarea>
-      <button type="button"
-              class="px-4 py-2 text-sm font-bold bg-tv-gold text-tv-black rounded-xl hover:bg-yellow-400 disabled:opacity-50"
-              data-action="click->ai-draft#generateBody">
-        본문 생성 후 에디터에 삽입
-      </button>
-    </div>
-  </div>
-
-  <div>
-    <label class="block text-sm font-bold mb-1">제목</label>
-    <%= f.text_field :title, class: "w-full px-4 py-3 rounded-2xl border border-gray-300 focus:outline-none" %>
-  </div>
-  <div>
-    <label class="block text-sm font-bold mb-1">카테고리</label>
-    <%= f.collection_select :category_id, Category.for_posts.ordered, :id, :name,
-      { selected: post.category_id },
-      class: "w-full px-4 py-3 rounded-2xl border border-gray-300 focus:outline-none" %>
-  </div>
-  <div>
-    <label class="block text-sm font-bold mb-1">상태</label>
-    <%= f.select :status, Post.statuses.keys, {}, class: "w-full px-4 py-3 rounded-2xl border border-gray-300 focus:outline-none" %>
-  </div>
-  <div>
-    <label class="block text-sm font-bold mb-1">예약 발행 시각 (KST)</label>
-    <% scheduled_kst = post.scheduled_at&.in_time_zone("Seoul")&.strftime("%Y-%m-%dT%H:%M") %>
-    <%= f.text_field :scheduled_at,
-          type: "datetime-local",
-          value: scheduled_kst,
-          min: Time.current.in_time_zone("Seoul").strftime("%Y-%m-%dT%H:%M"),
-          class: "w-full px-4 py-3 rounded-2xl border border-gray-300 focus:outline-none" %>
-    <p class="text-xs text-tv-gray mt-1">비워두면 즉시 발행됩니다</p>
-  </div>
-  <div class="flex items-center gap-2">
-    <%= f.check_box :pinned, class: "rounded" %>
-    <label class="text-sm font-bold">고정글</label>
-  </div>
-  <div>
-    <label class="block text-sm font-bold mb-1">본문</label>
-    <%# 기존 ActionText 데이터를 rhino-editor가 이해하는 HTML로 변환 (to_trix_html 필수) %>
-    <%= f.hidden_field :body,
-          id: f.field_id(:body),
-          value: f.object.body.try(:to_trix_html) || f.object.body %>
-    <rhino-editor
-      input="<%= f.field_id(:body) %>"
-      data-blob-url-template="<%= rails_service_blob_url(":signed_id", ":filename") %>"
-      data-direct-upload-url="<%= rails_direct_uploads_url %>"
-      class="w-full min-h-[200px] rounded-2xl border border-gray-300"
-    ></rhino-editor>
-  </div>
-  <div>
-    <label class="block text-sm font-bold mb-1">SEO 제목</label>
-    <%= f.text_field :seo_title, class: "w-full px-4 py-3 rounded-2xl border border-gray-300 focus:outline-none" %>
-  </div>
-  <div>
-    <label class="block text-sm font-bold mb-1">SEO 설명</label>
-    <%= f.text_area :seo_description, rows: 2, class: "w-full px-4 py-3 rounded-2xl border border-gray-300 focus:outline-none resize-none" %>
-  </div>
-  <div class="flex gap-3">
-    <%= link_to "취소", admin_posts_path, class: "border border-gray-300 rounded-pill px-6 py-3 text-sm font-bold" %>
-    <%= f.submit post.persisted? ? "수정" : "작성", class: "bg-tv-gold text-tv-black rounded-pill px-6 py-3 text-sm font-bold cursor-pointer" %>
   </div>
 <% end %>

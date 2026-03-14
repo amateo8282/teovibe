@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: SEO + Admin UX
 status: planning
-stopped_at: Completed 12-01-PLAN.md
-last_updated: "2026-03-13T17:58:39.360Z"
+stopped_at: "Checkpoint: Task 2 human-verify — 13-01-PLAN.md"
+last_updated: "2026-03-14T05:38:50.946Z"
 last_activity: 2026-03-14 — Roadmap created
 progress:
   total_phases: 10
-  completed_phases: 4
-  total_plans: 6
-  completed_plans: 6
+  completed_phases: 5
+  total_plans: 7
+  completed_plans: 7
   percent: 0
 ---
 
@@ -54,6 +54,7 @@ Phase 13 [ ] Admin 에디터 UX
 | Phase 11-소셜-색인-메타태그 P02 | 2 | 1 tasks | 4 files |
 | Phase 11-소셜-색인-메타태그 P01 | 2 | 2 tasks | 4 files |
 | Phase 12-구조화-데이터 P01 | 15 | 2 tasks | 3 files |
+| Phase 13-admin-ux P01 | 8 | 1 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -78,6 +79,8 @@ Full decision log in PROJECT.md Key Decisions table.
 - [Phase 11-소셜-색인-메타태그]: ActionText 픽스처에 blog_post 본문 추가 — 빈 body로 인한 og:description 누락 방지
 - [Phase 12-구조화-데이터]: content_for :head 블록 내 script 태그 배치로 레이아웃의 yield :head 위치에 JSON-LD 자동 삽입
 - [Phase 12-구조화-데이터]: category_posts_url(절대 URL) 사용 — BreadcrumbList item 필드는 절대 URL 필요
+- [Phase 13-admin-ux]: new/edit 래퍼 카드(bg-white rounded-card shadow-sm p-6) 제거 — 2단 레이아웃에서 메타 패널 내부에 별도 카드 적용
+- [Phase 13-admin-ux]: sticky 부모(flex 컨테이너)에 overflow 속성 추가 금지 — overflow가 있으면 sticky 동작이 해당 컨테이너 범위로 제한됨
 
 ### Pending Todos
 
@@ -90,7 +93,7 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-13T17:56:05.032Z
-Stopped at: Completed 12-01-PLAN.md
+Last session: 2026-03-14T05:38:50.944Z
+Stopped at: Checkpoint: Task 2 human-verify — 13-01-PLAN.md
 Resume file: None
 Next action: `/gsd:plan-phase 9`

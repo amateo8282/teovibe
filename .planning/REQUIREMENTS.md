@@ -42,9 +42,9 @@ Requirements for v1.2 SEO + Admin UX. Each maps to roadmap phases.
 
 ### Admin 에디터 UX
 
-- [ ] **ADMN-01**: Admin 게시글 작성/수정 폼 2단 레이아웃 (메타 패널 | 본문 에디터)
-- [ ] **ADMN-02**: 메타 패널 sticky 고정 (스크롤 시 따라오기)
-- [ ] **ADMN-03**: 모바일에서 1단 fallback 레이아웃
+- [x] **ADMN-01**: Admin 게시글 작성/수정 폼 2단 레이아웃 (메타 패널 | 본문 에디터)
+- [x] **ADMN-02**: 메타 패널 sticky 고정 (스크롤 시 따라오기)
+- [x] **ADMN-03**: 모바일에서 1단 fallback 레이아웃
 
 ## Future Requirements
 
@@ -83,9 +83,9 @@ Requirements for v1.2 SEO + Admin UX. Each maps to roadmap phases.
 | STRD-01 | Phase 12 | Complete |
 | STRD-02 | Phase 12 | Complete |
 | STRD-03 | Phase 12 | Complete |
-| ADMN-01 | Phase 13 | Pending |
-| ADMN-02 | Phase 13 | Pending |
-| ADMN-03 | Phase 13 | Pending |
+| ADMN-01 | Phase 13 | Complete |
+| ADMN-02 | Phase 13 | Complete |
+| ADMN-03 | Phase 13 | Complete |
 
 **Coverage:**
 - v1.2 requirements: 18 total

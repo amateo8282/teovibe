@@ -15,12 +15,12 @@ Admin 에디터를 네이버 블로그 수준으로 고도화. rhino-editor(TipT
 
 ### 서식 확장
 
-- [ ] **MARK-01**: 취소선(Strike) 툴바 버튼 추가 (이미 등록된 extension 활용)
-- [ ] **MARK-02**: 밑줄(Underline) extension 설치 + 툴바 버튼
-- [ ] **MARK-03**: 인용구(Blockquote) 툴바 버튼 추가
-- [ ] **MARK-04**: 구분선(Horizontal Rule) 툴바 버튼 추가
-- [ ] **MARK-05**: 소스코드 블록(Code Block) 툴바 버튼 추가
-- [ ] **MARK-06**: 제목 레벨 드롭다운 (H1~H3 선택)
+- [x] **MARK-01**: 취소선(Strike) 툴바 버튼 추가 (이미 등록된 extension 활용)
+- [x] **MARK-02**: 밑줄(Underline) extension 설치 + 툴바 버튼
+- [x] **MARK-03**: 인용구(Blockquote) 툴바 버튼 추가
+- [x] **MARK-04**: 구분선(Horizontal Rule) 툴바 버튼 추가
+- [x] **MARK-05**: 소스코드 블록(Code Block) 툴바 버튼 추가
+- [x] **MARK-06**: 제목 레벨 드롭다운 (H1~H3 선택)
 
 ### 텍스트 스타일
 
@@ -62,12 +62,12 @@ Admin 에디터를 네이버 블로그 수준으로 고도화. rhino-editor(TipT
 | INFRA-01 | Phase 14 | Complete |
 | INFRA-02 | Phase 14 | Complete |
 | INFRA-03 | Phase 14 | Complete |
-| MARK-01 | Phase 15 | Pending |
-| MARK-02 | Phase 15 | Pending |
-| MARK-03 | Phase 15 | Pending |
-| MARK-04 | Phase 15 | Pending |
-| MARK-05 | Phase 15 | Pending |
-| MARK-06 | Phase 15 | Pending |
+| MARK-01 | Phase 15 | Complete |
+| MARK-02 | Phase 15 | Complete |
+| MARK-03 | Phase 15 | Complete |
+| MARK-04 | Phase 15 | Complete |
+| MARK-05 | Phase 15 | Complete |
+| MARK-06 | Phase 15 | Complete |
 | STYL-01 | Phase 16 | Pending |
 | STYL-02 | Phase 16 | Pending |
 | STYL-03 | Phase 16 | Pending |

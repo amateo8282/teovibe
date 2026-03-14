@@ -59,28 +59,28 @@ Admin 에디터를 네이버 블로그 수준으로 고도화. rhino-editor(TipT
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| INFRA-01 | - | Pending |
-| INFRA-02 | - | Pending |
-| INFRA-03 | - | Pending |
-| MARK-01 | - | Pending |
-| MARK-02 | - | Pending |
-| MARK-03 | - | Pending |
-| MARK-04 | - | Pending |
-| MARK-05 | - | Pending |
-| MARK-06 | - | Pending |
-| STYL-01 | - | Pending |
-| STYL-02 | - | Pending |
-| STYL-03 | - | Pending |
-| STYL-04 | - | Pending |
-| TABL-01 | - | Pending |
-| TABL-02 | - | Pending |
-| BLCK-01 | - | Pending |
+| INFRA-01 | Phase 14 | Pending |
+| INFRA-02 | Phase 14 | Pending |
+| INFRA-03 | Phase 14 | Pending |
+| MARK-01 | Phase 15 | Pending |
+| MARK-02 | Phase 15 | Pending |
+| MARK-03 | Phase 15 | Pending |
+| MARK-04 | Phase 15 | Pending |
+| MARK-05 | Phase 15 | Pending |
+| MARK-06 | Phase 15 | Pending |
+| STYL-01 | Phase 16 | Pending |
+| STYL-02 | Phase 16 | Pending |
+| STYL-03 | Phase 16 | Pending |
+| STYL-04 | Phase 16 | Pending |
+| TABL-01 | Phase 17 | Pending |
+| TABL-02 | Phase 17 | Pending |
+| BLCK-01 | Phase 18 | Pending |
 
 **Coverage:**
 - v1.3 requirements: 16 total
-- Mapped to phases: 0
-- Unmapped: 16
+- Mapped to phases: 16
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-14*
-*Last updated: 2026-03-14 after initial definition*
+*Last updated: 2026-03-14 after roadmap creation (all 16 requirements mapped)*

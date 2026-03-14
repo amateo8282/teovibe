@@ -154,7 +154,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 18-01-PLAN.md — [To be planned]
+- [ ] 18-01-PLAN.md — FloatingMenu 기반 + 버튼 + 4개 블록 삽입 + 브라우저 검증
 
 ## Progress
 

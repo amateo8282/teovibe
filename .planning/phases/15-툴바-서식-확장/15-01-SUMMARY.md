@@ -60,7 +60,7 @@ completed: "2026-03-14"
 - **Duration:** ~10 min
 - **Started:** 2026-03-14
 - **Completed:** 2026-03-14
-- **Tasks:** 1/2 (Task 2는 human-verify 체크포인트 대기 중)
+- **Tasks:** 2/2 (완료)
 - **Files modified:** 4
 
 ## Accomplishments
@@ -74,6 +74,7 @@ completed: "2026-03-14"
 ## Task Commits
 
 1. **Task 1: Underline extension 설치 + renderToolbarEnd 오버라이드 + ActionText 허용목록** - `afcc76e` (feat)
+2. **Task 2: 툴바 서식 버튼 전체 동작 확인** - checkpoint:human-verify (사용자 승인 완료)
 
 ## Files Created/Modified
 
@@ -114,8 +115,8 @@ completed: "2026-03-14"
 
 ## Next Phase Readiness
 
-- Task 2 (human-verify 체크포인트): 브라우저에서 Admin 에디터 툴바 버튼 전체 동작 확인 필요
-- 검증 통과 후: Phase 16 (텍스트 스타일링 — 정렬/색상/하이라이트/폰트 크기) 진행 가능
+- Phase 15 완료 — 사용자 브라우저 검증 통과 (MARK-01~06 전체 동작 확인)
+- Phase 16 (텍스트 스타일링 — 정렬/색상/하이라이트/폰트 크기) 진행 가능
 - MARK-01(Strike), MARK-03(Blockquote), MARK-05(CodeBlock)은 rhino-editor 기본 구현이 이미 toolbar에 포함 — 별도 코드 추가 없음
 
 ## Self-Check

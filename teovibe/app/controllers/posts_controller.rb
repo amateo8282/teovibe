@@ -11,12 +11,14 @@ class PostsController < ApplicationController
     @posts = @category.posts.published.pinned_first.includes(:user)
     @pagy, @posts = pagy(:offset, @posts, limit: 12)
 
-    # 카테고리 목록 페이지 OG 메타태그 설정
+    # 카테고리 목록 페이지 메타태그 설정
+    category_description = "TeoVibe #{@category.name} 게시판 - 바이브코딩 커뮤니티"
     set_meta_tags(
       title: @category.name,
+      description: category_description,
       og: {
         title: "#{@category.name} - TeoVibe",
-        description: "TeoVibe #{@category.name} 게시판",
+        description: category_description,
         url: request.original_url.split("?").first,
         image: "#{request.base_url}/icon.png",
         type: "website"
@@ -30,12 +32,14 @@ class PostsController < ApplicationController
     @post.increment!(:views_count) unless Current.user == @post.user
     @comments = @post.comments.includes(:user).where(parent_id: nil).order(created_at: :asc)
 
-    # 소셜 공유 및 검색 색인용 OG/Twitter/canonical 메타태그 설정
+    # 소셜 공유 및 검색 색인용 메타태그 설정
+    post_description = helpers.strip_tags(@post.body.to_s).squish.truncate(150)
     set_meta_tags(
       title: @post.title,
+      description: post_description,
       og: {
         title: @post.title,
-        description: helpers.strip_tags(@post.body.to_s).truncate(150),
+        description: post_description,
         url: post_url(@post),
         image: "#{request.base_url}/icon.png",
         type: "article"
@@ -43,7 +47,7 @@ class PostsController < ApplicationController
       twitter: {
         card: "summary",
         title: @post.title,
-        description: helpers.strip_tags(@post.body.to_s).truncate(150)
+        description: post_description
       },
       canonical: post_url(@post)
     )

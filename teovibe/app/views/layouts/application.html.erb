@@ -1,14 +1,13 @@
 <!DOCTYPE html>
 <html lang="ko">
   <head>
-    <title><%= content_for(:title) || "TeoVibe - 바이브코딩 커뮤니티" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="application-name" content="TeoVibe">
     <meta name="mobile-web-app-capable" content="yes">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
-    <%= display_meta_tags site: "TeoVibe" %>
+    <%= display_meta_tags site: "TeoVibe", separator: "|", reverse: true %>
 
     <%# 검색엔진 소유권 인증 메타태그 (yield :head 이전 — 모든 경로 일관 출력 보장) %>
     <% if (token = Rails.application.credentials.dig(:seo, :google_site_verification)).present? %>

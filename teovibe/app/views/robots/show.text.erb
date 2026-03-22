@@ -17,7 +17,7 @@ Disallow: /admin/
 Disallow: /auth/
 Disallow: /profile/edit
 
-Sitemap: https://teovibe.com/sitemap.xml
+Sitemap: <%= sitemap_url(host: request.host, protocol: request.protocol) %>
 <% else %>
 User-agent: *
 Disallow: /

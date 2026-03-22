@@ -142,6 +142,9 @@ Rails.application.routes.draw do
   # React 데모 (ViewComponent + React 마운트 패턴 검증)
   get "demo/react", to: "demo#react"
 
+  # 사이트맵 (동적 생성 — DB 기반)
+  get "sitemap.xml", to: "sitemaps#show", as: :sitemap, defaults: { format: :xml }
+
   # 동적 robots.txt (정적 파일보다 라우터 우선 처리하려면 public/robots.txt 삭제 필수)
   get "/robots.:format", to: "robots#show"
 

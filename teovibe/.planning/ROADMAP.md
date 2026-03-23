@@ -62,6 +62,7 @@ Plans:
 - [x] **Phase 6: 카테고리 동적 관리** - Category 모델 전환 + Admin CRUD/순서 변경 UI 완성 (completed 2026-02-28)
 - [x] **Phase 7: 게시글 예약 발행** - 날짜/시간 지정 발행 + Solid Queue 자동 전환 (completed 2026-03-04)
 - [x] **Phase 8: AI 초안 작성** - 주제 → 개요 → 본문 2단계 생성 + rhino-editor 자동 삽입 (completed 2026-03-06)
+- [ ] **Phase 9: SEO 자동 생성** - 게시글 본문 분석하여 seo_title/seo_description 자동 생성 + 메타태그 연동
 
 ## Phase Details
 
@@ -129,3 +130,17 @@ Phases execute in numeric order: 6 → 7 → 8
 | 6. 카테고리 동적 관리 | 4/4 | Complete   | 2026-02-28 | - |
 | 7. 게시글 예약 발행 | 3/3 | Complete   | 2026-03-04 | - |
 | 8. AI 초안 작성 | 2/2 | Complete   | 2026-03-06 | - |
+
+### Phase 9: SEO 자동 생성
+**Goal**: 게시글 작성/수정 시 본문을 분석하여 seo_title/seo_description을 자동 생성하고, 프론트엔드 메타태그에서 SEO 필드를 우선 사용하도록 연동한다. SEO 필드가 이미 존재하면 덮어쓰지 않는다.
+**Depends on**: Phase 8
+**Requirements**: SEO-01, SEO-02, SEO-03, SEO-04
+**Success Criteria** (what must be TRUE):
+  1. 게시글 작성 시 seo_title/seo_description이 비어있으면 본문 분석 후 자동 생성된다
+  2. 게시글 수정 시 seo_title/seo_description이 이미 있으면 재생성하지 않는다
+  3. 프론트엔드 메타태그(og:title, og:description, twitter, canonical)에서 seo_title/seo_description을 우선 사용한다
+  4. Admin이 수동으로 SEO 필드를 입력하면 자동 생성보다 우선 적용된다
+**Plans**: 1 plan
+
+Plans:
+- [ ] 09-01-PLAN.md — Post 모델 SEO 자동 생성 콜백 + 메타태그 연동 + 테스트

@@ -18,6 +18,7 @@ class Post < ApplicationRecord
   scope :scheduled, -> { where(status: :draft).where.not(scheduled_at: nil) }
 
   before_save :generate_slug, if: -> { slug.blank? && title.present? }
+  before_save :auto_generate_seo_fields, if: -> { title.present? }
 
   # draft 상태이면서 scheduled_at이 있을 때 true 반환
   def scheduled?
@@ -62,6 +63,14 @@ class Post < ApplicationRecord
 
   def award_points
     PointService.award(:post_created, user: user, pointable: self)
+  end
+
+  # seo_title/seo_description이 비어있을 때만 자동 생성 (수동 입력값 보존)
+  def auto_generate_seo_fields
+    self.seo_title = title.truncate(60) if seo_title.blank?
+    if seo_description.blank? && body.present?
+      self.seo_description = body.to_plain_text.squish.truncate(155)
+    end
   end
 
   def generate_slug

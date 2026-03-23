@@ -9,12 +9,13 @@ class OgMetaTagsTest < ActionDispatch::IntegrationTest
   # Task 1: 게시글 상세 페이지 OG / Twitter / canonical 태그
   # ============================================================
 
-  # Test 1: og:title이 게시글 제목과 일치
+  # Test 1: og:title이 seo_title 또는 게시글 제목과 일치
   test "게시글 상세 페이지에 og:title이 게시글 제목으로 출력된다" do
     post = posts(:blog_post)
     get post_path(post)
     assert_response :success
-    assert_select "meta[property='og:title'][content='#{post.title}']"
+    expected_title = post.seo_title.presence || post.title
+    assert_select "meta[property='og:title'][content='#{expected_title}']"
   end
 
   # Test 2: og:description이 본문 앞 150자 이내 (태그 제거)
@@ -65,6 +66,32 @@ class OgMetaTagsTest < ActionDispatch::IntegrationTest
   end
 
   # Test 7: 카테고리 목록 페이지에 og:title이 카테고리 이름 포함
+  # (순서 유지를 위해 기존 위치 보존)
+
+  # Test 8: seo_title이 있으면 og:title에 seo_title이 사용됨
+  test "게시글에 seo_title이 있으면 og:title에 seo_title이 출력된다" do
+    post = posts(:blog_post)
+    get post_path(post)
+    assert_response :success
+    assert_select "meta[property='og:title'][content='SEO 최적화된 블로그 제목']"
+  end
+
+  # Test 9: seo_description이 있으면 og:description에 seo_description이 사용됨
+  test "게시글에 seo_description이 있으면 og:description에 seo_description이 출력된다" do
+    post = posts(:blog_post)
+    get post_path(post)
+    assert_response :success
+    assert_select "meta[property='og:description'][content='SEO 최적화된 블로그 설명입니다']"
+  end
+
+  # Test 10: twitter:title에도 seo_title이 사용됨
+  test "게시글에 seo_title이 있으면 twitter:title에 seo_title이 출력된다" do
+    post = posts(:blog_post)
+    get post_path(post)
+    assert_response :success
+    assert_select "meta[name='twitter:title'][content='SEO 최적화된 블로그 제목']"
+  end
+
   test "카테고리 목록 페이지에 og:title이 카테고리 이름을 포함한다" do
     category = categories(:blog)
     get category_posts_path("blog")

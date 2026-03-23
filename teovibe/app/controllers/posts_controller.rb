@@ -32,22 +32,25 @@ class PostsController < ApplicationController
     @post.increment!(:views_count) unless Current.user == @post.user
     @comments = @post.comments.includes(:user).where(parent_id: nil).order(created_at: :asc)
 
-    # 소셜 공유 및 검색 색인용 메타태그 설정
-    post_description = helpers.strip_tags(@post.body.to_s).squish.truncate(150)
+    # seo_title/seo_description 우선 사용, 없으면 기존 방식 fallback
+    meta_title = @post.seo_title.presence || @post.title
+    meta_description = @post.seo_description.presence ||
+                       helpers.strip_tags(@post.body.to_s).squish.truncate(150)
+
     set_meta_tags(
-      title: @post.title,
-      description: post_description,
+      title: meta_title,
+      description: meta_description,
       og: {
-        title: @post.title,
-        description: post_description,
+        title: meta_title,
+        description: meta_description,
         url: post_url(@post),
         image: "#{request.base_url}/icon.png",
         type: "article"
       },
       twitter: {
         card: "summary",
-        title: @post.title,
-        description: post_description
+        title: meta_title,
+        description: meta_description
       },
       canonical: post_url(@post)
     )

@@ -3,6 +3,8 @@ blog_post:
   title: 테스트 블로그 게시글
   slug: 1-test-blog-post
   status: 1
+  seo_title: "SEO 최적화된 블로그 제목"
+  seo_description: "SEO 최적화된 블로그 설명입니다"
   category: blog
   user: one
 

@@ -4,7 +4,7 @@ module SeoHelper
     safe_json_ld({
       "@context" => "https://schema.org",
       "@type" => "Article",
-      "headline" => post.title,
+      "headline" => post.seo_title.presence || post.title,
       "datePublished" => post.created_at.iso8601,
       "dateModified" => post.updated_at.iso8601,
       "author" => {

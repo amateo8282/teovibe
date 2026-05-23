@@ -35,6 +35,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
+      # .kamal/secrets가 config/master.key 파일에서 RAILS_MASTER_KEY를 읽으므로
+      # 시크릿 값으로 그 파일을 생성. printf '%s'로 후행 개행 없이 정확히 32자.
+      # (.dockerignore가 config/master.key를 제외 → 이미지엔 안 박힘)
+      - name: Write Rails master key
+        run: printf '%s' "$RAILS_MASTER_KEY" > config/master.key
+
       - name: Set up Ruby (kamal gem)
         uses: ruby/setup-ruby@v1
         with:

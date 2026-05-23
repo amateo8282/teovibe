@@ -5,18 +5,21 @@
 credentials*.json
 
 # Rails
-teovibe/log/*
-teovibe/tmp/*
-teovibe/storage/*
-teovibe/db/*.sqlite3
-teovibe/db/*.sqlite3-*
-teovibe/public/assets
-teovibe/public/sitemap*
-teovibe/node_modules/
-teovibe/vendor/bundle
+/log/*
+/tmp/*
+/storage/*
+/db/*.sqlite3
+/db/*.sqlite3-*
+/public/assets
+/public/sitemap*
+/node_modules/
+/vendor/bundle
 
 # Playwright MCP
 .playwright-mcp/
 
 # Screenshots
 *.png
+
+# Vite 빌드 산출물 (Docker 빌드가 생성)
+/public/vite*/

@@ -8,7 +8,7 @@
   ]) %></script>
 <% end %>
 
-<article class="max-w-[800px] mx-auto px-5 py-10">
+<article class="max-w-[1200px] mx-auto px-5 py-10">
   <%= render "shared/breadcrumb", items: [
     { name: "홈", path: root_path },
     { name: @post.category_name, path: category_posts_path(category_slug: @post.category&.slug) },

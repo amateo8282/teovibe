@@ -13,11 +13,12 @@ Rails.application.config.after_initialize do
   ActionText::ContentHelper.allowed_attributes += ["style", "colspan", "rowspan", "scope"]
 
   # 링크 미리보기 카드 (figure > a > img + div 구조)
-  ActionText::ContentHelper.allowed_tags += %w[div iframe]
+  ActionText::ContentHelper.allowed_tags += %w[div iframe video source]
   ActionText::ContentHelper.allowed_attributes += %w[
     data-link-preview data-href data-title data-description data-image-url data-site-name
     data-youtube-video
     src allowfullscreen frameborder width height loading
     target rel
+    controls playsinline autoplay muted loop preload poster type
   ]
 end

@@ -1,7 +1,7 @@
 # TeoVibe Kamal 배포 설정
 service: teovibe
 
-image: teojay/teovibe
+image: amateo8282/teovibe
 
 # Hetzner VPS
 servers:
@@ -18,9 +18,11 @@ proxy:
   host: jaeho.im
   response_timeout: 120
 
-# Docker Hub
+# GitHub Container Registry (ghcr.io)
+# CI(GitHub Actions)에서 GITHUB_TOKEN을 KAMAL_REGISTRY_PASSWORD로 주입.
 registry:
-  username: teojay
+  server: ghcr.io
+  username: amateo8282
   password:
     - KAMAL_REGISTRY_PASSWORD
 
@@ -52,10 +54,12 @@ volumes:
 # 에셋 브릿지
 asset_path: /rails/public/vite
 
-# 빌드 설정 — 로컬 Docker 없이 서버에서 원격 빌드
+# 빌드 설정 — GitHub Actions(amd64 러너)에서 네이티브 빌드 → ghcr.io push.
+# 서버는 pull+실행만 → 빌드 때 2GB RAM/CPU 안 잡아먹음.
+# remote 빌드 안 함(서버에서 빌드 금지). 로컬 맥에서 수동 deploy 시엔
+# arch:amd64라 QEMU 에뮬레이션으로 빌드된다(느리지만 서버 부담 0).
 builder:
   arch: amd64
-  remote: ssh://root@5.78.179.202
 
 # SSH 설정
 ssh:

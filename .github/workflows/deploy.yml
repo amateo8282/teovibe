@@ -1,8 +1,9 @@
 name: Deploy
 
-# main에 push되면 GitHub Actions(amd64 러너)가 이미지를 빌드해
-# ghcr.io에 push하고, SSH로 VPS에 들어가 Kamal로 배포한다.
-# 서버는 pull+실행만 → 2GB RAM 보호.
+# 레포 루트는 teo-vibe/, Rails 앱은 teovibe/ 하위. 워크플로는 루트에 있어야
+# Actions가 인식하므로, 실행 스텝은 working-directory로 teovibe/에서 돈다.
+# main push 시 Actions(amd64 러너)가 빌드→ghcr.io push→SSH로 Kamal 배포.
+# VPS는 pull+실행만 → 2GB RAM 보호.
 on:
   push:
     branches: [ main ]
@@ -19,10 +20,11 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: teovibe
     env:
-      # ghcr.io 인증: 빌트인 GITHUB_TOKEN (별도 PAT 불필요)
       KAMAL_REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
-      # Kamal env/secret로 주입되는 값들 (repo secrets에서)
       RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
       GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
       GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
@@ -37,6 +39,7 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
+          working-directory: teovibe
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3

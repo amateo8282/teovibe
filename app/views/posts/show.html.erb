@@ -27,8 +27,22 @@
     </div>
   </header>
 
+  <% body_html, toc = post_body_with_toc(@post.body) %>
+  <% if toc.size >= 2 %>
+    <nav class="mb-8 rounded-2xl border border-tv-cream bg-tv-cream/30 px-5 py-4" aria-label="목차">
+      <p class="text-sm font-black text-tv-gray mb-3">목차</p>
+      <ul class="space-y-1.5 text-sm">
+        <% toc.each do |e| %>
+          <li class="<%= "ml-4" if e[:level] == 3 %>">
+            <%= link_to e[:text], "##{e[:id]}", class: "text-tv-gray hover:text-tv-orange transition-colors" %>
+          </li>
+        <% end %>
+      </ul>
+    </nav>
+  <% end %>
+
   <div class="prose prose-lg max-w-none mb-10">
-    <%= @post.body %>
+    <%= body_html %>
   </div>
 
   <%# 좋아요 + 액션 %>

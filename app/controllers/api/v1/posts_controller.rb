@@ -16,7 +16,7 @@ module Api
           seo_title: params.dig(:post, :seo_title),
           seo_description: params.dig(:post, :seo_description)
         )
-        @post.body = params.dig(:post, :body)
+        @post.body = MarkdownRenderer.render(params.dig(:post, :body))
 
         if @post.save
           render json: {

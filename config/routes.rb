@@ -137,6 +137,7 @@ Rails.application.routes.draw do
     namespace :v1 do
       resources :landing_sections, only: [:index]
       resources :posts, only: [:create]
+      resources :images, only: [:create]
     end
   end
 

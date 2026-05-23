@@ -13,7 +13,7 @@ gem "stimulus-rails"
 # Vite.js Ruby/Rails 통합 (importmap-rails, tailwindcss-rails, propshaft 대체)
 gem "vite_rails"
 # 재사용 가능한 서버사이드 UI 컴포넌트
-gem "view_component", "~> 4.4"
+gem "view_component", "~> 4.11"
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 gem "jbuilder"
 

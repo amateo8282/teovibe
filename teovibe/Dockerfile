@@ -38,7 +38,7 @@ RUN apt-get update -qq && \
     apt-get update -qq && \
     apt-get install --no-install-recommends -y nodejs && \
     corepack enable && \
-    corepack prepare pnpm@latest --activate && \
+    corepack prepare pnpm@10.30.1 --activate && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 # Install application gems

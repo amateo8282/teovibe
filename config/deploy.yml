@@ -61,6 +61,9 @@ asset_path: /rails/public/vite
 builder:
   arch: amd64
 
+# 최근 3개 배포만 보관, 나머지 컨테이너/이미지 자동 삭제
+retain_containers: 3
+
 # SSH 설정 — config: true면 net-ssh가 ~/.ssh/config를 읽는다.
 # CI에선 그 파일에 StrictHostKeyChecking no를 넣어 호스트키 불일치를 우회
 # (ephemeral 러너 → 고정 VPS 연결이라 허용 가능). 로컬엔 영향 없음.

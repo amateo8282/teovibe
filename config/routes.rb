@@ -67,6 +67,11 @@ Rails.application.routes.draw do
   end
   post "webhooks/polar", to: "polar_webhooks#create"
 
+  # 포트원(PortOne) V2 결제 — 한국 고객용(Polar와 병행, ready-to-flip: .env 채우면 활성)
+  post "courses/:slug/checkout", to: "portone_payments#create", as: :course_checkout
+  post "payments/:payment_id/complete", to: "portone_payments#complete", as: :complete_payment
+  post "webhooks/portone", to: "portone_payments#webhook"
+
   # 문의
   resources :inquiries, only: [:new, :create]
 

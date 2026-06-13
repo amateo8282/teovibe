@@ -6,6 +6,45 @@
     <p class="desc"><%= @course.description %></p>
     <div class="price">₩<%= number_with_delimiter(@course.price) %></div>
 
+    <%# 포트원(PortOne) 결제 — 한국 카드·간편결제(해외결제/플러그인 이슈 없음). .env 채워지면 활성. %>
+    <% if current_user && PortoneService.configured? %>
+      <button id="portone-pay" class="btn btn--gold"
+              data-checkout-url="<%= course_checkout_path(@course.slug) %>">
+        ₩<%= number_with_delimiter(@course.price) %> 결제하기 (카드·간편결제) →
+      </button>
+      <p class="muted" id="portone-msg" style="margin-top:12px"></p>
+      <script src="https://cdn.portone.io/v2/browser-sdk.js"></script>
+      <script>
+      (function () {
+        var btn = document.getElementById('portone-pay');
+        var msg = document.getElementById('portone-msg');
+        var csrf = document.querySelector('meta[name="csrf-token"]').content;
+        function post(url) {
+          return fetch(url, { method: 'POST', headers: { 'X-CSRF-Token': csrf, 'Accept': 'application/json' } }).then(function (r) { return r.json(); });
+        }
+        btn.addEventListener('click', async function () {
+          btn.disabled = true; msg.textContent = '결제창을 여는 중…';
+          try {
+            var cfg = await post(btn.dataset.checkoutUrl);
+            if (cfg.already) { location.href = cfg.redirect; return; }
+            if (!cfg.payment_id) { msg.textContent = cfg.error || '결제를 시작할 수 없습니다.'; btn.disabled = false; return; }
+            var res = await PortOne.requestPayment({
+              storeId: cfg.store_id, channelKey: cfg.channel_key,
+              paymentId: cfg.payment_id, orderName: cfg.order_name,
+              totalAmount: cfg.amount, currency: cfg.currency, payMethod: 'CARD'
+            });
+            if (res && res.code != null) { msg.textContent = '결제 취소/실패: ' + (res.message || res.code); btn.disabled = false; return; }
+            msg.textContent = '결제 확인 중…';
+            var out = await post('/payments/' + encodeURIComponent(cfg.payment_id) + '/complete');
+            if (out.ok) { location.href = out.redirect; } else { msg.textContent = out.error || '검증 실패'; btn.disabled = false; }
+          } catch (e) { msg.textContent = '오류: ' + (e && e.message ? e.message : e); btn.disabled = false; }
+        });
+      })();
+      </script>
+      <div class="divider"></div>
+      <p class="muted" style="margin-bottom:8px">해외 카드로 결제하시나요?</p>
+    <% end %>
+
     <% if @course.checkout_url.present? %>
       <% buy_url = current_user ? "#{@course.checkout_url}?customer_email=#{CGI.escape(current_user.email_address)}" : @course.checkout_url %>
       <a class="btn btn--gold" href="<%= buy_url %>" target="_blank" rel="noopener">

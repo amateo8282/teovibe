@@ -14,6 +14,7 @@ class User < ApplicationRecord
   has_many :connected_services, dependent: :destroy
   has_many :entitlements, dependent: :destroy
   has_many :courses, through: :entitlements
+  has_many :payments, dependent: :destroy
 
   normalizes :email_address, with: ->(e) { e.strip.downcase }
 

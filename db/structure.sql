@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS "schema_migrations" ("version" varchar NOT NULL PRIMARY KEY);
 CREATE TABLE IF NOT EXISTS "ar_internal_metadata" ("key" varchar NOT NULL PRIMARY KEY, "value" varchar, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL);
-CREATE TABLE IF NOT EXISTS "users" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "email_address" varchar NOT NULL, "password_digest" varchar NOT NULL, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL, "nickname" varchar DEFAULT '' NOT NULL /*application='Teovibe'*/, "avatar_url" varchar /*application='Teovibe'*/, "bio" text /*application='Teovibe'*/, "role" integer DEFAULT 0 NOT NULL /*application='Teovibe'*/, "points" integer DEFAULT 0 NOT NULL /*application='Teovibe'*/, "level" integer DEFAULT 1 NOT NULL /*application='Teovibe'*/, "posts_count" integer DEFAULT 0 NOT NULL /*application='Teovibe'*/, "comments_count" integer DEFAULT 0 NOT NULL /*application='Teovibe'*/, "github_url" varchar /*application='Teovibe'*/, "twitter_url" varchar /*application='Teovibe'*/, "website_url" varchar /*application='Teovibe'*/, "payment_customer_key" varchar /*application='Teovibe'*/);
+CREATE TABLE IF NOT EXISTS "users" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "email_address" varchar NOT NULL, "password_digest" varchar NOT NULL, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL, "nickname" varchar DEFAULT '' NOT NULL /*application='Teovibe'*/, "avatar_url" varchar /*application='Teovibe'*/, "bio" text /*application='Teovibe'*/, "role" integer DEFAULT 0 NOT NULL /*application='Teovibe'*/, "points" integer DEFAULT 0 NOT NULL /*application='Teovibe'*/, "level" integer DEFAULT 1 NOT NULL /*application='Teovibe'*/, "posts_count" integer DEFAULT 0 NOT NULL /*application='Teovibe'*/, "comments_count" integer DEFAULT 0 NOT NULL /*application='Teovibe'*/, "github_url" varchar /*application='Teovibe'*/, "twitter_url" varchar /*application='Teovibe'*/, "website_url" varchar /*application='Teovibe'*/, "payment_customer_key" varchar /*application='Teovibe'*/, "api_token" varchar);
 CREATE UNIQUE INDEX "index_users_on_email_address" ON "users" ("email_address") /*application='Teovibe'*/;
 CREATE TABLE IF NOT EXISTS "sessions" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "user_id" integer NOT NULL, "ip_address" varchar, "user_agent" varchar, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL, CONSTRAINT "fk_rails_758836b4f0"
 FOREIGN KEY ("user_id")
@@ -90,7 +90,7 @@ CREATE VIRTUAL TABLE posts_fts USING fts5(
 /* posts_fts(title,body,slug) */;
 -- FTS5 shadow 테이블(posts_fts_data/idx/docsize/config)은 위 CREATE VIRTUAL TABLE이 자동 생성한다.
 -- structure.sql에 명시하면 재로드(db:test:prepare) 시 "object name reserved for internal use" 에러 → 의도적 제외.
--- ⚠️ development에서 db:migrate 하면 재덤프로 되살아남(prod migrate는 덤프 안 함). 되살아나면 이 4줄 다시 제거.
+-- ⚠️ development에서 db:migrate/db:schema:dump 하면 재덤프로 되살아남. 되살아나면 이 4줄 다시 제거.
 CREATE TABLE IF NOT EXISTS "orders" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "user_id" integer NOT NULL, "skill_pack_id" integer NOT NULL, "status" integer DEFAULT 0 NOT NULL, "toss_order_id" varchar NOT NULL, "payment_event_id" varchar, "amount" integer NOT NULL, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL, CONSTRAINT "fk_rails_f868b47f6a"
 FOREIGN KEY ("user_id")
   REFERENCES "users" ("id")
@@ -104,20 +104,50 @@ CREATE UNIQUE INDEX "index_orders_on_toss_order_id" ON "orders" ("toss_order_id"
 CREATE UNIQUE INDEX "index_orders_on_payment_event_id" ON "orders" ("payment_event_id") WHERE payment_event_id IS NOT NULL /*application='Teovibe'*/;
 CREATE INDEX "index_orders_on_status" ON "orders" ("status") /*application='Teovibe'*/;
 CREATE TABLE IF NOT EXISTS "categories" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "name" varchar NOT NULL, "slug" varchar NOT NULL, "description" text, "record_type" integer DEFAULT 0 NOT NULL, "position" integer DEFAULT 0 NOT NULL, "admin_only" boolean DEFAULT FALSE NOT NULL, "visible_in_nav" boolean DEFAULT TRUE NOT NULL, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL);
-CREATE UNIQUE INDEX "index_categories_on_slug_and_record_type" ON "categories" ("slug", "record_type") /*application='Teovibe'*/;
-CREATE TABLE IF NOT EXISTS "posts" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "user_id" integer NOT NULL, "title" varchar NOT NULL, "slug" varchar, "status" integer DEFAULT 0 NOT NULL, "body" text, "pinned" boolean DEFAULT FALSE NOT NULL, "seo_title" varchar, "seo_description" text, "views_count" integer DEFAULT 0 NOT NULL, "likes_count" integer DEFAULT 0 NOT NULL, "comments_count" integer DEFAULT 0 NOT NULL, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL, "category_id" integer, "scheduled_at" datetime(6) /*application='Teovibe'*/, "job_id" varchar /*application='Teovibe'*/, CONSTRAINT "fk_rails_5b5ddfd518"
+CREATE UNIQUE INDEX "index_categories_on_slug_and_record_type" ON "categories" ("slug", "record_type");
+CREATE TABLE IF NOT EXISTS "posts" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "user_id" integer NOT NULL, "title" varchar NOT NULL, "slug" varchar, "status" integer DEFAULT 0 NOT NULL, "body" text, "pinned" boolean DEFAULT FALSE NOT NULL, "seo_title" varchar, "seo_description" text, "views_count" integer DEFAULT 0 NOT NULL, "likes_count" integer DEFAULT 0 NOT NULL, "comments_count" integer DEFAULT 0 NOT NULL, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL, "category_id" integer, "scheduled_at" datetime(6), "job_id" varchar, CONSTRAINT "fk_rails_5b5ddfd518"
 FOREIGN KEY ("user_id")
   REFERENCES "users" ("id")
 );
-CREATE INDEX "index_posts_on_user_id" ON "posts" ("user_id") /*application='Teovibe'*/;
-CREATE UNIQUE INDEX "index_posts_on_slug" ON "posts" ("slug") /*application='Teovibe'*/;
-CREATE INDEX "index_posts_on_status" ON "posts" ("status") /*application='Teovibe'*/;
+CREATE INDEX "index_posts_on_user_id" ON "posts" ("user_id");
+CREATE UNIQUE INDEX "index_posts_on_slug" ON "posts" ("slug");
+CREATE INDEX "index_posts_on_status" ON "posts" ("status");
 CREATE TABLE IF NOT EXISTS "skill_packs" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "title" varchar NOT NULL, "description" text, "download_token" varchar NOT NULL, "downloads_count" integer DEFAULT 0 NOT NULL, "status" integer DEFAULT 0 NOT NULL, "slug" varchar, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL, "price" integer DEFAULT 0 NOT NULL, "category_id" integer);
-CREATE UNIQUE INDEX "index_skill_packs_on_download_token" ON "skill_packs" ("download_token") /*application='Teovibe'*/;
-CREATE UNIQUE INDEX "index_skill_packs_on_slug" ON "skill_packs" ("slug") /*application='Teovibe'*/;
-CREATE INDEX "index_skill_packs_on_status" ON "skill_packs" ("status") /*application='Teovibe'*/;
-CREATE INDEX "index_posts_on_scheduled_at" ON "posts" ("scheduled_at") /*application='Teovibe'*/;
+CREATE UNIQUE INDEX "index_skill_packs_on_download_token" ON "skill_packs" ("download_token");
+CREATE UNIQUE INDEX "index_skill_packs_on_slug" ON "skill_packs" ("slug");
+CREATE INDEX "index_skill_packs_on_status" ON "skill_packs" ("status");
+CREATE INDEX "index_posts_on_scheduled_at" ON "posts" ("scheduled_at");
+CREATE UNIQUE INDEX "index_users_on_api_token" ON "users" ("api_token");
+CREATE TABLE IF NOT EXISTS "courses" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "title" varchar NOT NULL, "slug" varchar NOT NULL, "description" text, "emoji" varchar, "deck_file" varchar NOT NULL, "paid" boolean DEFAULT FALSE NOT NULL, "price" integer DEFAULT 0 NOT NULL, "polar_product_id" varchar, "polar_benefit_id" varchar, "checkout_url" varchar, "slides_count" integer, "duration" varchar, "tag" varchar, "level" varchar, "thumb_style" varchar DEFAULT 'thumb--dark', "position" integer DEFAULT 0 NOT NULL, "status" integer DEFAULT 1 NOT NULL, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL);
+CREATE UNIQUE INDEX "index_courses_on_slug" ON "courses" ("slug");
+CREATE INDEX "index_courses_on_polar_benefit_id" ON "courses" ("polar_benefit_id");
+CREATE INDEX "index_courses_on_position" ON "courses" ("position");
+CREATE TABLE IF NOT EXISTS "entitlements" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "user_id" integer NOT NULL, "course_id" integer NOT NULL, "source" integer DEFAULT 0 NOT NULL, "status" integer DEFAULT 0 NOT NULL, "polar_order_id" varchar, "license_key" varchar, "revoked_at" datetime(6), "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL, CONSTRAINT "fk_rails_108cd9b82e"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+, CONSTRAINT "fk_rails_a81b0f0302"
+FOREIGN KEY ("course_id")
+  REFERENCES "courses" ("id")
+);
+CREATE INDEX "index_entitlements_on_user_id" ON "entitlements" ("user_id");
+CREATE INDEX "index_entitlements_on_course_id" ON "entitlements" ("course_id");
+CREATE UNIQUE INDEX "index_entitlements_on_user_id_and_course_id" ON "entitlements" ("user_id", "course_id");
+CREATE INDEX "index_entitlements_on_polar_order_id" ON "entitlements" ("polar_order_id");
+CREATE TABLE IF NOT EXISTS "payments" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "user_id" integer NOT NULL, "course_id" integer NOT NULL, "payment_id" varchar NOT NULL, "provider" varchar DEFAULT 'portone' NOT NULL, "amount" integer NOT NULL, "status" integer DEFAULT 0 NOT NULL, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL, CONSTRAINT "fk_rails_081dc04a02"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+, CONSTRAINT "fk_rails_69cb6780b8"
+FOREIGN KEY ("course_id")
+  REFERENCES "courses" ("id")
+);
+CREATE INDEX "index_payments_on_user_id" ON "payments" ("user_id");
+CREATE INDEX "index_payments_on_course_id" ON "payments" ("course_id");
+CREATE UNIQUE INDEX "index_payments_on_payment_id" ON "payments" ("payment_id");
 INSERT INTO "schema_migrations" (version) VALUES
+('20260613000003'),
+('20260613000002'),
+('20260613000001'),
+('20260524000001'),
 ('20260302132108'),
 ('20260228124813'),
 ('20260222102056'),

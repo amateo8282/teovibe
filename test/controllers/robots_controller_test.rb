@@ -56,6 +56,6 @@ class RobotsControllerTest < ActionDispatch::IntegrationTest
     template_path = Rails.root.join("app", "views", "robots", "show.text.erb")
     template_content = File.read(template_path)
 
-    assert_match "Sitemap: https://teovibe.com/sitemap.xml", template_content
+    assert_match "Sitemap: <%= sitemap_url(host: request.host, protocol: request.protocol) %>", template_content
   end
 end

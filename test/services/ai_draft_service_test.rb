@@ -36,7 +36,7 @@ class AiDraftServiceTest < ActiveSupport::TestCase
       result = service.generate_outline(topic: topic)
 
       assert_equal expected_text, result
-      assert_equal "claude-opus-4-5-20250929", called_with[:model]
+      assert_equal "claude-haiku-4-5-20251001", called_with[:model]
       assert_equal 512, called_with[:max_tokens]
       assert_equal AiDraftService::SYSTEM_PROMPT, called_with[:system]
       assert_includes called_with.dig(:messages, 0, :content), topic
@@ -69,7 +69,7 @@ class AiDraftServiceTest < ActiveSupport::TestCase
       result = service.generate_body(outline: outline)
 
       assert_equal expected_html, result
-      assert_equal "claude-opus-4-5-20250929", called_with[:model]
+      assert_equal "claude-haiku-4-5-20251001", called_with[:model]
       assert_equal 4096, called_with[:max_tokens]
       assert_equal AiDraftService::SYSTEM_PROMPT, called_with[:system]
       # HTML 형식 프롬프트 키워드 포함 확인

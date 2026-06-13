@@ -20,7 +20,7 @@ class CreateCategoriesAndMigrate < ActiveRecord::Migration[8.1]
       { name: "자유게시판", slug: "free-board", position: 2, admin_only: false },
       { name: "Q&A", slug: "qna", position: 3, admin_only: false },
       { name: "포트폴리오", slug: "portfolio", position: 4, admin_only: false },
-      { name: "공지사항", slug: "notice", position: 5, admin_only: true },
+      { name: "공지사항", slug: "notice", position: 5, admin_only: true }
     ]
     post_categories.each do |attrs|
       execute <<~SQL
@@ -34,7 +34,7 @@ class CreateCategoriesAndMigrate < ActiveRecord::Migration[8.1]
       { name: "템플릿", slug: "template", position: 0 },
       { name: "컴포넌트", slug: "component", position: 1 },
       { name: "가이드", slug: "guide", position: 2 },
-      { name: "툴킷", slug: "toolkit", position: 3 },
+      { name: "툴킷", slug: "toolkit", position: 3 }
     ]
     skill_pack_categories.each do |attrs|
       execute <<~SQL

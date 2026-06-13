@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>바이브코딩 마스터 — 1~2주차 교안</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root {
+  --black: #000000;
+  --white: #FFFFFF;
+  --cream: #F1EDE4;
+  --cream-light: #F7F4EE;
+  --dark-brown: #3E3A33;
+  --near-black: #1D1403;
+  --gold: #F4BA54;
+  --orange: #E86221;
+  --warm-orange: #FFAA54;
+  --deep-green: #124234;
+  --burgundy: #8D3D3E;
+  --gray: #757369;
+  --light-gray: #AAA9A7;
+  --font: 'Pretendard Variable', -apple-system, 'system-ui', sans-serif;
+  --ls: -0.8px;
+  --pill: 100px;
+  --radius: 24px;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; overflow: hidden; }
+body {
+  font-family: var(--font);
+  color: var(--near-black);
+  letter-spacing: var(--ls);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ============================================
+   슬라이드 컨테이너
+   ============================================ */
+.deck {
+  width: 100vw; height: 100vh;
+  position: relative; overflow: hidden;
+}
+.slide {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  padding: 60px 80px;
+  opacity: 0; transform: translateX(60px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  pointer-events: none;
+  overflow-y: auto;
+}
+.slide.active {
+  opacity: 1; transform: translateX(0);
+  pointer-events: auto; z-index: 2;
+}
+.slide.prev {
+  opacity: 0; transform: translateX(-60px);
+  z-index: 1;
+}
+
+/* 슬라이드 배경 변형 */
+.slide--cream { background: var(--cream); }
+.slide--white { background: var(--white); }
+.slide--dark { background: var(--near-black); color: var(--white); }
+.slide--green { background: var(--deep-green); color: var(--white); }
+.slide--gold { background: var(--gold); color: var(--black); }
+.slide--orange { background: var(--orange); color: var(--white); }
+.slide--cream-light { background: var(--cream-light); }
+
+/* 그리드 패턴 오버레이 */
+.slide--grid::before {
+  content: ''; position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(0,0,0,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,0.025) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+}
+.slide--dark.slide--grid::before {
+  background-image:
+    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+}
+
+/* ============================================
+   슬라이드 내부 레이아웃
+   ============================================ */
+.slide-inner {
+  position: relative; z-index: 1;
+  max-width: 1000px; width: 100%;
+}
+
+/* 타이포그래피 */
+.slide-label {
+  font-size: 12px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 2px;
+  opacity: 0.5; margin-bottom: 16px;
+}
+.slide-title {
+  font-size: clamp(40px, 6vw, 72px);
+  font-weight: 900; line-height: 1.1; margin-bottom: 24px;
+}
+.slide-title--sm {
+  font-size: clamp(32px, 4vw, 52px);
+  font-weight: 900; line-height: 1.15; margin-bottom: 20px;
+}
+.slide-subtitle {
+  font-size: 20px; line-height: 1.6; opacity: 0.7;
+  max-width: 640px; margin-bottom: 32px;
+}
+.slide-body {
+  font-size: 18px; line-height: 1.7; max-width: 800px;
+}
+
+/* Pill 태그 */
+.pill {
+  display: inline-block; border-radius: var(--pill);
+  font-weight: 800; font-size: 13px; padding: 8px 16px;
+  margin-bottom: 16px;
+}
+.pill--black { background: var(--black); color: var(--white); }
+.pill--white { background: var(--white); color: var(--near-black); }
+.pill--gold { background: var(--gold); color: var(--black); }
+.pill--outline { border: 2px solid currentColor; background: transparent; }
+
+/* 카드 그리드 */
+.card-grid { display: grid; gap: 16px; margin-top: 32px; }
+.card-grid--2 { grid-template-columns: 1fr 1fr; }
+.card-grid--3 { grid-template-columns: 1fr 1fr 1fr; }
+.card-grid--4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+
+.card {
+  background: rgba(255,255,255,0.9); color: var(--near-black);
+  border-radius: var(--radius); padding: 28px 24px;
+}
+.slide--dark .card { background: rgba(255,255,255,0.08); color: var(--white); }
+.slide--green .card { background: rgba(255,255,255,0.1); color: var(--white); }
+
+.card-icon { font-size: 36px; margin-bottom: 14px; }
+.card h3 { font-size: 20px; font-weight: 800; margin-bottom: 8px; line-height: 1.3; }
+.card p { font-size: 15px; opacity: 0.7; line-height: 1.6; }
+
+/* 리스트 */
+.checklist { list-style: none; margin-top: 24px; }
+.checklist li {
+  font-size: 18px; padding: 12px 0;
+  border-bottom: 1px solid rgba(128,128,128,0.15);
+  display: flex; align-items: flex-start; gap: 12px;
+  line-height: 1.5;
+}
+.checklist li::before {
+  content: '✓'; font-weight: 900; color: var(--deep-green);
+  flex-shrink: 0; margin-top: 2px;
+}
+.slide--dark .checklist li::before { color: var(--gold); }
+.slide--dark .checklist li { border-color: rgba(255,255,255,0.08); }
+
+/* 넘버 리스트 */
+.num-list { list-style: none; margin-top: 24px; counter-reset: numlist; }
+.num-list li {
+  font-size: 18px; padding: 16px 0;
+  border-bottom: 1px solid rgba(128,128,128,0.12);
+  display: flex; align-items: flex-start; gap: 16px;
+  line-height: 1.55; counter-increment: numlist;
+}
+.num-list li::before {
+  content: counter(numlist, decimal-leading-zero);
+  font-size: 14px; font-weight: 900; color: var(--gold);
+  background: var(--near-black); border-radius: 50%;
+  width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 2px;
+}
+.slide--dark .num-list li::before { background: var(--gold); color: var(--near-black); }
+.slide--dark .num-list li { border-color: rgba(255,255,255,0.08); }
+
+/* 코드 블록 */
+.code-block {
+  background: var(--near-black); color: #e0e0e0;
+  border-radius: 16px; padding: 24px 28px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 15px; line-height: 1.7;
+  margin-top: 24px; overflow-x: auto;
+  white-space: pre-wrap;
+}
+.code-block .comment { color: var(--gray); }
+.code-block .keyword { color: var(--gold); }
+.code-block .string { color: #7ec699; }
+
+/* 2컬럼 레이아웃 */
+.two-col {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 48px; align-items: center;
+}
+
+/* 비교 테이블 */
+.compare {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 20px; margin-top: 32px;
+}
+.compare-col {
+  border-radius: var(--radius); padding: 28px 24px;
+}
+.compare-col--before {
+  background: rgba(141,61,62,0.08); border: 2px solid rgba(141,61,62,0.15);
+}
+.compare-col--after {
+  background: rgba(18,66,52,0.08); border: 2px solid rgba(18,66,52,0.2);
+}
+.compare-col h3 {
+  font-size: 16px; font-weight: 800; margin-bottom: 16px;
+  display: flex; align-items: center; gap: 8px;
+}
+.compare-col ul { list-style: none; }
+.compare-col ul li {
+  font-size: 15px; padding: 8px 0; opacity: 0.8; line-height: 1.5;
+  display: flex; align-items: flex-start; gap: 8px;
+}
+
+/* 진행 표시 */
+.progress-dots {
+  position: fixed; bottom: 24px; left: 50%;
+  transform: translateX(-50%); z-index: 100;
+  display: flex; gap: 6px; align-items: center;
+  background: rgba(0,0,0,0.6); border-radius: var(--pill);
+  padding: 8px 16px;
+}
+.progress-dots .dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: rgba(255,255,255,0.3); transition: all 0.3s;
+  cursor: pointer;
+}
+.progress-dots .dot.active { background: var(--gold); width: 24px; border-radius: 4px; }
+
+/* 네비게이션 버튼 */
+.nav-arrow {
+  position: fixed; top: 50%; z-index: 100;
+  width: 48px; height: 48px; border-radius: 50%;
+  background: rgba(0,0,0,0.15); border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.3s; backdrop-filter: blur(8px);
+  color: var(--near-black);
+}
+.nav-arrow:hover { background: rgba(0,0,0,0.25); transform: scale(1.1); }
+.nav-arrow--prev { left: 20px; transform: translateY(-50%); }
+.nav-arrow--next { right: 20px; transform: translateY(-50%); }
+.nav-arrow svg { width: 20px; height: 20px; }
+
+/* 슬라이드 카운터 */
+.slide-counter {
+  position: fixed; top: 24px; right: 32px; z-index: 100;
+  font-size: 13px; font-weight: 700; color: rgba(128,128,128,0.6);
+  background: rgba(255,255,255,0.5); border-radius: var(--pill);
+  padding: 6px 14px; backdrop-filter: blur(8px);
+}
+
+/* 주차 배지 */
+.week-badge {
+  position: fixed; top: 24px; left: 32px; z-index: 100;
+  font-size: 12px; font-weight: 800; letter-spacing: 1px;
+  background: var(--gold); color: var(--black);
+  border-radius: var(--pill); padding: 8px 18px;
+}
+
+/* 강조 박스 */
+.highlight-box {
+  background: rgba(244,186,84,0.12);
+  border-left: 4px solid var(--gold);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 20px 24px; margin-top: 24px;
+  font-size: 16px; line-height: 1.6;
+}
+.slide--dark .highlight-box {
+  background: rgba(244,186,84,0.08);
+}
+
+/* 타임라인 */
+.timeline { margin-top: 32px; }
+.timeline-item {
+  display: flex; gap: 20px; padding: 16px 0;
+  border-bottom: 1px solid rgba(128,128,128,0.1);
+}
+.timeline-time {
+  font-size: 14px; font-weight: 800; color: var(--gold);
+  min-width: 80px; flex-shrink: 0;
+}
+.timeline-content h4 { font-size: 17px; font-weight: 800; margin-bottom: 4px; }
+.timeline-content p { font-size: 14px; opacity: 0.6; }
+
+/* 장식 요소 */
+.deco-emoji {
+  position: absolute; font-size: 64px; opacity: 0.15;
+  animation: floatSlow 6s ease-in-out infinite;
+}
+@keyframes floatSlow {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-12px) rotate(3deg); }
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .slide { padding: 40px 32px; }
+  .card-grid--2, .card-grid--3, .card-grid--4 { grid-template-columns: 1fr; }
+  .two-col, .compare { grid-template-columns: 1fr; }
+  .nav-arrow { display: none; }
+  .week-badge { font-size: 10px; padding: 6px 12px; left: 16px; top: 16px; }
+  .slide-counter { right: 16px; top: 16px; }
+}
+</style>
+</head>
+<body>
+
+<div class="deck" id="deck">
+
+<!-- ============================================
+     WEEK 1: 바이브코딩이란? & 환경 세팅
+     ============================================ -->
+
+<!-- SLIDE 1: 커버 -->
+<div class="slide slide--cream slide--grid active" data-week="1">
+  <span class="deco-emoji" style="top:10%;right:10%;">🚀</span>
+  <span class="deco-emoji" style="bottom:15%;left:8%;animation-delay:2s;">💡</span>
+  <div class="slide-inner" style="text-align:center;">
+    <span class="pill pill--black">WEEK 01</span>
+    <h1 class="slide-title" style="margin-top:8px;">
+      바이브 코딩이란?<br>& 환경 세팅
+    </h1>
+    <p class="slide-subtitle" style="margin:0 auto 32px;">
+      코딩을 전혀 몰라도 서비스를 만들 수 있는<br>새로운 프로그래밍 패러다임을 만나보세요.
+    </p>
+    <p style="font-size:14px;opacity:0.4;">바이브코딩 마스터 교육 프로그램 · 2시간</p>
+  </div>
+</div>
+
+<!-- SLIDE 2: 오늘의 목표 -->
+<div class="slide slide--white" data-week="1">
+  <div class="slide-inner">
+    <span class="pill pill--gold">TODAY'S GOAL</span>
+    <h2 class="slide-title--sm">오늘이 끝나면<br>여러분은</h2>
+    <ul class="checklist">
+      <li>바이브 코딩이 무엇인지 명확하게 이해합니다</li>
+      <li>Cursor IDE를 설치하고 AI와 첫 대화를 나눕니다</li>
+      <li>나만의 첫 웹페이지를 직접 만들어봅니다</li>
+      <li>"나도 할 수 있다"는 확신을 가지고 돌아갑니다</li>
+    </ul>
+  </div>
+</div>
+
+<!-- SLIDE 3: 바이브 코딩이란? -->
+<div class="slide slide--dark slide--grid" data-week="1">
+  <div class="slide-inner">
+    <span class="pill pill--gold">DEFINITION</span>
+    <h2 class="slide-title">바이브 코딩이란?</h2>
+    <p class="slide-body" style="color:rgba(255,255,255,0.7);">
+      AI 코딩 에이전트와 <strong style="color:var(--gold);">자연어(한국어)</strong>로 대화하며<br>
+      코드를 생성하는 새로운 프로그래밍 방식.
+    </p>
+    <div class="highlight-box" style="margin-top:32px;">
+      💬 "로그인 페이지 만들어줘. 이메일과 비밀번호 입력 폼이 있고, 로그인 버튼을 누르면 대시보드로 이동해."<br><br>
+      → AI가 이 문장을 이해하고, 동작하는 코드를 생성합니다.
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 4: 전통적 개발 vs 바이브 코딩 -->
+<div class="slide slide--cream-light" data-week="1">
+  <div class="slide-inner">
+    <span class="pill pill--black">COMPARE</span>
+    <h2 class="slide-title--sm">전통적 개발 vs 바이브 코딩</h2>
+    <div class="compare">
+      <div class="compare-col compare-col--before">
+        <h3>❌ 전통적 개발</h3>
+        <ul>
+          <li>프로그래밍 언어 학습 (6개월~수년)</li>
+          <li>문법, 알고리즘, 자료구조 암기</li>
+          <li>에러 메시지와의 끝없는 싸움</li>
+          <li>프레임워크별 학습 곡선</li>
+          <li>코드 한 줄 한 줄 직접 타이핑</li>
+        </ul>
+      </div>
+      <div class="compare-col compare-col--after">
+        <h3>✅ 바이브 코딩</h3>
+        <ul>
+          <li>한국어로 원하는 것을 설명</li>
+          <li>AI가 코드를 자동 생성</li>
+          <li>에러도 AI가 진단하고 수정</li>
+          <li>프레임워크 몰라도 사용 가능</li>
+          <li>아이디어 → 결과물까지 수 시간</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 5: 바이브코딩으로 만들 수 있는 것들 -->
+<div class="slide slide--white" data-week="1">
+  <div class="slide-inner">
+    <span class="pill pill--black">POSSIBILITIES</span>
+    <h2 class="slide-title--sm">바이브 코딩으로<br>이런 것들을 만들 수 있어요</h2>
+    <div class="card-grid card-grid--3">
+      <div class="card">
+        <div class="card-icon">🌐</div>
+        <h3>웹사이트 & 웹앱</h3>
+        <p>랜딩페이지, 사내 도구, 고객 포털, 대시보드</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🧩</div>
+        <h3>크롬 익스텐션</h3>
+        <p>브라우저 자동화, 데이터 수집, 업무 보조 도구</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🤖</div>
+        <h3>업무 자동화</h3>
+        <p>반복 작업 자동화, 리포트 생성, 알림 시스템</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">📊</div>
+        <h3>데이터 대시보드</h3>
+        <p>실시간 데이터 시각화, KPI 모니터링</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">📱</div>
+        <h3>모바일 웹앱</h3>
+        <p>반응형 웹앱, PWA 형태의 모바일 서비스</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔌</div>
+        <h3>API 연동 서비스</h3>
+        <p>외부 서비스 통합, 슬랙 봇, 알림 시스템</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 6: 4대 원칙 -->
+<div class="slide slide--gold slide--grid" data-week="1">
+  <div class="slide-inner">
+    <span class="pill pill--black">CORE PRINCIPLES</span>
+    <h2 class="slide-title--sm" style="color:var(--black);">본 교육의 4대 핵심 원칙</h2>
+    <div class="card-grid card-grid--2" style="margin-top:24px;">
+      <div class="card" style="background:rgba(0,0,0,0.06);color:var(--black);">
+        <div class="card-icon">🎓</div>
+        <h3>코딩 Zero에서 시작</h3>
+        <p>프로그래밍 지식이 전혀 없어도 됩니다</p>
+      </div>
+      <div class="card" style="background:rgba(0,0,0,0.06);color:var(--black);">
+        <div class="card-icon">🎯</div>
+        <h3>완벽보다 완성</h3>
+        <p>결과 중심 학습. 매주 동작하는 결과물</p>
+      </div>
+      <div class="card" style="background:rgba(0,0,0,0.06);color:var(--black);">
+        <div class="card-icon">🤖</div>
+        <h3>사람은 아이디어, AI는 구현</h3>
+        <p>여러분은 "무엇을"만 결정하세요</p>
+      </div>
+      <div class="card" style="background:rgba(0,0,0,0.06);color:var(--black);">
+        <div class="card-icon">⚡</div>
+        <h3>실무 즉시 적용</h3>
+        <p>교육 당일부터 현업에서 바로 활용</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 7: 사용할 도구 소개 -->
+<div class="slide slide--dark slide--grid" data-week="1">
+  <div class="slide-inner">
+    <span class="pill pill--gold">TOOLS</span>
+    <h2 class="slide-title--sm">우리가 사용할 도구들</h2>
+    <div class="card-grid card-grid--4" style="margin-top:24px;">
+      <div class="card" style="text-align:center;">
+        <div class="card-icon">⌨️</div>
+        <h3>Cursor IDE</h3>
+        <p>AI 네이티브<br>코드 에디터</p>
+      </div>
+      <div class="card" style="text-align:center;">
+        <div class="card-icon">🧠</div>
+        <h3>Claude AI</h3>
+        <p>코드 생성 &<br>리뷰 파트너</p>
+      </div>
+      <div class="card" style="text-align:center;">
+        <div class="card-icon">🔌</div>
+        <h3>MCP 서버</h3>
+        <p>외부 서비스<br>연동 프로토콜</p>
+      </div>
+      <div class="card" style="text-align:center;">
+        <div class="card-icon">🚀</div>
+        <h3>Vercel</h3>
+        <p>원클릭<br>웹 배포</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 8: Cursor IDE란? -->
+<div class="slide slide--white" data-week="1">
+  <div class="slide-inner">
+    <span class="pill pill--black">CURSOR IDE</span>
+    <h2 class="slide-title--sm">Cursor IDE란?</h2>
+    <p class="slide-body" style="margin-bottom:24px;">
+      VS Code를 기반으로 만들어진 <strong>AI 네이티브 코드 에디터</strong>입니다.<br>
+      코드를 직접 작성하는 대신, AI와 대화하며 코드를 생성합니다.
+    </p>
+    <div class="card-grid card-grid--2">
+      <div class="card" style="border:2px solid rgba(18,66,52,0.15);">
+        <h3>✨ 핵심 기능</h3>
+        <ul class="checklist" style="margin-top:12px;">
+          <li style="font-size:15px;padding:8px 0;">Cmd+K: 코드 생성/수정 지시</li>
+          <li style="font-size:15px;padding:8px 0;">Cmd+L: AI와 채팅하며 개발</li>
+          <li style="font-size:15px;padding:8px 0;">Tab: AI 자동완성 수락</li>
+          <li style="font-size:15px;padding:8px 0;">Composer: 멀티파일 동시 작업</li>
+        </ul>
+      </div>
+      <div class="card" style="border:2px solid rgba(244,186,84,0.2);">
+        <h3>💡 왜 Cursor인가?</h3>
+        <ul class="checklist" style="margin-top:12px;">
+          <li style="font-size:15px;padding:8px 0;">AI가 프로젝트 전체 맥락을 이해</li>
+          <li style="font-size:15px;padding:8px 0;">한국어 지시도 완벽 지원</li>
+          <li style="font-size:15px;padding:8px 0;">에러 자동 감지 & 수정 제안</li>
+          <li style="font-size:15px;padding:8px 0;">무료 플랜으로 충분히 학습 가능</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 9: 실습 - Cursor 설치 -->
+<div class="slide slide--cream slide--grid" data-week="1">
+  <div class="slide-inner">
+    <span class="pill pill--orange" style="background:var(--orange);color:var(--white);">🛠 HANDS-ON</span>
+    <h2 class="slide-title--sm">실습: Cursor IDE 설치하기</h2>
+    <ol class="num-list">
+      <li><div><strong>cursor.com 접속</strong><br><span style="opacity:0.6;">브라우저에서 cursor.com으로 이동합니다</span></div></li>
+      <li><div><strong>Download 클릭 → 설치</strong><br><span style="opacity:0.6;">운영체제에 맞는 버전이 자동 선택됩니다</span></div></li>
+      <li><div><strong>계정 생성 (구글 로그인 가능)</strong><br><span style="opacity:0.6;">무료 플랜 선택 → 월 2,000회 AI 요청 제공</span></div></li>
+      <li><div><strong>첫 프로젝트 폴더 생성</strong><br><span style="opacity:0.6;">바탕화면에 "vibe-coding" 폴더를 만들고 Cursor로 열기</span></div></li>
+      <li><div><strong>Cmd+L 눌러서 AI와 첫 대화!</strong><br><span style="opacity:0.6;">"안녕! 나는 코딩을 처음 배우는 학생이야" 입력해보기</span></div></li>
+    </ol>
+  </div>
+</div>
+
+<!-- SLIDE 10: 첫 프롬프트 -->
+<div class="slide slide--dark slide--grid" data-week="1">
+  <div class="slide-inner">
+    <span class="pill pill--gold">FIRST PROMPT</span>
+    <h2 class="slide-title--sm">첫 번째 프롬프트를<br>날려봅시다</h2>
+    <p class="slide-subtitle" style="color:rgba(255,255,255,0.6);">Cursor에서 Cmd+L을 누르고 아래 문장을 입력하세요.</p>
+    <div class="code-block">
+<span class="comment">// Cursor AI 채팅창에 입력할 내용:</span>
+
+<span class="string">"간단한 자기소개 웹페이지를 만들어줘.
+내 이름은 [본인 이름]이고,
+[본인 부서]에서 일하고 있어.
+배경은 따뜻한 크림색으로 하고,
+프로필 사진 영역과 간단한 소개 문구가 있으면 좋겠어.
+파일명은 index.html로 해줘."</span>
+    </div>
+    <div class="highlight-box" style="margin-top:20px;">
+      ⏱ 예상 소요 시간: 30초 · AI가 완성된 HTML 파일을 생성해줍니다
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 11: 결과 확인하기 -->
+<div class="slide slide--white" data-week="1">
+  <div class="slide-inner">
+    <span class="pill pill--black">RESULT</span>
+    <h2 class="slide-title--sm">결과를 확인해볼까요?</h2>
+    <ol class="num-list">
+      <li><div><strong>생성된 index.html 파일 확인</strong><br><span style="opacity:0.6;">왼쪽 파일 탐색기에 index.html이 생겼습니다</span></div></li>
+      <li><div><strong>파일을 브라우저에서 열기</strong><br><span style="opacity:0.6;">파일을 우클릭 → "Open in Browser" 또는 파일을 더블클릭</span></div></li>
+      <li><div><strong>🎉 축하합니다!</strong><br><span style="opacity:0.6;">여러분의 첫 웹페이지가 만들어졌습니다. 코드 한 줄도 직접 쓰지 않았어요!</span></div></li>
+    </ol>
+    <div class="highlight-box">
+      💡 <strong>마음에 안 드는 부분이 있다면?</strong><br>
+      AI에게 "배경색을 파란색으로 바꿔줘", "글씨 크기를 더 키워줘" 등 자연어로 수정 요청하세요.
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 12: 웹 기술 스택 간단 설명 -->
+<div class="slide slide--cream-light" data-week="1">
+  <div class="slide-inner">
+    <span class="pill pill--black">CONCEPT</span>
+    <h2 class="slide-title--sm">알아두면 좋은 기본 개념</h2>
+    <p class="slide-subtitle">외울 필요 없어요! AI가 다 해주지만, 대화할 때 쓰는 용어만 알면 됩니다.</p>
+    <div class="card-grid card-grid--3">
+      <div class="card">
+        <div class="card-icon">🏗</div>
+        <h3>HTML</h3>
+        <p>웹페이지의 <strong>뼈대</strong>. "여기에 제목을 넣고, 아래에 버튼을 넣어" 같은 구조를 담당.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🎨</div>
+        <h3>CSS</h3>
+        <p>웹페이지의 <strong>옷</strong>. "배경은 크림색, 글자는 크게, 버튼은 둥글게" 같은 꾸미기를 담당.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">⚡</div>
+        <h3>JavaScript</h3>
+        <p>웹페이지의 <strong>두뇌</strong>. "버튼을 누르면 알림을 띄워, 데이터를 저장해" 같은 동작을 담당.</p>
+      </div>
+    </div>
+    <div class="highlight-box">
+      🔑 핵심: 이 세 가지를 AI에게 "만들어줘"라고 하면 AI가 알아서 만들어줍니다.<br>
+      여러분은 <strong>"무엇을 원하는지"</strong>만 설명하세요!
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 13: 수업 시간표 -->
+<div class="slide slide--green slide--grid" data-week="1">
+  <div class="slide-inner">
+    <span class="pill pill--white">TIMETABLE</span>
+    <h2 class="slide-title--sm">1주차 수업 흐름</h2>
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-time">0:00</div>
+        <div class="timeline-content">
+          <h4>바이브 코딩 소개</h4>
+          <p>개념, 사례, 가능성 (30분)</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-time">0:30</div>
+        <div class="timeline-content">
+          <h4>환경 세팅</h4>
+          <p>Cursor IDE 설치 & 계정 세팅 (20분)</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-time">0:50</div>
+        <div class="timeline-content">
+          <h4>☕ 쉬는 시간</h4>
+          <p>(10분)</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-time">1:00</div>
+        <div class="timeline-content">
+          <h4>실습: 나만의 웹페이지 만들기</h4>
+          <p>AI와 대화하며 첫 웹페이지 제작 (40분)</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-time">1:40</div>
+        <div class="timeline-content">
+          <h4>결과 공유 & Q&A</h4>
+          <p>서로의 결과물 공유, 질문 시간 (20분)</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 14: 1주차 과제 -->
+<div class="slide slide--white" data-week="1">
+  <div class="slide-inner" style="text-align:center;">
+    <span class="pill pill--orange" style="background:var(--orange);color:var(--white);">HOMEWORK</span>
+    <h2 class="slide-title--sm" style="margin-top:8px;">1주차 과제</h2>
+    <p class="slide-subtitle" style="margin:0 auto 32px;">다음 주까지 완성해 오세요!</p>
+    <div class="card" style="max-width:560px;margin:0 auto;text-align:left;border:2px solid var(--gold);">
+      <h3 style="color:var(--orange);">🏠 나만의 포트폴리오 페이지 만들기</h3>
+      <ul class="checklist" style="margin-top:16px;">
+        <li style="font-size:15px;padding:8px 0;">본인 이름, 부서, 하는 일 소개</li>
+        <li style="font-size:15px;padding:8px 0;">좋아하는 것 3가지 카드 형태로</li>
+        <li style="font-size:15px;padding:8px 0;">연락처 또는 이메일 링크 포함</li>
+        <li style="font-size:15px;padding:8px 0;">(보너스) 사진이나 이모지 활용</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================
+     WEEK 2: AI 프롬프팅 마스터
+     ============================================ -->
+
+<!-- SLIDE 15: 2주차 커버 -->
+<div class="slide slide--dark slide--grid" data-week="2">
+  <span class="deco-emoji" style="top:12%;right:12%;opacity:0.08;">🧠</span>
+  <span class="deco-emoji" style="bottom:15%;left:10%;animation-delay:2s;opacity:0.08;">💬</span>
+  <div class="slide-inner" style="text-align:center;">
+    <span class="pill pill--gold">WEEK 02</span>
+    <h1 class="slide-title" style="margin-top:8px;">
+      AI 프롬프팅<br>마스터
+    </h1>
+    <p class="slide-subtitle" style="margin:0 auto;color:rgba(255,255,255,0.6);">
+      AI에게 원하는 결과를 정확하게 얻어내는<br>프롬프트 설계의 기술을 배웁니다.
+    </p>
+  </div>
+</div>
+
+<!-- SLIDE 16: 오늘의 목표 -->
+<div class="slide slide--cream" data-week="2">
+  <div class="slide-inner">
+    <span class="pill pill--gold">TODAY'S GOAL</span>
+    <h2 class="slide-title--sm">오늘이 끝나면<br>여러분은</h2>
+    <ul class="checklist">
+      <li>좋은 프롬프트와 나쁜 프롬프트의 차이를 구분합니다</li>
+      <li>역할 부여, 맥락 제공, 단계적 지시를 능숙하게 사용합니다</li>
+      <li>실무에서 바로 쓸 수 있는 프롬프트 템플릿을 가져갑니다</li>
+      <li>AI와 "대화"하듯 개발하는 감각을 익힙니다</li>
+    </ul>
+  </div>
+</div>
+
+<!-- SLIDE 17: 프롬프트가 왜 중요한가 -->
+<div class="slide slide--white" data-week="2">
+  <div class="slide-inner">
+    <span class="pill pill--black">WHY PROMPTING?</span>
+    <h2 class="slide-title--sm">같은 AI, 다른 결과</h2>
+    <p class="slide-subtitle">프롬프트 하나로 결과물의 품질이 10배 달라집니다.</p>
+    <div class="compare">
+      <div class="compare-col compare-col--before">
+        <h3>😐 나쁜 프롬프트</h3>
+        <ul>
+          <li>"웹사이트 만들어줘"</li>
+          <li>"좋은 디자인으로 해줘"</li>
+          <li>"에러 고쳐줘"</li>
+          <li>"더 좋게 바꿔줘"</li>
+        </ul>
+      </div>
+      <div class="compare-col compare-col--after">
+        <h3>🤩 좋은 프롬프트</h3>
+        <ul>
+          <li>"CVC 투자심사 데이터를 입력/조회하는 웹앱을 만들어줘. 테이블 형태로."</li>
+          <li>"배경은 크림색(#F1EDE4), 폰트는 Pretendard, 카드형 레이아웃으로"</li>
+          <li>"콘솔에 'TypeError: Cannot read property' 에러가 나와. data가 null일 때 처리를 추가해줘"</li>
+          <li>"버튼 hover 시 그림자 효과 추가하고, 카드 간격을 24px로 통일해줘"</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 18: 프롬프트의 5가지 요소 -->
+<div class="slide slide--gold slide--grid" data-week="2">
+  <div class="slide-inner">
+    <span class="pill pill--black">5 ELEMENTS</span>
+    <h2 class="slide-title--sm" style="color:var(--black);">좋은 프롬프트의<br>5가지 요소</h2>
+    <ol class="num-list" style="max-width:700px;">
+      <li><div><strong>역할 (Role)</strong><br><span style="opacity:0.7;">"너는 시니어 프론트엔드 개발자야" — AI의 전문성 수준을 설정</span></div></li>
+      <li><div><strong>맥락 (Context)</strong><br><span style="opacity:0.7;">"사내 교육 신청 시스템을 만들고 있어" — 배경 상황 설명</span></div></li>
+      <li><div><strong>구체적 지시 (Instruction)</strong><br><span style="opacity:0.7;">"이메일, 이름, 부서를 입력받는 폼을 만들어줘" — 명확한 요구사항</span></div></li>
+      <li><div><strong>제약 조건 (Constraints)</strong><br><span style="opacity:0.7;">"Tailwind CSS 사용, 모바일 반응형, 한국어로" — 기술적 조건</span></div></li>
+      <li><div><strong>출력 형식 (Format)</strong><br><span style="opacity:0.7;">"하나의 HTML 파일로 만들어줘" — 결과물의 형태 지정</span></div></li>
+    </ol>
+  </div>
+</div>
+
+<!-- SLIDE 19: 실전 프롬프트 예시 -->
+<div class="slide slide--dark slide--grid" data-week="2">
+  <div class="slide-inner">
+    <span class="pill pill--gold">EXAMPLE</span>
+    <h2 class="slide-title--sm">실전 프롬프트 예시</h2>
+    <div class="code-block">
+<span class="comment">// 5가지 요소가 모두 포함된 프롬프트:</span>
+
+<span class="string">"너는 시니어 웹 개발자야. (역할)
+
+우리 팀에서 사내 교육 신청을 받으려고 해. (맥락)
+
+교육 신청 폼을 만들어줘. 입력 항목:
+- 이름
+- 부서 (드롭다운: 경영지원, 투자심사, 마케팅, 기술개발)
+- 이메일
+- 참여 동기 (textarea)
+- 제출 버튼 (구체적 지시)
+
+디자인은 깔끔하고 따뜻한 톤으로,
+배경색 #F1EDE4, 버튼은 둥근 pill 형태. (제약 조건)
+
+하나의 HTML 파일로 만들어줘. (출력 형식)"</span>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 20: 대화형 개발 -->
+<div class="slide slide--white" data-week="2">
+  <div class="slide-inner">
+    <span class="pill pill--black">CONVERSATIONAL DEV</span>
+    <h2 class="slide-title--sm">대화하듯 개발하기</h2>
+    <p class="slide-subtitle">한 번에 완벽하게 만들 필요 없어요. 대화를 이어가세요.</p>
+    <div class="card" style="border:2px solid rgba(244,186,84,0.2);max-width:700px;">
+      <div style="font-size:15px;line-height:2;">
+        <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:8px;">
+          <span style="background:var(--gold);color:var(--black);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;flex-shrink:0;">나</span>
+          <span>"교육 신청 폼 만들어줘"</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:8px;opacity:0.6;">
+          <span style="background:var(--deep-green);color:var(--white);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;flex-shrink:0;">AI</span>
+          <span>(폼 생성)</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:8px;">
+          <span style="background:var(--gold);color:var(--black);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;flex-shrink:0;">나</span>
+          <span>"부서 선택을 드롭다운으로 바꿔줘"</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:8px;">
+          <span style="background:var(--gold);color:var(--black);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;flex-shrink:0;">나</span>
+          <span>"제출하면 '신청 완료!' 알림 띄워줘"</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:8px;">
+          <span style="background:var(--gold);color:var(--black);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;flex-shrink:0;">나</span>
+          <span>"디자인을 좀 더 모던하게. 그림자 효과 추가"</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:flex-start;">
+          <span style="background:var(--gold);color:var(--black);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;flex-shrink:0;">나</span>
+          <span>"완벽해! 👍"</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 21: 프롬프트 팁 -->
+<div class="slide slide--cream-light" data-week="2">
+  <div class="slide-inner">
+    <span class="pill pill--black">PRO TIPS</span>
+    <h2 class="slide-title--sm">프롬프트 꿀팁 모음</h2>
+    <div class="card-grid card-grid--2">
+      <div class="card">
+        <div class="card-icon">📋</div>
+        <h3>구체적으로 말하기</h3>
+        <p>"좋게 만들어줘" 대신 "카드 간격 24px, 둥근 모서리 16px, 그림자 추가"처럼 수치로 말하세요.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔄</div>
+        <h3>점진적으로 발전시키기</h3>
+        <p>한 번에 완벽한 프롬프트를 쓸 필요 없어요. 대화를 이어가며 개선하세요.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🎯</div>
+        <h3>레퍼런스 제시하기</h3>
+        <p>"토스 앱처럼", "노션 스타일로" 등 참고할 대상을 알려주면 품질이 올라갑니다.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🚫</div>
+        <h3>에러가 나면 통째로 복사</h3>
+        <p>에러 메시지를 그대로 복사해서 AI에게 보내세요. "이 에러 고쳐줘" + 에러 메시지 전체.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 22: 실습 -->
+<div class="slide slide--orange slide--grid" data-week="2">
+  <div class="slide-inner" style="text-align:center;">
+    <span class="pill pill--white">🛠 HANDS-ON</span>
+    <h2 class="slide-title--sm" style="margin-top:8px;">실습 시간!</h2>
+    <p class="slide-subtitle" style="margin:0 auto 32px;color:rgba(255,255,255,0.8);">
+      아래 중 하나를 골라 프롬프트를 설계하고 만들어보세요.
+    </p>
+    <div class="card-grid card-grid--3">
+      <div class="card" style="text-align:left;">
+        <div class="card-icon">📝</div>
+        <h3>교육 신청 폼</h3>
+        <p>이름, 부서, 동기를 입력받는 신청서 웹페이지</p>
+      </div>
+      <div class="card" style="text-align:left;">
+        <div class="card-icon">📊</div>
+        <h3>팀 소개 페이지</h3>
+        <p>팀원 카드, 팀 미션, 연락처가 있는 소개 페이지</p>
+      </div>
+      <div class="card" style="text-align:left;">
+        <div class="card-icon">📅</div>
+        <h3>회의실 예약 UI</h3>
+        <p>날짜 선택, 시간 선택, 회의실 선택 인터페이스</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 23: 실습 가이드 -->
+<div class="slide slide--dark slide--grid" data-week="2">
+  <div class="slide-inner">
+    <span class="pill pill--gold">STEP BY STEP</span>
+    <h2 class="slide-title--sm">실습 진행 순서</h2>
+    <ol class="num-list">
+      <li><div><strong>주제 선택</strong> (2분)<br><span style="opacity:0.6;">3개 주제 중 하나를 고르세요. 아니면 자유 주제도 OK!</span></div></li>
+      <li><div><strong>프롬프트 설계</strong> (5분)<br><span style="opacity:0.6;">5가지 요소(역할/맥락/지시/제약/형식)를 포함해 작성</span></div></li>
+      <li><div><strong>AI와 대화하며 개발</strong> (25분)<br><span style="opacity:0.6;">Cursor에서 프롬프트 입력 → 결과 확인 → 수정 요청 반복</span></div></li>
+      <li><div><strong>결과 브라우저에서 확인</strong> (3분)<br><span style="opacity:0.6;">HTML 파일을 브라우저에서 열어 동작 확인</span></div></li>
+      <li><div><strong>동료와 결과물 공유</strong> (5분)<br><span style="opacity:0.6;">어떤 프롬프트를 썼는지, 어떤 결과가 나왔는지 공유</span></div></li>
+    </ol>
+  </div>
+</div>
+
+<!-- SLIDE 24: 2주차 타임라인 -->
+<div class="slide slide--green slide--grid" data-week="2">
+  <div class="slide-inner">
+    <span class="pill pill--white">TIMETABLE</span>
+    <h2 class="slide-title--sm">2주차 수업 흐름</h2>
+    <div class="timeline">
+      <div class="timeline-item" style="border-color:rgba(255,255,255,0.1);">
+        <div class="timeline-time">0:00</div>
+        <div class="timeline-content">
+          <h4>1주차 과제 리뷰</h4>
+          <p>포트폴리오 페이지 공유 & 피드백 (15분)</p>
+        </div>
+      </div>
+      <div class="timeline-item" style="border-color:rgba(255,255,255,0.1);">
+        <div class="timeline-time">0:15</div>
+        <div class="timeline-content">
+          <h4>프롬프팅의 원리</h4>
+          <p>좋은/나쁜 프롬프트, 5가지 요소 (30분)</p>
+        </div>
+      </div>
+      <div class="timeline-item" style="border-color:rgba(255,255,255,0.1);">
+        <div class="timeline-time">0:45</div>
+        <div class="timeline-content">
+          <h4>☕ 쉬는 시간</h4>
+          <p>(10분)</p>
+        </div>
+      </div>
+      <div class="timeline-item" style="border-color:rgba(255,255,255,0.1);">
+        <div class="timeline-time">0:55</div>
+        <div class="timeline-content">
+          <h4>실습: 프롬프트로 웹앱 만들기</h4>
+          <p>3개 주제 중 선택, AI와 대화하며 개발 (40분)</p>
+        </div>
+      </div>
+      <div class="timeline-item" style="border-color:rgba(255,255,255,0.1);">
+        <div class="timeline-time">1:35</div>
+        <div class="timeline-content">
+          <h4>결과 공유 & 프롬프트 리뷰</h4>
+          <p>서로의 프롬프트 비교, 베스트 프롬프트 선정 (25분)</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 25: 2주차 과제 -->
+<div class="slide slide--white" data-week="2">
+  <div class="slide-inner" style="text-align:center;">
+    <span class="pill pill--orange" style="background:var(--orange);color:var(--white);">HOMEWORK</span>
+    <h2 class="slide-title--sm" style="margin-top:8px;">2주차 과제</h2>
+    <p class="slide-subtitle" style="margin:0 auto 32px;">실무에서 쓸 수 있는 도구를 만들어 오세요!</p>
+    <div class="card" style="max-width:560px;margin:0 auto;text-align:left;border:2px solid var(--gold);">
+      <h3 style="color:var(--orange);">🛠 업무용 미니 웹앱 만들기</h3>
+      <ul class="checklist" style="margin-top:16px;">
+        <li style="font-size:15px;padding:8px 0;">실제 업무에서 쓸 수 있는 주제로 선택</li>
+        <li style="font-size:15px;padding:8px 0;">5가지 프롬프트 요소를 모두 활용</li>
+        <li style="font-size:15px;padding:8px 0;">최소 3번 이상 수정 대화를 거쳐 개선</li>
+        <li style="font-size:15px;padding:8px 0;">사용한 프롬프트도 함께 제출</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 26: 다음 주 예고 -->
+<div class="slide slide--cream slide--grid" data-week="2">
+  <div class="slide-inner" style="text-align:center;">
+    <span class="pill pill--black">NEXT WEEK</span>
+    <h2 class="slide-title" style="margin-top:8px;">
+      다음 주 예고
+    </h2>
+    <p class="slide-subtitle" style="margin:0 auto 40px;">
+      3주차: 웹앱 기초 — 나만의 랜딩페이지를<br>
+      만들고 인터넷에 <strong>실제 배포</strong>까지!
+    </p>
+    <div class="card-grid card-grid--3" style="max-width:720px;margin:0 auto;">
+      <div class="card" style="text-align:center;">
+        <div class="card-icon">🌐</div>
+        <h3>실제 웹 배포</h3>
+        <p>Vercel로 원클릭 배포</p>
+      </div>
+      <div class="card" style="text-align:center;">
+        <div class="card-icon">📱</div>
+        <h3>반응형 디자인</h3>
+        <p>모바일에서도 예쁘게</p>
+      </div>
+      <div class="card" style="text-align:center;">
+        <div class="card-icon">🎨</div>
+        <h3>Tailwind CSS</h3>
+        <p>빠르고 예쁜 스타일링</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 27: 마무리 -->
+<div class="slide slide--dark slide--grid" data-week="2">
+  <div class="slide-inner" style="text-align:center;">
+    <h2 class="slide-title" style="margin-bottom:24px;">
+      수고하셨습니다! 👏
+    </h2>
+    <p class="slide-subtitle" style="margin:0 auto;color:rgba(255,255,255,0.5);">
+      바이브코딩 마스터 교육 프로그램 · WEEK 01-02
+    </p>
+  </div>
+</div>
+
+</div> <!-- /deck -->
+
+<!-- ============================================
+     NAVIGATION UI
+     ============================================ -->
+<div class="week-badge" id="weekBadge">WEEK 01</div>
+<div class="slide-counter" id="slideCounter">1 / 27</div>
+
+<button class="nav-arrow nav-arrow--prev" id="prevBtn" onclick="changeSlide(-1)">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+</button>
+<button class="nav-arrow nav-arrow--next" id="nextBtn" onclick="changeSlide(1)">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+</button>
+
+<div class="progress-dots" id="progressDots"></div>
+
+<!-- ============================================
+     SCRIPTS
+     ============================================ -->
+<script>
+const slides = document.querySelectorAll('.slide');
+const counter = document.getElementById('slideCounter');
+const weekBadge = document.getElementById('weekBadge');
+const progressDots = document.getElementById('progressDots');
+let current = 0;
+
+// 프로그레스 점 생성
+slides.forEach((_, i) => {
+  const dot = document.createElement('div');
+  dot.className = 'dot' + (i === 0 ? ' active' : '');
+  dot.onclick = () => goToSlide(i);
+  progressDots.appendChild(dot);
+});
+
+function updateUI() {
+  slides.forEach((s, i) => {
+    s.classList.remove('active', 'prev');
+    if (i === current) s.classList.add('active');
+    else if (i < current) s.classList.add('prev');
+  });
+
+  counter.textContent = `${current + 1} / ${slides.length}`;
+
+  const week = slides[current].dataset.week || '1';
+  weekBadge.textContent = `WEEK 0${week}`;
+
+  document.querySelectorAll('.progress-dots .dot').forEach((d, i) => {
+    d.classList.toggle('active', i === current);
+  });
+
+  // 다크 슬라이드일 때 네비 색상 조정
+  const isDark = slides[current].classList.contains('slide--dark') ||
+                 slides[current].classList.contains('slide--green') ||
+                 slides[current].classList.contains('slide--orange');
+  document.querySelectorAll('.nav-arrow').forEach(a => {
+    a.style.color = isDark ? '#fff' : 'var(--near-black)';
+    a.style.background = isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.12)';
+  });
+}
+
+function changeSlide(dir) {
+  const next = current + dir;
+  if (next < 0 || next >= slides.length) return;
+  current = next;
+  updateUI();
+}
+
+function goToSlide(i) {
+  current = i;
+  updateUI();
+}
+
+// 키보드 네비게이션
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); changeSlide(1); }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); changeSlide(-1); }
+  if (e.key === 'Home') { e.preventDefault(); goToSlide(0); }
+  if (e.key === 'End') { e.preventDefault(); goToSlide(slides.length - 1); }
+});
+
+// 터치 스와이프
+let touchStartX = 0;
+document.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; });
+document.addEventListener('touchend', (e) => {
+  const diff = touchStartX - e.changedTouches[0].screenX;
+  if (Math.abs(diff) > 60) changeSlide(diff > 0 ? 1 : -1);
+});
+
+updateUI();
+</script>
+
+</body>
+</html>

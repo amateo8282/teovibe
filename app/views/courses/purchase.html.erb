@@ -1,0 +1,29 @@
+<% content_for :title, "#{@course.title} · 구매" %>
+<div class="wrap">
+  <div class="buybox">
+    <p class="hero-label">🔒 Premium · <%= @course.tag %></p>
+    <h1><%= @course.title %></h1>
+    <p class="desc"><%= @course.description %></p>
+    <div class="price">₩<%= number_with_delimiter(@course.price) %></div>
+
+    <% if @course.checkout_url.present? %>
+      <a class="btn btn--gold" href="<%= @course.checkout_url %>" target="_blank" rel="noopener">
+        ₩<%= number_with_delimiter(@course.price) %> 구매하기 →
+      </a>
+    <% else %>
+      <p class="muted">결제 링크 준비 중입니다.</p>
+    <% end %>
+
+    <div class="divider"></div>
+
+    <% if current_user %>
+      <p class="muted" style="margin-bottom:12px">이미 구매하셨나요? 받으신 <strong>라이선스 키</strong>를 입력하면 이 계정에 강의가 연결됩니다.</p>
+      <%= form_with url: unlock_courses_path, method: :post, class: "keyform" do |f| %>
+        <%= f.text_field :key, placeholder: "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX", autocomplete: "off" %>
+        <%= f.submit "잠금 해제", class: "btn btn--ghost" %>
+      <% end %>
+    <% else %>
+      <p class="muted">이미 구매하셨다면 <a href="<%= new_session_path %>">로그인</a> 후 라이선스 키를 입력해 강의를 계정에 연결하세요. 계정이 있으면 키 없이도 다음 결제부터 자동으로 열립니다.</p>
+    <% end %>
+  </div>
+</div>

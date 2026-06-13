@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Code 자동화 입문: claude -p와 Agent SDK</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root {
+  --black: #000000;
+  --white: #FFFFFF;
+  --cream: #F1EDE4;
+  --cream-light: #F7F4EE;
+  --dark-brown: #3E3A33;
+  --near-black: #1D1403;
+  --gold: #F4BA54;
+  --orange: #E86221;
+  --warm-orange: #FFAA54;
+  --deep-green: #124234;
+  --burgundy: #8D3D3E;
+  --gray: #757369;
+  --light-gray: #AAA9A7;
+  --font: 'Pretendard Variable', -apple-system, 'system-ui', sans-serif;
+  --ls: -0.8px;
+  --pill: 100px;
+  --radius: 24px;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; overflow: hidden; }
+body { font-family: var(--font); color: var(--near-black); letter-spacing: var(--ls); -webkit-font-smoothing: antialiased; }
+
+.deck { width: 100vw; height: 100vh; position: relative; overflow: hidden; }
+.slide {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  padding: 60px 80px;
+  opacity: 0; transform: translateX(60px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  pointer-events: none; overflow-y: auto;
+}
+.slide.active { opacity: 1; transform: translateX(0); pointer-events: auto; z-index: 2; }
+.slide.prev { opacity: 0; transform: translateX(-60px); z-index: 1; }
+
+.slide--cream { background: var(--cream); }
+.slide--white { background: var(--white); }
+.slide--dark { background: var(--near-black); color: var(--white); }
+.slide--green { background: var(--deep-green); color: var(--white); }
+.slide--gold { background: var(--gold); color: var(--black); }
+.slide--orange { background: var(--orange); color: var(--white); }
+.slide--cream-light { background: var(--cream-light); }
+.slide--burgundy { background: var(--burgundy); color: var(--white); }
+
+.slide--grid::before {
+  content: ''; position: absolute; inset: 0;
+  background-image: linear-gradient(rgba(0,0,0,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.025) 1px, transparent 1px);
+  background-size: 48px 48px; pointer-events: none;
+}
+.slide--dark.slide--grid::before,
+.slide--green.slide--grid::before,
+.slide--burgundy.slide--grid::before,
+.slide--orange.slide--grid::before {
+  background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+}
+
+.slide-inner { position: relative; z-index: 1; max-width: 1000px; width: 100%; }
+
+.slide-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; opacity: 0.5; margin-bottom: 16px; }
+.slide-title { font-size: clamp(36px, 5.5vw, 68px); font-weight: 900; line-height: 1.1; margin-bottom: 24px; }
+.slide-title--sm { font-size: clamp(28px, 3.8vw, 48px); font-weight: 900; line-height: 1.15; margin-bottom: 20px; }
+.slide-subtitle { font-size: 20px; line-height: 1.6; opacity: 0.7; max-width: 640px; margin-bottom: 32px; }
+.slide-body { font-size: 17px; line-height: 1.75; max-width: 820px; }
+
+.pill { display: inline-block; border-radius: var(--pill); font-weight: 800; font-size: 13px; padding: 8px 16px; margin-bottom: 16px; }
+.pill--black { background: var(--black); color: var(--white); }
+.pill--white { background: var(--white); color: var(--near-black); }
+.pill--gold { background: var(--gold); color: var(--black); }
+.pill--orange { background: var(--orange); color: var(--white); }
+
+.card-grid { display: grid; gap: 16px; margin-top: 28px; }
+.card-grid--2 { grid-template-columns: 1fr 1fr; }
+.card-grid--3 { grid-template-columns: 1fr 1fr 1fr; }
+.card { background: rgba(255,255,255,0.9); color: var(--near-black); border-radius: var(--radius); padding: 24px 22px; }
+.slide--dark .card, .slide--green .card { background: rgba(255,255,255,0.08); color: var(--white); }
+.card-icon { font-size: 32px; margin-bottom: 12px; }
+.card h3 { font-size: 18px; font-weight: 800; margin-bottom: 8px; line-height: 1.3; }
+.card p { font-size: 14px; opacity: 0.7; line-height: 1.6; }
+
+.checklist { list-style: none; margin-top: 24px; }
+.checklist li { font-size: 17px; padding: 11px 0; border-bottom: 1px solid rgba(128,128,128,0.15); display: flex; align-items: flex-start; gap: 12px; line-height: 1.55; }
+.checklist li::before { content: '✓'; font-weight: 900; color: var(--deep-green); flex-shrink: 0; margin-top: 2px; }
+.slide--dark .checklist li::before, .slide--green .checklist li::before { color: var(--gold); }
+.slide--dark .checklist li, .slide--green .checklist li { border-color: rgba(255,255,255,0.08); }
+
+.num-list { list-style: none; margin-top: 20px; counter-reset: numlist; }
+.num-list li { font-size: 16px; padding: 13px 0; border-bottom: 1px solid rgba(128,128,128,0.12); display: flex; align-items: flex-start; gap: 14px; line-height: 1.55; counter-increment: numlist; }
+.num-list li::before { content: counter(numlist, decimal-leading-zero); font-size: 13px; font-weight: 900; color: var(--gold); background: var(--near-black); border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.slide--dark .num-list li::before { background: var(--gold); color: var(--near-black); }
+.slide--dark .num-list li { border-color: rgba(255,255,255,0.08); }
+
+.code-block {
+  background: var(--near-black); color: #e0e0e0;
+  border-radius: 14px; padding: 20px 24px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 13px; line-height: 1.75;
+  margin-top: 20px; overflow-x: auto; white-space: pre;
+}
+.slide--dark .code-block { background: rgba(255,255,255,0.06); }
+.code-block .comment { color: #757369; }
+.code-block .keyword { color: var(--gold); }
+.code-block .string { color: #7ec699; }
+.code-block .flag { color: #d19a66; }
+.code-block .cmd { color: #e06c75; }
+
+.compare { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 28px; }
+.compare-col { border-radius: var(--radius); padding: 24px 22px; }
+.compare-col--a { background: rgba(18,66,52,0.07); border: 2px solid rgba(18,66,52,0.18); }
+.compare-col--b { background: rgba(244,186,84,0.10); border: 2px solid rgba(244,186,84,0.30); }
+.compare-col h3 { font-size: 15px; font-weight: 800; margin-bottom: 14px; }
+.compare-col ul { list-style: none; }
+.compare-col ul li { font-size: 14px; padding: 7px 0; border-bottom: 1px solid rgba(128,128,128,0.1); opacity: 0.85; line-height: 1.5; display: flex; gap: 8px; }
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 44px; align-items: start; }
+
+.highlight-box {
+  background: rgba(244,186,84,0.10); border-left: 4px solid var(--gold);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 18px 22px; margin-top: 20px; font-size: 15px; line-height: 1.65;
+}
+.slide--dark .highlight-box { background: rgba(244,186,84,0.07); }
+.highlight-box.warn { background: rgba(232,98,33,0.08); border-color: var(--orange); }
+
+.flow-steps { display: flex; align-items: center; gap: 10px; margin-top: 28px; flex-wrap: wrap; justify-content: center; }
+.flow-step { background: var(--white); color: var(--near-black); border-radius: 18px; padding: 18px 20px; text-align: center; min-width: 120px; }
+.slide--dark .flow-step { background: rgba(255,255,255,0.08); color: var(--white); }
+.slide--cream-light .flow-step { background: var(--white); }
+.flow-step .step-icon { font-size: 28px; margin-bottom: 7px; }
+.flow-step h4 { font-size: 14px; font-weight: 800; }
+.flow-step p { font-size: 11px; opacity: 0.6; margin-top: 4px; }
+.flow-arrow { font-size: 22px; color: var(--gold); font-weight: 900; }
+
+.table-wrap { margin-top: 24px; border-radius: var(--radius); overflow: hidden; border: 1px solid rgba(128,128,128,0.15); }
+.table-wrap table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.table-wrap th { background: var(--near-black); color: var(--white); padding: 12px 16px; font-weight: 800; text-align: left; font-size: 13px; }
+.table-wrap td { padding: 12px 16px; border-bottom: 1px solid rgba(128,128,128,0.1); line-height: 1.55; vertical-align: top; }
+.table-wrap tr:last-child td { border-bottom: none; }
+.table-wrap tr:nth-child(even) td { background: rgba(0,0,0,0.025); }
+
+.deco-emoji { position: absolute; font-size: 60px; opacity: 0.13; animation: floatSlow 6s ease-in-out infinite; }
+@keyframes floatSlow { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-12px) rotate(3deg); } }
+
+.progress-dots { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 100; display: flex; gap: 6px; align-items: center; background: rgba(0,0,0,0.6); border-radius: var(--pill); padding: 8px 16px; }
+.progress-dots .dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.3); transition: all 0.3s; cursor: pointer; }
+.progress-dots .dot.active { background: var(--gold); width: 24px; border-radius: 4px; }
+
+.nav-arrow { position: fixed; top: 50%; z-index: 100; width: 48px; height: 48px; border-radius: 50%; background: rgba(0,0,0,0.15); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s; backdrop-filter: blur(8px); color: var(--near-black); }
+.nav-arrow:hover { background: rgba(0,0,0,0.25); transform: scale(1.1); }
+.nav-arrow--prev { left: 20px; transform: translateY(-50%); }
+.nav-arrow--next { right: 20px; transform: translateY(-50%); }
+.nav-arrow svg { width: 20px; height: 20px; }
+
+.slide-counter { position: fixed; top: 24px; right: 32px; z-index: 100; font-size: 13px; font-weight: 700; color: rgba(128,128,128,0.6); background: rgba(255,255,255,0.5); border-radius: var(--pill); padding: 6px 14px; backdrop-filter: blur(8px); }
+.week-badge { position: fixed; top: 24px; left: 32px; z-index: 100; font-size: 12px; font-weight: 800; letter-spacing: 1px; background: var(--gold); color: var(--black); border-radius: var(--pill); padding: 8px 18px; }
+
+@media (max-width: 768px) {
+  .slide { padding: 40px 28px; }
+  .card-grid--2, .card-grid--3 { grid-template-columns: 1fr; }
+  .two-col, .compare { grid-template-columns: 1fr; }
+  .nav-arrow { display: none; }
+  .week-badge { font-size: 10px; padding: 6px 12px; left: 16px; top: 16px; }
+  .slide-counter { right: 16px; top: 16px; }
+  .flow-steps { flex-direction: column; }
+  .flow-arrow { transform: rotate(90deg); }
+}
+</style>
+</head>
+<body>
+
+<div class="deck" id="deck">
+
+  <!-- 1. 커버 -->
+  <div class="slide slide--dark slide--grid active" data-section="INTRO">
+    <span class="deco-emoji" style="top:8%;right:10%;">⚙️</span>
+    <span class="deco-emoji" style="bottom:12%;left:7%;animation-delay:2.5s;">🤖</span>
+    <div class="slide-inner" style="text-align:center;">
+      <span class="pill pill--gold">EDUCATION · 35min</span>
+      <h1 class="slide-title" style="margin-top:10px;">
+        Claude Code<br>자동화 입문
+      </h1>
+      <p class="slide-subtitle" style="margin:0 auto 28px;">
+        <code style="background:rgba(255,255,255,0.1);padding:4px 10px;border-radius:8px;font-size:18px;">claude -p</code>와 Agent SDK —<br>
+        Hermes 크론잡에서 Claude Code를 에이전틱 실행기로
+      </p>
+      <p style="font-size:13px;opacity:0.3;">2026-06-11 기준 공식 문서 반영</p>
+    </div>
+  </div>
+
+  <!-- 2. 학습 목표 -->
+  <div class="slide slide--white" data-section="GOAL">
+    <div class="slide-inner">
+      <span class="pill pill--gold">TODAY'S GOAL</span>
+      <h2 class="slide-title--sm">이걸 다 읽고 나면</h2>
+      <ul class="checklist">
+        <li><code style="background:#f0f0f0;padding:2px 7px;border-radius:6px;font-size:14px;">claude -p</code>가 단순 텍스트 생성이 아닌 <strong>비대화형 에이전틱 실행</strong>임을 설명할 수 있다</li>
+        <li><code style="background:#f0f0f0;padding:2px 7px;border-radius:6px;font-size:14px;">claude -p</code>와 Agent SDK의 차이를 완제품 호출 vs 커스텀 제작 관점에서 구분한다</li>
+        <li>Hermes 크론잡에서 Claude Code를 어떤 역할로 배치할지 설명할 수 있다</li>
+        <li>OAuth 구독 토큰, API 키, <code style="background:#f0f0f0;padding:2px 7px;border-radius:6px;font-size:14px;">--bare</code> 옵션의 차이를 이해한다</li>
+        <li>2026-06-15 Agent SDK 크레딧 정책을 반영해 운영 방식을 설계할 수 있다</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 3. Hermes vs Claude Code 역할 분담 -->
+  <div class="slide slide--cream slide--grid" data-section="CONCEPT">
+    <div class="slide-inner">
+      <span class="pill pill--black">ROLES</span>
+      <h2 class="slide-title--sm">Hermes와 Claude Code —<br>경쟁이 아니라 역할 분담</h2>
+      <div class="card-grid card-grid--2" style="margin-top:28px;">
+        <div class="card" style="border:2px solid var(--gold);">
+          <div class="card-icon">🧑‍💼</div>
+          <h3>Hermes (비서실장·PM)</h3>
+          <p style="line-height:1.7;">
+            자연어 요청 해석<br>
+            크론잡 생성·수정<br>
+            실행 시점 관리<br>
+            결과 전달·라우팅
+          </p>
+        </div>
+        <div class="card" style="border:2px solid rgba(18,66,52,0.3);">
+          <div class="card-icon">👨‍💻</div>
+          <h3>Claude Code (전문 실무자)</h3>
+          <p style="line-height:1.7;">
+            파일 탐색·읽기·수정<br>
+            코드 분석·테스트 실행<br>
+            셸 명령 실행<br>
+            결과 요약·구조화 출력
+          </p>
+        </div>
+      </div>
+      <div class="highlight-box" style="margin-top:20px;">
+        💡 Claude Code는 스케줄러 역할을 가져갈 필요 없다. Hermes가 필요할 때 호출하는 <strong>전문 실행기</strong>로 배치한다.
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. claude -p 개념 -->
+  <div class="slide slide--cream-light" data-section="CONCEPT">
+    <div class="slide-inner">
+      <span class="pill pill--black">CONCEPT 01</span>
+      <h2 class="slide-title--sm"><code style="font-size:0.85em;">claude -p</code> 란?</h2>
+      <p class="slide-body" style="margin-bottom:8px;">
+        <code style="background:rgba(0,0,0,0.07);padding:3px 9px;border-radius:6px;">-p</code>는 <code style="background:rgba(0,0,0,0.07);padding:3px 9px;border-radius:6px;">--print</code>의 축약형.<br>
+        <strong>터미널 대화형 UI 없이</strong> 프롬프트를 실행하고 stdout으로 결과를 출력.
+      </p>
+      <div class="code-block">
+<span class="comment"># 가장 단순한 형태</span>
+claude -p <span class="string">"이 프로젝트의 구조를 요약해줘"</span>
+
+<span class="comment"># 도구 허용 + JSON 출력</span>
+claude -p <span class="string">"테스트를 실행하고 실패 원인을 찾아 요약해줘"</span> \
+  <span class="flag">--allowedTools</span> <span class="string">"Read,Glob,Grep,Bash"</span> \
+  <span class="flag">--output-format</span> json</div>
+      <div class="highlight-box" style="margin-top:16px;">
+        ⚡ <strong>에이전틱 실행</strong> — 단순 LLM 답변이 아니다. 파일 탐색→도구 호출→결과 확인→반복의 에이전트 루프가 돈다.
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. claude -p는 단순 답변기가 아니다 -->
+  <div class="slide slide--white" data-section="CONCEPT">
+    <div class="slide-inner">
+      <span class="pill pill--black">COMPARE</span>
+      <h2 class="slide-title--sm">단순 LLM 호출 vs claude -p</h2>
+      <div class="compare">
+        <div class="compare-col compare-col--a">
+          <h3>💬 단순 LLM API 호출</h3>
+          <ul>
+            <li>프롬프트 입력</li>
+            <li>→ 텍스트 답변 반환</li>
+            <li>파일 시스템 접근 없음</li>
+            <li>명령 실행 없음</li>
+            <li>한 번의 요청·응답으로 끝</li>
+          </ul>
+        </div>
+        <div class="compare-col compare-col--b">
+          <h3>🤖 claude -p (에이전틱 실행)</h3>
+          <ul>
+            <li>목표 입력</li>
+            <li>→ 필요한 파일 탐색</li>
+            <li>→ 도구 호출·명령 실행</li>
+            <li>→ 결과 확인·필요 시 반복</li>
+            <li>→ 최종 결과 출력</li>
+          </ul>
+        </div>
+      </div>
+      <div class="highlight-box warn" style="margin-top:20px;">
+        ⚠️ 그래서 <strong>권한을 좁게 설계</strong>해야 한다. 파일 수정·삭제 권한은 승인 흐름이 있을 때만 부여.
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. 크론잡에서 claude -p 구조 -->
+  <div class="slide slide--dark slide--grid" data-section="PRACTICE">
+    <div class="slide-inner">
+      <span class="pill pill--gold">PRACTICE 01</span>
+      <h2 class="slide-title--sm">크론잡에서 가장 단순한 구조</h2>
+      <div class="code-block" style="font-size:12.5px;">
+<span class="comment">#!/bin/zsh</span>
+<span class="keyword">set</span> -euo pipefail
+
+<span class="comment"># 프로젝트 디렉토리로 이동</span>
+<span class="keyword">cd</span> <span class="string">"$HOME/apps/cvc-laps"</span>
+
+<span class="comment"># claude -p 호출 — 읽기 전용 점검</span>
+claude -p \
+  <span class="flag">--allowedTools</span> <span class="string">"Read,Glob,Grep,Bash"</span> \
+  <span class="flag">--output-format</span> json \
+  <span class="string">"프로젝트 빌드를 실행하고 오류를 점검해줘.
+   파일은 수정하지 말고 문제점과 권장 조치만 정리해줘."</span> \
+  | jq -r <span class="string">'.result'</span></div>
+      <div class="highlight-box" style="margin-top:16px;">
+        💡 처음엔 <strong>점검 전용</strong>으로 시작. 파일 수정 권한(Edit, Write)은 승인 흐름이 생긴 다음에 추가.
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. 권한 설계 -->
+  <div class="slide slide--white" data-section="PRACTICE">
+    <div class="slide-inner">
+      <span class="pill pill--black">SECURITY</span>
+      <h2 class="slide-title--sm">자동화 권한 — 좁게 설계한다</h2>
+      <div class="compare">
+        <div class="compare-col compare-col--a">
+          <h3>✅ 정기 점검용 (매일 자동)</h3>
+          <ul>
+            <li>Read</li>
+            <li>Glob</li>
+            <li>Grep</li>
+            <li>Bash (제한적)</li>
+          </ul>
+          <div style="margin-top:14px; font-size:13px; opacity:0.7; line-height:1.6;">
+            → 보고서·요약만 출력<br>파일 변경 없음
+          </div>
+        </div>
+        <div class="compare-col compare-col--b">
+          <h3>⚡ 승인 후 수정용 (온디맨드)</h3>
+          <ul>
+            <li>Read · Glob · Grep</li>
+            <li>Edit</li>
+            <li>Write</li>
+            <li>Bash</li>
+          </ul>
+          <div style="margin-top:14px; font-size:13px; opacity:0.7; line-height:1.6;">
+            → 텔레그램 승인 후 실행<br>변경 파일 목록 로그 기록
+          </div>
+        </div>
+      </div>
+      <div class="highlight-box warn" style="margin-top:16px;">
+        ⚠️ 매일 자동 실행 잡에 Edit·Write를 주면 예상치 못한 파일 변경이 생길 수 있다. 분리 운영 필수.
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. JSON 출력 & 후속 자동화 -->
+  <div class="slide slide--cream-light" data-section="PRACTICE">
+    <div class="slide-inner">
+      <span class="pill pill--black">OUTPUT</span>
+      <h2 class="slide-title--sm">JSON 출력으로 후속 자동화에 연결</h2>
+      <div class="code-block" style="font-size:12px;">
+<span class="comment"># 기본 JSON 응답</span>
+claude -p <span class="string">"프로젝트 요약해줘"</span> <span class="flag">--output-format</span> json
+
+<span class="comment"># jq로 텍스트만 추출</span>
+claude -p <span class="string">"프로젝트 요약해줘"</span> <span class="flag">--output-format</span> json | jq -r <span class="string">'.result'</span>
+
+<span class="comment"># JSON Schema 기반 구조화 출력</span>
+claude -p <span class="string">"오류를 심각도별로 분류해줘"</span> \
+  <span class="flag">--output-format</span> json \
+  <span class="flag">--json-schema</span> <span class="string">'{"type":"object","properties":{"issues":{"type":"array","items":{"type":"object","properties":{"severity":{"type":"string"},"summary":{"type":"string"}}}}},"required":["issues"]}'</span></div>
+      <div class="highlight-box" style="margin-top:14px; font-size:14px;">
+        💡 구조화 출력 활용처: 노션 DB 업데이트 · 텔레그램 심각도별 알림 · 승인 필요 항목만 큐 등록
+      </div>
+    </div>
+  </div>
+
+  <!-- 9. Agent SDK 개념 -->
+  <div class="slide slide--cream slide--grid" data-section="SDK">
+    <div class="slide-inner">
+      <span class="pill pill--black">CONCEPT 02</span>
+      <h2 class="slide-title--sm">Agent SDK란?</h2>
+      <div class="two-col" style="margin-top:24px; gap:36px;">
+        <div>
+          <p class="slide-body" style="font-size:16px; line-height:1.8;">
+            Claude Code의 도구, 에이전트 루프, 컨텍스트 관리 기능을 <strong>Python 또는 TypeScript 코드에서 직접 제어</strong>하는 라이브러리.<br><br>
+            <strong>SDK는 컨테이너가 아니다.</strong><br>
+            Docker 컨테이너 안에 SDK 앱을 넣을 수는 있지만, SDK 자체는 <em>제작 키트</em>다.
+          </p>
+        </div>
+        <div>
+          <div class="card" style="border:2px solid var(--gold);">
+            <div class="card-icon">🧰</div>
+            <h3>SDK로 할 수 있는 것</h3>
+            <p style="line-height:1.8; font-size:13px;">
+              도구 호출 전후 훅·로그<br>
+              파일 수정 전 승인 요청<br>
+              실패 시 재시도 로직<br>
+              세션 저장·이어서 실행<br>
+              서브에이전트 분담<br>
+              스트리밍 응답 처리<br>
+              비용·사용량 추적
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 10. claude -p vs Agent SDK 비교표 -->
+  <div class="slide slide--white" data-section="SDK">
+    <div class="slide-inner">
+      <span class="pill pill--black">COMPARE</span>
+      <h2 class="slide-title--sm">claude -p vs Agent SDK</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>구분</th>
+              <th>claude -p</th>
+              <th>Agent SDK</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>성격</strong></td>
+              <td>CLI 인터페이스</td>
+              <td>Python·TypeScript 라이브러리</td>
+            </tr>
+            <tr>
+              <td><strong>비유</strong></td>
+              <td>한 줄 명령으로 전문가 호출</td>
+              <td>업무 매뉴얼·승인 절차 내장 팀 제작</td>
+            </tr>
+            <tr>
+              <td><strong>적합한 상황</strong></td>
+              <td>단발성 작업, 간단한 크론잡, CI</td>
+              <td>복잡한 분기·재시도·승인·서브에이전트</td>
+            </tr>
+            <tr>
+              <td><strong>장점</strong></td>
+              <td>빠르고 단순, 셸 스크립트에 바로</td>
+              <td>세밀한 제어, 확장성</td>
+            </tr>
+            <tr>
+              <td><strong>시작 비용</strong></td>
+              <td>낮음</td>
+              <td>높음 (프로그램 직접 작성)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="highlight-box" style="margin-top:16px;">
+        💡 claude -p로 가치를 검증하고, 복잡도가 올라갈 때 SDK로 확장하는 것이 효율적.
+      </div>
+    </div>
+  </div>
+
+  <!-- 11. SDK 코드 예시 -->
+  <div class="slide slide--dark slide--grid" data-section="SDK">
+    <div class="slide-inner">
+      <span class="pill pill--gold">CODE</span>
+      <h2 class="slide-title--sm">Agent SDK 코드 예시 (Python)</h2>
+      <div class="code-block" style="font-size:12.5px;">
+<span class="keyword">import</span> asyncio
+<span class="keyword">from</span> claude_agent_sdk <span class="keyword">import</span> query, ClaudeAgentOptions
+
+<span class="keyword">async def</span> <span class="string">main</span>():
+    <span class="keyword">async for</span> message <span class="keyword">in</span> query(
+        prompt=<span class="string">"프로젝트를 검사하고 테스트 실패 원인을 요약해줘"</span>,
+        options=ClaudeAgentOptions(
+            allowed_tools=[<span class="string">"Read"</span>, <span class="string">"Glob"</span>, <span class="string">"Grep"</span>, <span class="string">"Bash"</span>]
+        ),
+    ):
+        <span class="keyword">if</span> hasattr(message, <span class="string">"result"</span>):
+            <span class="cmd">print</span>(message.result)
+
+asyncio.run(main())</div>
+      <div class="highlight-box" style="margin-top:14px; font-size:13px;">
+        ⚡ 핵심 차이: 문자열 하나가 아니라 <strong>메시지 이벤트와 실행 흐름을 코드 내부에서 다룬다</strong>.
+      </div>
+    </div>
+  </div>
+
+  <!-- 12. 인증 방식 -->
+  <div class="slide slide--cream-light" data-section="AUTH">
+    <div class="slide-inner">
+      <span class="pill pill--black">AUTH</span>
+      <h2 class="slide-title--sm">인증 방식 — 뭘 써야 하나?</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>방식</th><th>환경 변수</th><th>과금</th><th>적합한 상황</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>구독 OAuth 토큰</strong></td>
+              <td><code style="font-size:12px;">CLAUDE_CODE_OAUTH_TOKEN</code></td>
+              <td>Agent SDK 크레딧 차감</td>
+              <td>개인 스크립트, 개인 크론잡, CI 파이프라인</td>
+            </tr>
+            <tr>
+              <td><strong>Claude Platform API 키</strong></td>
+              <td><code style="font-size:12px;">ANTHROPIC_API_KEY</code></td>
+              <td>사용량 기반 API 과금</td>
+              <td>팀 공유 자동화, 고객 대상 서비스, 상시 운영</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="highlight-box warn" style="margin-top:16px; font-size:14px;">
+        ⚠️ <strong>주의 3가지</strong><br>
+        1. <code style="background:rgba(0,0,0,0.07);padding:1px 6px;border-radius:4px;">ANTHROPIC_API_KEY</code>가 설정되면 API 키가 우선 적용된다.<br>
+        2. <code style="background:rgba(0,0,0,0.07);padding:1px 6px;border-radius:4px;">--bare</code> 모드는 OAuth 토큰을 읽지 않는다. API 키 필요.<br>
+        3. 고객용 SaaS에 본인 구독 토큰을 연결하려면 Anthropic 사전 승인이 필요하다.
+      </div>
+    </div>
+  </div>
+
+  <!-- 13. 2026-06-15 크레딧 정책 -->
+  <div class="slide slide--green slide--grid" data-section="POLICY">
+    <div class="slide-inner">
+      <span class="pill pill--gold">2026-06-15 NEW</span>
+      <h2 class="slide-title--sm">자동화 과금이 분리된다</h2>
+      <div class="compare" style="margin-top:20px;">
+        <div class="compare-col" style="background:rgba(255,255,255,0.06); border:2px solid rgba(255,255,255,0.1);">
+          <h3 style="color:var(--light-gray);">2026-06-14 이전</h3>
+          <ul>
+            <li style="color:rgba(255,255,255,0.7);">자동화 사용 = 기존 플랜 사용량에 통합</li>
+          </ul>
+        </div>
+        <div class="compare-col" style="background:rgba(244,186,84,0.1); border:2px solid rgba(244,186,84,0.3);">
+          <h3 style="color:var(--gold);">2026-06-15 이후</h3>
+          <ul>
+            <li style="color:rgba(255,255,255,0.85);">claude -p, Agent SDK = 별도 월간 크레딧 먼저 차감</li>
+            <li style="color:rgba(255,255,255,0.85);">Pro $20 / Max 5x $100 / Max 20x $200</li>
+            <li style="color:rgba(255,255,255,0.85);">크레딧 소진 → usage credits 켜져 있으면 API 요율 추가 과금</li>
+            <li style="color:rgba(255,255,255,0.85);">대화형 Claude Code는 이 크레딧 대상 아님</li>
+          </ul>
+        </div>
+      </div>
+      <div class="highlight-box" style="margin-top:16px; font-size:14px;">
+        💡 자동화를 금지한 게 아니다. 반복 실행과 대화형 사용을 <strong>분리해 관리</strong>하는 방향으로 변경된 것.
+      </div>
+    </div>
+  </div>
+
+  <!-- 14. 도입 순서 로드맵 -->
+  <div class="slide slide--white" data-section="ROADMAP">
+    <div class="slide-inner">
+      <span class="pill pill--black">ROADMAP</span>
+      <h2 class="slide-title--sm">Hermes 환경 권장 도입 순서</h2>
+      <ol class="num-list" style="margin-top:20px;">
+        <li>
+          <div>
+            <strong>Hermes + claude -p 점검용 자동화</strong><br>
+            <span style="opacity:0.6; font-size:14px;">Read/Glob/Grep/Bash만 — 보고서 생성, 파일 변경 없음</span>
+          </div>
+        </li>
+        <li>
+          <div>
+            <strong>JSON 출력 + 텔레그램 승인 연결</strong><br>
+            <span style="opacity:0.6; font-size:14px;">오류 심각도·권장 조치 구조화 → 사람이 승인</span>
+          </div>
+        </li>
+        <li>
+          <div>
+            <strong>승인 후 수정용 claude -p 별도 실행</strong><br>
+            <span style="opacity:0.6; font-size:14px;">Edit/Write는 승인된 작업에만</span>
+          </div>
+        </li>
+        <li>
+          <div>
+            <strong>Agent SDK 기반 패키지로 확장</strong><br>
+            <span style="opacity:0.6; font-size:14px;">로그·재시도·세션·서브에이전트·MCP 코드화</span>
+          </div>
+        </li>
+        <li>
+          <div>
+            <strong>제품화 시 API 키 기반 전환</strong><br>
+            <span style="opacity:0.6; font-size:14px;">고객 요청·팀 공유 자동화 → pay-as-you-go</span>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- 15. 한 장 요약 + 마무리 -->
+  <div class="slide slide--dark slide--grid" data-section="END">
+    <div class="slide-inner" style="text-align:center;">
+      <span class="deco-emoji" style="top:10%;right:10%;">✅</span>
+      <span class="pill pill--gold">SUMMARY</span>
+      <h2 class="slide-title--sm" style="margin-top:10px;">한 장 정리</h2>
+      <div class="card-grid card-grid--3" style="margin-top:20px; max-width:900px; margin-left:auto; margin-right:auto; text-align:left;">
+        <div class="card">
+          <div class="card-icon">🧑‍💼</div>
+          <h3>Hermes</h3>
+          <p>비서실장·PM<br>스케줄·라우팅 담당</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">⚡</div>
+          <h3>claude -p</h3>
+          <p>바로 호출 가능한<br>전문 실무자 (CLI)</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🧰</div>
+          <h3>Agent SDK</h3>
+          <p>승인·재시도·로그<br>내장 팀 제작 키트</p>
+        </div>
+      </div>
+      <div class="highlight-box" style="margin-top:20px; text-align:left; font-size:14px;">
+        📌 claude -p로 검증 → 복잡도 올라가면 SDK 확장 → 제품화 시 API 키 전환<br>
+        📌 2026-06-15부터 claude -p/SDK = 별도 Agent SDK 크레딧 체계
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- 네비게이션 UI -->
+<div class="week-badge" id="weekBadge">INTRO</div>
+<div class="slide-counter" id="slideCounter">1 / 15</div>
+
+<button class="nav-arrow nav-arrow--prev" id="prevBtn" onclick="changeSlide(-1)">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+</button>
+<button class="nav-arrow nav-arrow--next" id="nextBtn" onclick="changeSlide(1)">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+</button>
+
+<div class="progress-dots" id="progressDots"></div>
+
+<script>
+const slides = document.querySelectorAll('.slide');
+const counter = document.getElementById('slideCounter');
+const weekBadge = document.getElementById('weekBadge');
+const progressDots = document.getElementById('progressDots');
+let current = 0;
+
+slides.forEach((_, i) => {
+  const dot = document.createElement('div');
+  dot.className = 'dot' + (i === 0 ? ' active' : '');
+  dot.onclick = () => goToSlide(i);
+  progressDots.appendChild(dot);
+});
+
+function updateUI() {
+  slides.forEach((s, i) => {
+    s.classList.remove('active', 'prev');
+    if (i === current) s.classList.add('active');
+    else if (i < current) s.classList.add('prev');
+  });
+  counter.textContent = `${current + 1} / ${slides.length}`;
+  const section = slides[current].dataset.section;
+  if (section) weekBadge.textContent = section;
+  document.querySelectorAll('.progress-dots .dot').forEach((d, i) => {
+    d.classList.toggle('active', i === current);
+  });
+  const isDark = slides[current].classList.contains('slide--dark') ||
+                 slides[current].classList.contains('slide--green') ||
+                 slides[current].classList.contains('slide--orange') ||
+                 slides[current].classList.contains('slide--burgundy');
+  document.querySelectorAll('.nav-arrow').forEach(a => {
+    a.style.color = isDark ? '#fff' : 'var(--near-black)';
+    a.style.background = isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.12)';
+  });
+}
+
+function changeSlide(dir) {
+  const next = current + dir;
+  if (next < 0 || next >= slides.length) return;
+  current = next;
+  updateUI();
+}
+
+function goToSlide(i) {
+  current = i;
+  updateUI();
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); changeSlide(1); }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); changeSlide(-1); }
+  if (e.key === 'Home') { e.preventDefault(); goToSlide(0); }
+  if (e.key === 'End') { e.preventDefault(); goToSlide(slides.length - 1); }
+});
+
+let touchStartX = 0;
+document.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; });
+document.addEventListener('touchend', (e) => {
+  const diff = touchStartX - e.changedTouches[0].screenX;
+  if (Math.abs(diff) > 60) changeSlide(diff > 0 ? 1 : -1);
+});
+
+updateUI();
+</script>
+</body>
+</html>

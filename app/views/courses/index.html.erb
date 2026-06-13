@@ -1,0 +1,12 @@
+<% content_for :title, "강의 · Teo Vibe Edu" %>
+<section class="hero wrap">
+  <p class="hero-label">Slide Library · Est. 2026</p>
+  <h1 class="hero-title">부딪힌 만큼,<br><em>가르칠 수 있다</em></h1>
+  <p class="hero-sub">바이브 코딩으로 직접 만들고 부수며 모은 <strong>진짜 문제들</strong>을 강의 슬라이드로 아카이브합니다. 기본 주차는 무료, 심화는 강의별로 잠금 해제하세요.</p>
+</section>
+
+<div class="wrap">
+  <div class="deck-grid">
+    <%= render DeckCardComponent.with_collection(@courses) %>
+  </div>
+</div>

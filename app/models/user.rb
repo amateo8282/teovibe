@@ -12,6 +12,8 @@ class User < ApplicationRecord
   has_many :point_transactions, dependent: :destroy
   has_many :notifications, dependent: :destroy
   has_many :connected_services, dependent: :destroy
+  has_many :entitlements, dependent: :destroy
+  has_many :courses, through: :entitlements
 
   normalizes :email_address, with: ->(e) { e.strip.downcase }
 
@@ -25,6 +27,11 @@ class User < ApplicationRecord
 
   def admin?
     role == "admin"
+  end
+
+  # 강의 접근 권한 (활성 자격이 있으면 true)
+  def entitled_to?(course)
+    entitlements.active.exists?(course_id: course.id)
   end
 
   # 아바타 URL 반환 (Active Storage 첨부 우선, 기존 avatar_url 폴백)

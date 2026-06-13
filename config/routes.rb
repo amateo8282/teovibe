@@ -61,6 +61,12 @@ Rails.application.routes.draw do
   end
   get "dl/:download_token", to: "skill_packs#token_download", as: :token_download
 
+  # 강의 (edu 통합 — 슬라이드 갤러리 + Polar 결제 게이트)
+  resources :courses, only: %i[index show], param: :slug do
+    collection { post :unlock }
+  end
+  post "webhooks/polar", to: "polar_webhooks#create"
+
   # 문의
   resources :inquiries, only: [:new, :create]
 

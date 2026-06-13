@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>바이브코딩 마스터 — 5~6주차 교안</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root {
+  --black: #000000;
+  --white: #FFFFFF;
+  --cream: #F1EDE4;
+  --cream-light: #F7F4EE;
+  --dark-brown: #3E3A33;
+  --near-black: #1D1403;
+  --gold: #F4BA54;
+  --orange: #E86221;
+  --warm-orange: #FFAA54;
+  --deep-green: #124234;
+  --burgundy: #8D3D3E;
+  --gray: #757369;
+  --light-gray: #AAA9A7;
+  --font: 'Pretendard Variable', -apple-system, 'system-ui', sans-serif;
+  --ls: -0.8px;
+  --pill: 100px;
+  --radius: 24px;
+}
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; overflow: hidden; }
+body { font-family: var(--font); color: var(--near-black); letter-spacing: var(--ls); -webkit-font-smoothing: antialiased; }
+
+.deck { width: 100vw; height: 100vh; position: relative; overflow: hidden; }
+.slide {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  padding: 60px 80px;
+  opacity: 0; transform: translateX(60px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  pointer-events: none; overflow-y: auto;
+}
+.slide.active { opacity: 1; transform: translateX(0); pointer-events: auto; z-index: 2; }
+.slide.prev { opacity: 0; transform: translateX(-60px); z-index: 1; }
+
+.slide--cream { background: var(--cream); }
+.slide--white { background: var(--white); }
+.slide--dark { background: var(--near-black); color: var(--white); }
+.slide--green { background: var(--deep-green); color: var(--white); }
+.slide--gold { background: var(--gold); color: var(--black); }
+.slide--orange { background: var(--orange); color: var(--white); }
+.slide--cream-light { background: var(--cream-light); }
+.slide--burgundy { background: var(--burgundy); color: var(--white); }
+
+.slide--grid::before {
+  content: ''; position: absolute; inset: 0;
+  background-image: linear-gradient(rgba(0,0,0,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.025) 1px, transparent 1px);
+  background-size: 48px 48px; pointer-events: none;
+}
+.slide--dark.slide--grid::before, .slide--green.slide--grid::before, .slide--burgundy.slide--grid::before, .slide--orange.slide--grid::before {
+  background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+}
+
+.slide-inner { position: relative; z-index: 1; max-width: 1000px; width: 100%; }
+
+.slide-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; opacity: 0.5; margin-bottom: 16px; }
+.slide-title { font-size: clamp(40px, 6vw, 72px); font-weight: 900; line-height: 1.1; margin-bottom: 24px; }
+.slide-title--sm { font-size: clamp(32px, 4vw, 52px); font-weight: 900; line-height: 1.15; margin-bottom: 20px; }
+.slide-subtitle { font-size: 20px; line-height: 1.6; opacity: 0.7; max-width: 640px; margin-bottom: 32px; }
+.slide-body { font-size: 18px; line-height: 1.7; max-width: 800px; }
+
+.pill { display: inline-block; border-radius: var(--pill); font-weight: 800; font-size: 13px; padding: 8px 16px; margin-bottom: 16px; }
+.pill--black { background: var(--black); color: var(--white); }
+.pill--white { background: var(--white); color: var(--near-black); }
+.pill--gold { background: var(--gold); color: var(--black); }
+
+.card-grid { display: grid; gap: 16px; margin-top: 32px; }
+.card-grid--2 { grid-template-columns: 1fr 1fr; }
+.card-grid--3 { grid-template-columns: 1fr 1fr 1fr; }
+.card-grid--4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+
+.card { background: rgba(255,255,255,0.9); color: var(--near-black); border-radius: var(--radius); padding: 28px 24px; }
+.slide--dark .card, .slide--green .card, .slide--burgundy .card, .slide--orange .card { background: rgba(255,255,255,0.08); color: var(--white); }
+
+.card-icon { font-size: 36px; margin-bottom: 14px; }
+.card h3 { font-size: 20px; font-weight: 800; margin-bottom: 8px; line-height: 1.3; }
+.card p { font-size: 15px; opacity: 0.7; line-height: 1.6; }
+
+.checklist { list-style: none; margin-top: 24px; }
+.checklist li { font-size: 18px; padding: 12px 0; border-bottom: 1px solid rgba(128,128,128,0.15); display: flex; align-items: flex-start; gap: 12px; line-height: 1.5; }
+.checklist li::before { content: '✓'; font-weight: 900; color: var(--deep-green); flex-shrink: 0; margin-top: 2px; }
+.slide--dark .checklist li::before, .slide--green .checklist li::before { color: var(--gold); }
+.slide--dark .checklist li, .slide--green .checklist li { border-color: rgba(255,255,255,0.08); }
+
+.num-list { list-style: none; margin-top: 24px; counter-reset: numlist; }
+.num-list li { font-size: 18px; padding: 16px 0; border-bottom: 1px solid rgba(128,128,128,0.12); display: flex; align-items: flex-start; gap: 16px; line-height: 1.55; counter-increment: numlist; }
+.num-list li::before { content: counter(numlist, decimal-leading-zero); font-size: 14px; font-weight: 900; color: var(--gold); background: var(--near-black); border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.slide--dark .num-list li::before { background: var(--gold); color: var(--near-black); }
+.slide--dark .num-list li { border-color: rgba(255,255,255,0.08); }
+
+.code-block {
+  background: var(--near-black); color: #e0e0e0;
+  border-radius: 16px; padding: 24px 28px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 14px; line-height: 1.7;
+  margin-top: 24px; overflow-x: auto; white-space: pre-wrap;
+}
+.slide--dark .code-block { background: rgba(255,255,255,0.06); }
+.code-block .comment { color: var(--gray); }
+.code-block .keyword { color: var(--gold); }
+.code-block .string { color: #7ec699; }
+.code-block .tag { color: #e06c75; }
+.code-block .attr { color: #d19a66; }
+
+.compare { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 32px; }
+.compare-col { border-radius: var(--radius); padding: 28px 24px; }
+.compare-col--before { background: rgba(141,61,62,0.08); border: 2px solid rgba(141,61,62,0.15); }
+.compare-col--after { background: rgba(18,66,52,0.08); border: 2px solid rgba(18,66,52,0.2); }
+.compare-col h3 { font-size: 16px; font-weight: 800; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+.compare-col ul { list-style: none; }
+.compare-col ul li { font-size: 15px; padding: 8px 0; opacity: 0.8; line-height: 1.5; display: flex; align-items: flex-start; gap: 8px; }
+
+.highlight-box {
+  background: rgba(244,186,84,0.12); border-left: 4px solid var(--gold);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 20px 24px; margin-top: 24px; font-size: 16px; line-height: 1.6;
+}
+.slide--dark .highlight-box { background: rgba(244,186,84,0.08); }
+
+.timeline { margin-top: 32px; }
+.timeline-item { display: flex; gap: 20px; padding: 16px 0; border-bottom: 1px solid rgba(128,128,128,0.1); }
+.timeline-time { font-size: 14px; font-weight: 800; color: var(--gold); min-width: 80px; flex-shrink: 0; }
+.timeline-content h4 { font-size: 17px; font-weight: 800; margin-bottom: 4px; }
+.timeline-content p { font-size: 14px; opacity: 0.6; }
+
+.flow-steps { display: flex; align-items: center; gap: 12px; margin-top: 32px; flex-wrap: wrap; justify-content: center; }
+.flow-step { background: var(--white); color: var(--near-black); border-radius: var(--radius); padding: 20px 24px; text-align: center; min-width: 140px; }
+.slide--dark .flow-step { background: rgba(255,255,255,0.08); color: var(--white); }
+.flow-step .step-icon { font-size: 32px; margin-bottom: 8px; }
+.flow-step h4 { font-size: 15px; font-weight: 800; }
+.flow-step p { font-size: 12px; opacity: 0.6; margin-top: 4px; }
+.flow-arrow { font-size: 24px; color: var(--gold); font-weight: 900; }
+
+.deco-emoji { position: absolute; font-size: 64px; opacity: 0.15; animation: floatSlow 6s ease-in-out infinite; }
+@keyframes floatSlow { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-12px) rotate(3deg); } }
+
+/* 대시보드 모킹 */
+.mock-dashboard {
+  background: var(--white); border-radius: var(--radius); padding: 24px;
+  margin-top: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+.mock-dashboard .mock-row { display: flex; gap: 16px; margin-bottom: 16px; }
+.mock-kpi {
+  flex: 1; background: var(--cream-light); border-radius: 16px;
+  padding: 16px 20px; text-align: center;
+}
+.mock-kpi .kpi-value { font-size: 32px; font-weight: 900; color: var(--near-black); }
+.mock-kpi .kpi-label { font-size: 12px; color: var(--gray); margin-top: 4px; }
+.mock-kpi .kpi-change { font-size: 12px; font-weight: 700; margin-top: 4px; }
+.mock-kpi .kpi-change.up { color: var(--deep-green); }
+.mock-kpi .kpi-change.down { color: var(--burgundy); }
+.mock-chart {
+  background: var(--cream-light); border-radius: 16px; padding: 20px;
+  height: 160px; display: flex; align-items: flex-end; gap: 8px; justify-content: center;
+}
+.mock-bar { width: 32px; border-radius: 8px 8px 0 0; background: var(--gold); transition: height 0.5s; }
+
+.progress-dots { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 100; display: flex; gap: 6px; align-items: center; background: rgba(0,0,0,0.6); border-radius: var(--pill); padding: 8px 16px; }
+.progress-dots .dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.3); transition: all 0.3s; cursor: pointer; }
+.progress-dots .dot.active { background: var(--gold); width: 24px; border-radius: 4px; }
+
+.nav-arrow { position: fixed; top: 50%; z-index: 100; width: 48px; height: 48px; border-radius: 50%; background: rgba(0,0,0,0.15); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s; backdrop-filter: blur(8px); color: var(--near-black); }
+.nav-arrow:hover { background: rgba(0,0,0,0.25); transform: scale(1.1); }
+.nav-arrow--prev { left: 20px; transform: translateY(-50%); }
+.nav-arrow--next { right: 20px; transform: translateY(-50%); }
+.nav-arrow svg { width: 20px; height: 20px; }
+
+.slide-counter { position: fixed; top: 24px; right: 32px; z-index: 100; font-size: 13px; font-weight: 700; color: rgba(128,128,128,0.6); background: rgba(255,255,255,0.5); border-radius: var(--pill); padding: 6px 14px; backdrop-filter: blur(8px); }
+.week-badge { position: fixed; top: 24px; left: 32px; z-index: 100; font-size: 12px; font-weight: 800; letter-spacing: 1px; background: var(--gold); color: var(--black); border-radius: var(--pill); padding: 8px 18px; }
+
+@media (max-width: 768px) {
+  .slide { padding: 40px 32px; }
+  .card-grid--2, .card-grid--3, .card-grid--4 { grid-template-columns: 1fr; }
+  .compare { grid-template-columns: 1fr; }
+  .nav-arrow { display: none; }
+  .week-badge { font-size: 10px; padding: 6px 12px; left: 16px; top: 16px; }
+  .slide-counter { right: 16px; top: 16px; }
+  .flow-steps { flex-direction: column; }
+  .flow-arrow { transform: rotate(90deg); }
+  .mock-dashboard .mock-row { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+
+<div class="deck" id="deck">
+
+<!-- ============================================
+     WEEK 5: 데이터 대시보드 구축
+     ============================================ -->
+
+<!-- SLIDE 1: 커버 -->
+<div class="slide slide--cream slide--grid active" data-week="5">
+  <span class="deco-emoji" style="top:10%;right:10%;">📊</span>
+  <span class="deco-emoji" style="bottom:15%;left:8%;animation-delay:2s;">📈</span>
+  <div class="slide-inner" style="text-align:center;">
+    <span class="pill pill--black">WEEK 05</span>
+    <h1 class="slide-title" style="margin-top:8px;">
+      데이터 대시보드<br>구축하기
+    </h1>
+    <p class="slide-subtitle" style="margin:0 auto 32px;">
+      숫자를 차트로, 데이터를 인사이트로.<br>한눈에 보이는 대시보드를 만들어봅시다.
+    </p>
+    <p style="font-size:14px;opacity:0.4;">바이브코딩 마스터 교육 프로그램 · 2시간</p>
+  </div>
+</div>
+
+<!-- SLIDE 2: 오늘의 목표 -->
+<div class="slide slide--white" data-week="5">
+  <div class="slide-inner">
+    <span class="pill pill--gold">TODAY'S GOAL</span>
+    <h2 class="slide-title--sm">오늘이 끝나면<br>여러분은</h2>
+    <ul class="checklist">
+      <li>대시보드 UI의 핵심 구성 요소를 이해합니다</li>
+      <li>Recharts로 차트(바, 라인, 파이)를 만들 수 있습니다</li>
+      <li>KPI 카드, 필터, 테이블을 조합한 대시보드를 완성합니다</li>
+      <li>Supabase 데이터를 실시간으로 시각화합니다</li>
+    </ul>
+  </div>
+</div>
+
+<!-- SLIDE 3: 대시보드란? -->
+<div class="slide slide--dark slide--grid" data-week="5">
+  <div class="slide-inner">
+    <span class="pill pill--gold">CONCEPT</span>
+    <h2 class="slide-title--sm">대시보드란?</h2>
+    <p class="slide-body" style="color:rgba(255,255,255,0.7);margin-bottom:24px;">
+      여러 데이터를 <strong style="color:var(--gold);">한 화면에서</strong> 시각적으로 확인하고<br>
+      의사결정에 필요한 인사이트를 빠르게 얻는 도구.
+    </p>
+    <div class="card-grid card-grid--3">
+      <div class="card" style="text-align:center;">
+        <div class="card-icon">🔢</div>
+        <h3>KPI 카드</h3>
+        <p>핵심 지표를 숫자로 한눈에</p>
+      </div>
+      <div class="card" style="text-align:center;">
+        <div class="card-icon">📊</div>
+        <h3>차트 & 그래프</h3>
+        <p>추세와 비교를 시각적으로</p>
+      </div>
+      <div class="card" style="text-align:center;">
+        <div class="card-icon">📋</div>
+        <h3>데이터 테이블</h3>
+        <p>상세 데이터를 표 형태로</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 4: 대시보드 모킹 -->
+<div class="slide slide--cream-light" data-week="5">
+  <div class="slide-inner">
+    <span class="pill pill--black">PREVIEW</span>
+    <h2 class="slide-title--sm">이런 걸 만들 거예요</h2>
+    <div class="mock-dashboard">
+      <div class="mock-row">
+        <div class="mock-kpi">
+          <div class="kpi-value">1,247</div>
+          <div class="kpi-label">총 방문자</div>
+          <div class="kpi-change up">↑ 12.5%</div>
+        </div>
+        <div class="mock-kpi">
+          <div class="kpi-value">₩8.2M</div>
+          <div class="kpi-label">이번 달 매출</div>
+          <div class="kpi-change up">↑ 8.3%</div>
+        </div>
+        <div class="mock-kpi">
+          <div class="kpi-value">342</div>
+          <div class="kpi-label">신규 가입</div>
+          <div class="kpi-change down">↓ 2.1%</div>
+        </div>
+        <div class="mock-kpi">
+          <div class="kpi-value">94.2%</div>
+          <div class="kpi-label">만족도</div>
+          <div class="kpi-change up">↑ 1.7%</div>
+        </div>
+      </div>
+      <div class="mock-chart" id="mockChart"></div>
+    </div>
+    <div class="highlight-box">
+      💡 위 대시보드도 순수 HTML/CSS로 만든 거예요. AI에게 시키면 진짜 데이터가 연동된 버전을 만들어줍니다.
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 5: 차트 라이브러리 소개 -->
+<div class="slide slide--white" data-week="5">
+  <div class="slide-inner">
+    <span class="pill pill--black">CHART LIBRARY</span>
+    <h2 class="slide-title--sm">Recharts — 차트를<br>쉽게 만드는 라이브러리</h2>
+    <p class="slide-subtitle">React(Next.js)에서 가장 많이 쓰는 차트 도구. AI가 알아서 설치하고 사용합니다.</p>
+    <div class="card-grid card-grid--4">
+      <div class="card" style="text-align:center;">
+        <div class="card-icon">📊</div>
+        <h3>Bar Chart</h3>
+        <p>항목별 비교</p>
+      </div>
+      <div class="card" style="text-align:center;">
+        <div class="card-icon">📈</div>
+        <h3>Line Chart</h3>
+        <p>시간에 따른 추세</p>
+      </div>
+      <div class="card" style="text-align:center;">
+        <div class="card-icon">🍩</div>
+        <h3>Pie Chart</h3>
+        <p>비율/구성</p>
+      </div>
+      <div class="card" style="text-align:center;">
+        <div class="card-icon">📉</div>
+        <h3>Area Chart</h3>
+        <p>추세 + 면적 강조</p>
+      </div>
+    </div>
+    <div class="highlight-box">
+      💬 AI에게: <strong>"월별 매출 데이터를 Bar Chart로 보여줘. Recharts 사용해서."</strong>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 6: KPI 카드 만들기 -->
+<div class="slide slide--dark slide--grid" data-week="5">
+  <div class="slide-inner">
+    <span class="pill pill--gold">KPI CARDS</span>
+    <h2 class="slide-title--sm">핵심 지표 카드 만들기</h2>
+    <p class="slide-subtitle" style="color:rgba(255,255,255,0.5);">대시보드 상단에 배치하는 요약 숫자들.</p>
+    <div class="code-block">
+<span class="comment">// AI에게 이렇게 요청하세요:</span>
+
+<span class="string">"대시보드 상단에 KPI 카드 4개를 만들어줘.
+
+각 카드에는:
+- 큰 숫자 (메인 지표)
+- 라벨 (지표 이름)
+- 전월 대비 증감률 (초록: 증가, 빨강: 감소)
+- 작은 아이콘
+
+카드 4개:
+1. 총 방문자수: 1,247 (↑12.5%)
+2. 이번 달 매출: ₩8.2M (↑8.3%)
+3. 신규 가입: 342 (↓2.1%)
+4. 고객 만족도: 94.2% (↑1.7%)
+
+Tailwind CSS, 그리드 레이아웃, 반응형."</span>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 7: 필터링 구현 -->
+<div class="slide slide--white" data-week="5">
+  <div class="slide-inner">
+    <span class="pill pill--black">FILTERING</span>
+    <h2 class="slide-title--sm">필터링 & 검색 기능</h2>
+    <p class="slide-subtitle">대시보드의 핵심은 원하는 데이터를 빠르게 찾는 것.</p>
+    <div class="card-grid card-grid--2">
+      <div class="card">
+        <div class="card-icon">📅</div>
+        <h3>날짜 필터</h3>
+        <p>"이번 주", "이번 달", "최근 3개월" 등 기간을 선택하면 차트와 KPI가 바뀌도록</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🏷</div>
+        <h3>카테고리 필터</h3>
+        <p>드롭다운으로 부서별, 제품별, 지역별 데이터를 걸러서 보기</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔍</div>
+        <h3>검색</h3>
+        <p>텍스트 입력으로 테이블 데이터에서 원하는 항목 찾기</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">⬇️</div>
+        <h3>정렬</h3>
+        <p>테이블 헤더 클릭 시 오름차순/내림차순 정렬</p>
+      </div>
+    </div>
+    <div class="highlight-box">
+      💬 <strong>"날짜 범위 선택 필터를 추가하고, 선택한 기간에 맞게 차트 데이터가 바뀌게 해줘"</strong>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 8: Supabase 실시간 연동 -->
+<div class="slide slide--green slide--grid" data-week="5">
+  <div class="slide-inner">
+    <span class="pill pill--white">REALTIME</span>
+    <h2 class="slide-title--sm">Supabase Realtime</h2>
+    <p class="slide-body" style="color:rgba(255,255,255,0.7);margin-bottom:24px;">
+      데이터가 바뀌면 <strong style="color:var(--gold);">새로고침 없이</strong> 화면이 자동 업데이트.<br>
+      다른 사람이 데이터를 추가해도 내 대시보드에 즉시 반영됩니다.
+    </p>
+    <div class="flow-steps">
+      <div class="flow-step">
+        <div class="step-icon">👤</div>
+        <h4>팀원 A</h4>
+        <p>데이터 입력</p>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="step-icon">🗄</div>
+        <h4>Supabase</h4>
+        <p>실시간 감지</p>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="step-icon">📊</div>
+        <h4>대시보드</h4>
+        <p>자동 업데이트</p>
+      </div>
+    </div>
+    <div class="code-block" style="margin-top:24px;">
+<span class="comment">// AI에게 이렇게 요청:</span>
+
+<span class="string">"Supabase Realtime을 연동해서
+posts 테이블에 새 데이터가 들어오면
+차트가 자동으로 업데이트되게 해줘."</span>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 9: 실습 프롬프트 -->
+<div class="slide slide--orange slide--grid" data-week="5">
+  <div class="slide-inner" style="text-align:center;">
+    <span class="pill pill--white">🛠 HANDS-ON</span>
+    <h2 class="slide-title--sm" style="margin-top:8px;">실습: 대시보드 만들기</h2>
+    <p class="slide-subtitle" style="margin:0 auto 24px;color:rgba(255,255,255,0.8);">
+      아래 중 하나를 골라 나만의 대시보드를 만드세요.
+    </p>
+    <div class="card-grid card-grid--3">
+      <div class="card" style="text-align:left;">
+        <div class="card-icon">💰</div>
+        <h3>팀 예산 대시보드</h3>
+        <p>부서별 예산 사용 현황, 월별 추이, 잔여 예산 카드</p>
+      </div>
+      <div class="card" style="text-align:left;">
+        <div class="card-icon">📚</div>
+        <h3>독서 기록 대시보드</h3>
+        <p>월별 독서량, 장르별 파이차트, 최근 읽은 책 목록</p>
+      </div>
+      <div class="card" style="text-align:left;">
+        <div class="card-icon">🏃</div>
+        <h3>운동 기록 대시보드</h3>
+        <p>주간 운동 시간, 종목별 비율, 칼로리 추이 그래프</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 10: 실습 팁 -->
+<div class="slide slide--cream-light" data-week="5">
+  <div class="slide-inner">
+    <span class="pill pill--black">PRO TIPS</span>
+    <h2 class="slide-title--sm">대시보드 실습 팁</h2>
+    <div class="card-grid card-grid--2">
+      <div class="card">
+        <div class="card-icon">🎯</div>
+        <h3>더미 데이터부터 시작</h3>
+        <p>처음부터 실데이터 연동하지 말고, 하드코딩된 가짜 데이터로 UI를 먼저 완성하세요. 그 다음 Supabase로 교체.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">📐</div>
+        <h3>레이아웃 먼저, 데이터 나중에</h3>
+        <p>"KPI 4개 + 바차트 1개 + 테이블 1개" 구조를 먼저 잡고, 각 컴포넌트를 하나씩 채워가세요.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🎨</div>
+        <h3>색상 일관성 유지</h3>
+        <p>차트 색상을 브랜드 컬러에 맞추세요. AI에게 "색상 팔레트: #F4BA54, #124234, #E86221로 통일해줘"</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">📱</div>
+        <h3>반응형 잊지 마세요</h3>
+        <p>모바일에서 KPI 카드는 2열, 차트는 가로 스크롤. "반응형 대시보드로 만들어줘" 한마디면 됩니다.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 11: 5주차 타임테이블 -->
+<div class="slide slide--green slide--grid" data-week="5">
+  <div class="slide-inner">
+    <span class="pill pill--white">TIMETABLE</span>
+    <h2 class="slide-title--sm">5주차 수업 흐름</h2>
+    <div class="timeline">
+      <div class="timeline-item" style="border-color:rgba(255,255,255,0.1);">
+        <div class="timeline-time">0:00</div>
+        <div class="timeline-content"><h4>4주차 과제 리뷰</h4><p>CRUD 미니앱 공유 & 피드백 (15분)</p></div>
+      </div>
+      <div class="timeline-item" style="border-color:rgba(255,255,255,0.1);">
+        <div class="timeline-time">0:15</div>
+        <div class="timeline-content"><h4>대시보드 개념 & 차트 라이브러리</h4><p>KPI, Recharts, 필터링 개념 (25분)</p></div>
+      </div>
+      <div class="timeline-item" style="border-color:rgba(255,255,255,0.1);">
+        <div class="timeline-time">0:40</div>
+        <div class="timeline-content"><h4>☕ 쉬는 시간</h4><p>(10분)</p></div>
+      </div>
+      <div class="timeline-item" style="border-color:rgba(255,255,255,0.1);">
+        <div class="timeline-time">0:50</div>
+        <div class="timeline-content"><h4>실습: 대시보드 제작</h4><p>주제 선택 → AI와 대화하며 개발 (50분)</p></div>
+      </div>
+      <div class="timeline-item" style="border-color:rgba(255,255,255,0.1);">
+        <div class="timeline-time">1:40</div>
+        <div class="timeline-content"><h4>결과 공유 & Q&A</h4><p>대시보드 데모, 질의응답 (20분)</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 12: 5주차 과제 -->
+<div class="slide slide--white" data-week="5">
+  <div class="slide-inner" style="text-align:center;">
+    <span class="pill pill--orange" style="background:var(--orange);color:var(--white);">HOMEWORK</span>
+    <h2 class="slide-title--sm" style="margin-top:8px;">5주차 과제</h2>
+    <p class="slide-subtitle" style="margin:0 auto 32px;">실무에서 실제로 쓸 수 있는 대시보드를 만드세요!</p>
+    <div class="card" style="max-width:560px;margin:0 auto;text-align:left;border:2px solid var(--gold);">
+      <h3 style="color:var(--orange);">📊 업무용 대시보드 만들기</h3>
+      <ul class="checklist" style="margin-top:16px;">
+        <li style="font-size:15px;padding:8px 0;">실제 업무 데이터 기반 주제 선택</li>
+        <li style="font-size:15px;padding:8px 0;">KPI 카드 최소 3개</li>
+        <li style="font-size:15px;padding:8px 0;">차트 최소 1개 (바/라인/파이 중)</li>
+        <li style="font-size:15px;padding:8px 0;">필터 또는 검색 기능 1개 이상</li>
+        <li style="font-size:15px;padding:8px 0;">(보너스) Supabase 실시간 데이터 연동</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============================================
+     WEEK 6: 업무 자동화 도구 만들기
+     ============================================ -->
+
+<!-- SLIDE 13: 6주차 커버 -->
+<div class="slide slide--dark slide--grid" data-week="6">
+  <span class="deco-emoji" style="top:12%;right:12%;opacity:0.08;">⚙️</span>
+  <span class="deco-emoji" style="bottom:15%;left:10%;animation-delay:2s;opacity:0.08;">🔄</span>
+  <div class="slide-inner" style="text-align:center;">
+    <span class="pill pill--gold">WEEK 06</span>
+    <h1 class="slide-title" style="margin-top:8px;">
+      업무 자동화<br>도구 만들기
+    </h1>
+    <p class="slide-subtitle" style="margin:0 auto;color:rgba(255,255,255,0.6);">
+      반복하는 일은 코드에게 맡기세요.<br>API 연동과 자동화의 세계로 들어갑니다.
+    </p>
+  </div>
+</div>
+
+<!-- SLIDE 14: 오늘의 목표 -->
+<div class="slide slide--cream" data-week="6">
+  <div class="slide-inner">
+    <span class="pill pill--gold">TODAY'S GOAL</span>
+    <h2 class="slide-title--sm">오늘이 끝나면<br>여러분은</h2>
+    <ul class="checklist">
+      <li>API가 무엇인지, 왜 중요한지 이해합니다</li>
+      <li>외부 서비스(슬랙, 이메일 등)와 연동하는 방법을 알게 됩니다</li>
+      <li>반복 업무를 자동화하는 도구를 직접 만듭니다</li>
+      <li>자동 리포트 생성기를 완성합니다</li>
+    </ul>
+  </div>
+</div>
+
+<!-- SLIDE 15: 어떤 업무를 자동화할 수 있을까 -->
+<div class="slide slide--white" data-week="6">
+  <div class="slide-inner">
+    <span class="pill pill--black">USE CASES</span>
+    <h2 class="slide-title--sm">어떤 업무를<br>자동화할 수 있을까?</h2>
+    <div class="card-grid card-grid--3">
+      <div class="card">
+        <div class="card-icon">📧</div>
+        <h3>정기 리포트 발송</h3>
+        <p>매주 월요일 아침, 지난 주 데이터를 요약해서 이메일/슬랙으로 자동 발송</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">📋</div>
+        <h3>데이터 수집 & 정리</h3>
+        <p>여러 소스에서 데이터를 가져와서 엑셀/시트 형태로 자동 정리</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔔</div>
+        <h3>조건부 알림</h3>
+        <p>특정 조건 달성 시 슬랙/이메일 알림. "매출 목표 달성 시 팀 채널에 알림"</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">📝</div>
+        <h3>문서 자동 생성</h3>
+        <p>템플릿에 데이터를 채워서 계약서, 보고서, 인보이스 자동 생성</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔄</div>
+        <h3>데이터 동기화</h3>
+        <p>한 곳에서 수정하면 다른 곳에도 자동 반영. 스프레드시트 ↔ 데이터베이스</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🤖</div>
+        <h3>AI 분석 자동화</h3>
+        <p>데이터를 Claude API에 보내서 자동 분석/요약 후 결과 저장</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 16: API란? -->
+<div class="slide slide--dark slide--grid" data-week="6">
+  <div class="slide-inner">
+    <span class="pill pill--gold">WHAT IS API?</span>
+    <h2 class="slide-title--sm">API란?</h2>
+    <p class="slide-body" style="color:rgba(255,255,255,0.7);margin-bottom:32px;">
+      프로그램과 프로그램이 <strong style="color:var(--gold);">대화하는 방법</strong>.<br>
+      레스토랑에서 주문서를 웨이터에게 전달하면<br>
+      주방이 음식을 만들어 돌려주는 것과 같아요.
+    </p>
+    <div class="flow-steps">
+      <div class="flow-step">
+        <div class="step-icon">👤</div>
+        <h4>내 앱</h4>
+        <p>"날씨 알려줘"</p>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step" style="border:2px solid var(--gold);">
+        <div class="step-icon">📡</div>
+        <h4>API</h4>
+        <p>요청 전달</p>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="step-icon">☁️</div>
+        <h4>외부 서비스</h4>
+        <p>"서울 15°C"</p>
+      </div>
+    </div>
+    <div class="highlight-box" style="margin-top:32px;">
+      💡 쉽게: API = <strong>다른 서비스의 기능을 내 코드에서 빌려 쓰는 것</strong>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 17: 유용한 API들 -->
+<div class="slide slide--gold slide--grid" data-week="6">
+  <div class="slide-inner">
+    <span class="pill pill--black">USEFUL APIs</span>
+    <h2 class="slide-title--sm" style="color:var(--black);">실무에서 쓸 수 있는 API들</h2>
+    <div class="card-grid card-grid--3" style="margin-top:24px;">
+      <div class="card" style="background:rgba(0,0,0,0.06);color:var(--black);">
+        <div class="card-icon">💬</div>
+        <h3>Slack Webhook</h3>
+        <p>슬랙 채널에 메시지 자동 전송. 알림, 리포트 발송에 활용.</p>
+      </div>
+      <div class="card" style="background:rgba(0,0,0,0.06);color:var(--black);">
+        <div class="card-icon">🧠</div>
+        <h3>Claude / OpenAI</h3>
+        <p>텍스트 분석, 요약, 번역. 데이터를 AI가 해석해주는 기능.</p>
+      </div>
+      <div class="card" style="background:rgba(0,0,0,0.06);color:var(--black);">
+        <div class="card-icon">📊</div>
+        <h3>Google Sheets</h3>
+        <p>스프레드시트 데이터 읽기/쓰기. 팀이 이미 쓰는 시트를 연동.</p>
+      </div>
+      <div class="card" style="background:rgba(0,0,0,0.06);color:var(--black);">
+        <div class="card-icon">📧</div>
+        <h3>Resend (이메일)</h3>
+        <p>코드로 이메일 보내기. 리포트 자동 발송에 활용.</p>
+      </div>
+      <div class="card" style="background:rgba(0,0,0,0.06);color:var(--black);">
+        <div class="card-icon">🌤</div>
+        <h3>공공 데이터 API</h3>
+        <p>날씨, 환율, 주가 등 오픈 데이터 활용.</p>
+      </div>
+      <div class="card" style="background:rgba(0,0,0,0.06);color:var(--black);">
+        <div class="card-icon">📅</div>
+        <h3>Google Calendar</h3>
+        <p>일정 조회/생성. 회의 알림 자동화.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 18: Slack Webhook 예시 -->
+<div class="slide slide--dark slide--grid" data-week="6">
+  <div class="slide-inner">
+    <span class="pill pill--gold">EXAMPLE</span>
+    <h2 class="slide-title--sm">예시: 슬랙 자동 알림</h2>
+    <p class="slide-subtitle" style="color:rgba(255,255,255,0.5);">코드 5줄이면 슬랙 메시지를 보낼 수 있어요.</p>
+    <div class="code-block">
+<span class="comment">// 슬랙에 메시지 보내기 (AI가 만들어줌)</span>
+
+<span class="keyword">await</span> fetch(<span class="string">'슬랙_웹훅_URL'</span>, {
+  <span class="attr">method</span>: <span class="string">'POST'</span>,
+  <span class="attr">body</span>: JSON.stringify({
+    <span class="attr">text</span>: <span class="string">`📊 일일 리포트
+    
+오늘 방문자: 1,247명 (↑12%)
+신규 가입: 34명
+매출: ₩2,340,000`</span>
+  })
+});
+    </div>
+    <div class="highlight-box" style="margin-top:20px;">
+      💬 AI에게: <strong>"Supabase에서 오늘 데이터를 가져와서 슬랙 웹훅으로 리포트를 보내는 API를 만들어줘"</strong>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 19: 자동화 프로젝트 설계 방법 -->
+<div class="slide slide--white" data-week="6">
+  <div class="slide-inner">
+    <span class="pill pill--black">HOW TO DESIGN</span>
+    <h2 class="slide-title--sm">자동화 프로젝트<br>설계하는 법</h2>
+    <ol class="num-list">
+      <li><div><strong>반복 업무 찾기</strong><br><span style="opacity:0.6;">"매주 엑셀에서 데이터 복사해서 리포트 만드는 게 귀찮아" 같은 것</span></div></li>
+      <li><div><strong>입력과 출력 정의하기</strong><br><span style="opacity:0.6;">입력: Supabase 테이블 데이터 → 출력: 슬랙 메시지 + 요약 차트</span></div></li>
+      <li><div><strong>트리거 정하기</strong><br><span style="opacity:0.6;">언제 실행? 매일 오전 9시? 버튼 클릭 시? 데이터 변경 시?</span></div></li>
+      <li><div><strong>AI에게 설명하기</strong><br><span style="opacity:0.6;">위 내용을 프롬프트로 정리해서 "이 자동화 만들어줘"</span></div></li>
+    </ol>
+  </div>
+</div>
+
+<!-- SLIDE 20: 실습 -->
+<div class="slide slide--burgundy slide--grid" data-week="6">
+  <div class="slide-inner" style="text-align:center;">
+    <span class="pill pill--white">🛠 HANDS-ON</span>
+    <h2 class="slide-title--sm" style="margin-top:8px;">실습: 자동화 도구 만들기</h2>
+    <p class="slide-subtitle" style="margin:0 auto 24px;color:rgba(255,255,255,0.8);">
+      업무에서 실제로 반복하는 일을 자동화해보세요.
+    </p>
+    <div class="card-grid card-grid--3">
+      <div class="card" style="text-align:left;">
+        <div class="card-icon">📊</div>
+        <h3>주간 리포트 생성기</h3>
+        <p>Supabase 데이터 → AI 요약 → 슬랙 발송</p>
+      </div>
+      <div class="card" style="text-align:left;">
+        <div class="card-icon">📧</div>
+        <h3>이메일 알림 봇</h3>
+        <p>특정 조건 달성 시 담당자에게 자동 이메일</p>
+      </div>
+      <div class="card" style="text-align:left;">
+        <div class="card-icon">📋</div>
+        <h3>데이터 수집 도구</h3>
+        <p>URL 입력 → 웹페이지 정보 자동 수집 & 정리</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 21: 실습 프롬프트 예시 -->
+<div class="slide slide--cream slide--grid" data-week="6">
+  <div class="slide-inner">
+    <span class="pill pill--black">PROMPT EXAMPLE</span>
+    <h2 class="slide-title--sm">실습 프롬프트 예시</h2>
+    <div class="code-block">
+<span class="string">"너는 Next.js + Supabase 풀스택 개발자야.
+
+주간 리포트 자동 생성기를 만들어줘.
+
+기능:
+1. 대시보드 페이지: 이번 주 데이터 요약 표시
+2. '리포트 생성' 버튼 클릭 시:
+   - Supabase에서 이번 주 데이터 조회
+   - 주요 지표 계산 (총합, 평균, 전주 대비 증감)
+   - HTML 형태의 예쁜 리포트 생성
+   - 클립보드에 복사 기능
+3. (선택) 슬랙 웹훅으로 리포트 발송 버튼
+
+기술: Next.js, Supabase, Tailwind CSS
+테이블: weekly_data (date, category, value)
+깔끔한 UI로 만들어줘."</span>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 22: 크론잡 / 스케줄링 -->
+<div class="slide slide--dark slide--grid" data-week="6">
+  <div class="slide-inner">
+    <span class="pill pill--gold">SCHEDULING</span>
+    <h2 class="slide-title--sm">자동 실행: 크론잡(Cron Job)</h2>
+    <p class="slide-body" style="color:rgba(255,255,255,0.7);margin-bottom:24px;">
+      "매일 오전 9시에 리포트를 보내"처럼<br>
+      <strong style="color:var(--gold);">시간을 정해서 코드를 자동 실행</strong>하는 것.
+    </p>
+    <div class="card-grid card-grid--2">
+      <div class="card">
+        <div class="card-icon">⏰</div>
+        <h3>Vercel Cron</h3>
+        <p>Vercel에 배포한 앱에서 무료로 사용 가능. vercel.json에 스케줄을 설정하면 자동 실행됩니다.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔗</div>
+        <h3>Supabase Edge Functions</h3>
+        <p>Supabase에서 직접 서버 코드를 실행. 데이터베이스와 가까워서 빠릅니다.</p>
+      </div>
+    </div>
+    <div class="highlight-box" style="margin-top:24px;">
+      💬 AI에게: <strong>"매일 오전 9시에 실행되는 Vercel Cron Job을 만들어줘. 어제 데이터를 요약해서 슬랙에 보내는 기능이야."</strong>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 23: 보안 주의사항 -->
+<div class="slide slide--cream-light" data-week="6">
+  <div class="slide-inner">
+    <span class="pill pill--black">⚠️ SECURITY</span>
+    <h2 class="slide-title--sm">API 키 보안 주의사항</h2>
+    <p class="slide-subtitle">API 키는 비밀번호와 같아요. 절대 코드에 직접 넣지 마세요!</p>
+    <div class="compare">
+      <div class="compare-col compare-col--before">
+        <h3>❌ 이렇게 하면 안 돼요</h3>
+        <ul>
+          <li>코드에 API 키를 직접 작성</li>
+          <li>GitHub에 키가 포함된 코드를 업로드</li>
+          <li>슬랙이나 메일에 API 키를 공유</li>
+        </ul>
+      </div>
+      <div class="compare-col compare-col--after">
+        <h3>✅ 이렇게 하세요</h3>
+        <ul>
+          <li><code style="background:rgba(0,0,0,0.06);padding:2px 6px;border-radius:4px;">.env.local</code> 파일에 키를 저장</li>
+          <li><code style="background:rgba(0,0,0,0.06);padding:2px 6px;border-radius:4px;">.gitignore</code>에 .env 파일 추가</li>
+          <li>Vercel 환경변수에 키를 설정</li>
+        </ul>
+      </div>
+    </div>
+    <div class="highlight-box">
+      💬 AI에게: <strong>"API 키를 환경변수로 관리하도록 설정해줘. .env.local 파일 사용하고 .gitignore도 추가해줘."</strong>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 24: 6주차 타임테이블 -->
+<div class="slide slide--green slide--grid" data-week="6">
+  <div class="slide-inner">
+    <span class="pill pill--white">TIMETABLE</span>
+    <h2 class="slide-title--sm">6주차 수업 흐름</h2>
+    <div class="timeline">
+      <div class="timeline-item" style="border-color:rgba(255,255,255,0.1);">
+        <div class="timeline-time">0:00</div>
+        <div class="timeline-content"><h4>5주차 과제 리뷰</h4><p>대시보드 데모 공유 & 피드백 (15분)</p></div>
+      </div>
+      <div class="timeline-item" style="border-color:rgba(255,255,255,0.1);">
+        <div class="timeline-time">0:15</div>
+        <div class="timeline-content"><h4>업무 자동화 & API 개념</h4><p>API란? 유용한 API 소개 (20분)</p></div>
+      </div>
+      <div class="timeline-item" style="border-color:rgba(255,255,255,0.1);">
+        <div class="timeline-time">0:35</div>
+        <div class="timeline-content"><h4>슬랙 웹훅 실습</h4><p>5분 만에 슬랙에 메시지 보내기 (15분)</p></div>
+      </div>
+      <div class="timeline-item" style="border-color:rgba(255,255,255,0.1);">
+        <div class="timeline-time">0:50</div>
+        <div class="timeline-content"><h4>☕ 쉬는 시간</h4><p>(10분)</p></div>
+      </div>
+      <div class="timeline-item" style="border-color:rgba(255,255,255,0.1);">
+        <div class="timeline-time">1:00</div>
+        <div class="timeline-content"><h4>실습: 자동화 도구 제작</h4><p>주제 선택 → AI와 대화하며 개발 (40분)</p></div>
+      </div>
+      <div class="timeline-item" style="border-color:rgba(255,255,255,0.1);">
+        <div class="timeline-time">1:40</div>
+        <div class="timeline-content"><h4>결과 공유 & Q&A</h4><p>자동화 데모 + 보안 주의사항 (20분)</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 25: 6주차 과제 -->
+<div class="slide slide--white" data-week="6">
+  <div class="slide-inner" style="text-align:center;">
+    <span class="pill pill--orange" style="background:var(--orange);color:var(--white);">HOMEWORK</span>
+    <h2 class="slide-title--sm" style="margin-top:8px;">6주차 과제</h2>
+    <p class="slide-subtitle" style="margin:0 auto 32px;">실제 업무 반복 작업을 자동화하는 도구를 만드세요!</p>
+    <div class="card" style="max-width:560px;margin:0 auto;text-align:left;border:2px solid var(--gold);">
+      <h3 style="color:var(--orange);">⚙️ 업무 자동화 도구 완성</h3>
+      <ul class="checklist" style="margin-top:16px;">
+        <li style="font-size:15px;padding:8px 0;">실제 반복 업무를 자동화하는 주제 선택</li>
+        <li style="font-size:15px;padding:8px 0;">외부 API 최소 1개 연동 (슬랙, 이메일, AI 등)</li>
+        <li style="font-size:15px;padding:8px 0;">버튼 클릭 또는 자동 트리거로 실행</li>
+        <li style="font-size:15px;padding:8px 0;">API 키는 환경변수로 안전하게 관리</li>
+        <li style="font-size:15px;padding:8px 0;">(보너스) 크론잡으로 자동 실행 스케줄 설정</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 26: 중간 점검 - 지금까지 배운 것 -->
+<div class="slide slide--gold slide--grid" data-week="6">
+  <div class="slide-inner" style="text-align:center;">
+    <span class="pill pill--black">MID CHECK</span>
+    <h2 class="slide-title--sm" style="color:var(--black);">벌써 6주! 지금까지 배운 것</h2>
+    <div class="card-grid card-grid--3" style="margin-top:24px;">
+      <div class="card" style="background:rgba(0,0,0,0.06);color:var(--black);text-align:left;">
+        <h3>1~2주</h3>
+        <p>✅ 바이브코딩 개념<br>✅ Cursor IDE<br>✅ AI 프롬프팅</p>
+      </div>
+      <div class="card" style="background:rgba(0,0,0,0.06);color:var(--black);text-align:left;">
+        <h3>3~4주</h3>
+        <p>✅ 웹앱 개발 & 배포<br>✅ Next.js + Supabase<br>✅ CRUD 앱</p>
+      </div>
+      <div class="card" style="background:rgba(0,0,0,0.06);color:var(--black);text-align:left;">
+        <h3>5~6주</h3>
+        <p>✅ 데이터 대시보드<br>✅ API 연동<br>✅ 업무 자동화</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 27: 다음 주 예고 -->
+<div class="slide slide--cream slide--grid" data-week="6">
+  <div class="slide-inner" style="text-align:center;">
+    <span class="pill pill--black">NEXT WEEK</span>
+    <h2 class="slide-title" style="margin-top:8px;">
+      다음 주 예고
+    </h2>
+    <p class="slide-subtitle" style="margin:0 auto 40px;">
+      7주차: 드디어 <strong>크롬 익스텐션</strong> 개발!<br>
+      브라우저를 나만의 도구로 바꿔봅시다. 🧩
+    </p>
+    <div class="card-grid card-grid--3" style="max-width:720px;margin:0 auto;">
+      <div class="card" style="text-align:center;">
+        <div class="card-icon">🧩</div>
+        <h3>익스텐션 구조</h3>
+        <p>manifest, popup, content</p>
+      </div>
+      <div class="card" style="text-align:center;">
+        <div class="card-icon">🎨</div>
+        <h3>팝업 UI</h3>
+        <p>나만의 익스텐션 디자인</p>
+      </div>
+      <div class="card" style="text-align:center;">
+        <div class="card-icon">⚡</div>
+        <h3>페이지 조작</h3>
+        <p>웹페이지와 상호작용</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 28: 마무리 -->
+<div class="slide slide--dark slide--grid" data-week="6">
+  <div class="slide-inner" style="text-align:center;">
+    <h2 class="slide-title" style="margin-bottom:24px;">
+      수고하셨습니다! 👏
+    </h2>
+    <p class="slide-subtitle" style="margin:0 auto;color:rgba(255,255,255,0.5);">
+      바이브코딩 마스터 교육 프로그램 · WEEK 05-06
+    </p>
+  </div>
+</div>
+
+</div> <!-- /deck -->
+
+<!-- NAVIGATION UI -->
+<div class="week-badge" id="weekBadge">WEEK 05</div>
+<div class="slide-counter" id="slideCounter">1 / 28</div>
+
+<button class="nav-arrow nav-arrow--prev" onclick="changeSlide(-1)">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+</button>
+<button class="nav-arrow nav-arrow--next" onclick="changeSlide(1)">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+</button>
+
+<div class="progress-dots" id="progressDots"></div>
+
+<script>
+const slides = document.querySelectorAll('.slide');
+const counter = document.getElementById('slideCounter');
+const weekBadge = document.getElementById('weekBadge');
+const progressDots = document.getElementById('progressDots');
+let current = 0;
+
+slides.forEach((_, i) => {
+  const dot = document.createElement('div');
+  dot.className = 'dot' + (i === 0 ? ' active' : '');
+  dot.onclick = () => goToSlide(i);
+  progressDots.appendChild(dot);
+});
+
+// 대시보드 모킹 차트 애니메이션
+function animateBars() {
+  const chart = document.getElementById('mockChart');
+  if (!chart) return;
+  const heights = [60, 85, 45, 95, 70, 110, 80, 55, 90, 75, 100, 65];
+  chart.innerHTML = '';
+  heights.forEach((h, i) => {
+    const bar = document.createElement('div');
+    bar.className = 'mock-bar';
+    bar.style.height = '0px';
+    bar.style.background = i % 3 === 0 ? 'var(--gold)' : i % 3 === 1 ? 'var(--orange)' : 'var(--deep-green)';
+    chart.appendChild(bar);
+    setTimeout(() => { bar.style.height = h + 'px'; }, 100 + i * 80);
+  });
+}
+
+function updateUI() {
+  slides.forEach((s, i) => {
+    s.classList.remove('active', 'prev');
+    if (i === current) s.classList.add('active');
+    else if (i < current) s.classList.add('prev');
+  });
+  counter.textContent = `${current + 1} / ${slides.length}`;
+  const week = slides[current].dataset.week || '5';
+  weekBadge.textContent = `WEEK 0${week}`;
+  document.querySelectorAll('.progress-dots .dot').forEach((d, i) => {
+    d.classList.toggle('active', i === current);
+  });
+  const isDark = slides[current].classList.contains('slide--dark') ||
+                 slides[current].classList.contains('slide--green') ||
+                 slides[current].classList.contains('slide--orange') ||
+                 slides[current].classList.contains('slide--burgundy');
+  document.querySelectorAll('.nav-arrow').forEach(a => {
+    a.style.color = isDark ? '#fff' : 'var(--near-black)';
+    a.style.background = isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.12)';
+  });
+  // 대시보드 슬라이드 도달 시 차트 애니메이션
+  if (current === 3) animateBars();
+}
+
+function changeSlide(dir) {
+  const next = current + dir;
+  if (next < 0 || next >= slides.length) return;
+  current = next;
+  updateUI();
+}
+function goToSlide(i) { current = i; updateUI(); }
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); changeSlide(1); }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); changeSlide(-1); }
+  if (e.key === 'Home') { e.preventDefault(); goToSlide(0); }
+  if (e.key === 'End') { e.preventDefault(); goToSlide(slides.length - 1); }
+});
+
+let touchStartX = 0;
+document.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; });
+document.addEventListener('touchend', (e) => {
+  const diff = touchStartX - e.changedTouches[0].screenX;
+  if (Math.abs(diff) > 60) changeSlide(diff > 0 ? 1 : -1);
+});
+
+updateUI();
+</script>
+
+</body>
+</html>

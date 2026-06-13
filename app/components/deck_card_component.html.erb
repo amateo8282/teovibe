@@ -1,0 +1,30 @@
+<a class="deck-card<%= ' deck-card--locked' if locked? %>"
+   href="<%= course_path(course.slug) %>"
+   target="<%= locked? ? '_self' : '_blank' %>"
+   <% unless locked? %>rel="noopener"<% end %>
+   aria-label="<%= course.title %>">
+  <div class="thumb <%= course.thumb_style %>" style="--p:<%= progress %>%">
+    <% if locked? %><span class="lock-badge">🔒 <%= price_label %></span><% end %>
+    <div class="thumb-top">
+      <span>Teo Vibe Edu</span>
+      <span>N°<%= card_no %></span>
+    </div>
+    <div class="thumb-mid">
+      <span class="thumb-emoji" aria-hidden="true"><%= course.emoji.presence || "📑" %></span>
+      <span class="thumb-title"><%= course.title %></span>
+    </div>
+    <div class="thumb-bottom">
+      <span><%= course.tag.presence || "Session" %></span>
+      <span><%= course.slides_count %> slides</span>
+    </div>
+  </div>
+  <div class="deck-body">
+    <p class="deck-desc"><%= course.description %></p>
+    <div class="deck-meta">
+      <span class="deck-duration">⏱ <%= course.duration.presence || "—" %></span>
+      <span class="deck-open"><%= locked? ? "구매하고 열람" : "발표 열기" %>
+        <span class="arrow-circle" aria-hidden="true">→</span>
+      </span>
+    </div>
+  </div>
+</a>

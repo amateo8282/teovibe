@@ -1,4 +1,4 @@
-<a class="deck-card<%= ' deck-card--locked' if locked? %>"
+<a class="deck-card reveal<%= ' deck-card--locked' if locked? %>"
    href="<%= course_path(course.slug) %>"
    target="<%= locked? ? '_self' : '_blank' %>"
    <% unless locked? %>rel="noopener"<% end %>

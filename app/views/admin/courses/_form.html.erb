@@ -1,0 +1,62 @@
+<% input = "w-full border border-tv-cream rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-tv-gold" %>
+<%= form_with(model: [:admin, course], class: "space-y-5 max-w-3xl") do |f| %>
+  <% if course.errors.any? %>
+    <div class="bg-red-50 border border-red-200 rounded-card p-4">
+      <ul class="list-disc pl-5 text-sm text-red-600">
+        <% course.errors.full_messages.each do |m| %><li><%= m %></li><% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="grid grid-cols-2 gap-4">
+    <div><%= f.label :title, "제목", class: "block text-sm font-bold mb-1" %><%= f.text_field :title, class: input %></div>
+    <div><%= f.label :slug, "슬러그 (URL)", class: "block text-sm font-bold mb-1" %><%= f.text_field :slug, class: input %></div>
+  </div>
+
+  <div><%= f.label :description, "설명", class: "block text-sm font-bold mb-1" %><%= f.text_area :description, rows: 3, class: input %></div>
+
+  <div class="grid grid-cols-4 gap-4">
+    <div><%= f.label :emoji, "이모지", class: "block text-sm font-bold mb-1" %><%= f.text_field :emoji, class: input %></div>
+    <div><%= f.label :tag, "배지(태그)", class: "block text-sm font-bold mb-1" %><%= f.text_field :tag, class: input %></div>
+    <div><%= f.label :slides_count, "슬라이드 수", class: "block text-sm font-bold mb-1" %><%= f.number_field :slides_count, class: input %></div>
+    <div><%= f.label :duration, "소요시간", class: "block text-sm font-bold mb-1" %><%= f.text_field :duration, class: input %></div>
+  </div>
+
+  <div class="grid grid-cols-3 gap-4">
+    <div><%= f.label :level, "레벨", class: "block text-sm font-bold mb-1" %>
+      <%= f.select :level, [["기본", "기본"], ["심화", "심화"]], {}, class: input %></div>
+    <div><%= f.label :thumb_style, "썸네일 색", class: "block text-sm font-bold mb-1" %>
+      <%= f.select :thumb_style, %w[thumb--dark thumb--green thumb--gold thumb--orange thumb--burgundy thumb--cream], {}, class: input %></div>
+    <div><%= f.label :position, "정렬 순서", class: "block text-sm font-bold mb-1" %><%= f.number_field :position, class: input %></div>
+  </div>
+
+  <div>
+    <%= f.label :deck_file, "덱 파일명 (app/decks/)", class: "block text-sm font-bold mb-1" %>
+    <%= f.text_field :deck_file, placeholder: "cicd-education.html", class: input %>
+    <p class="text-xs text-tv-gray mt-1">슬라이드 HTML을 <code>app/decks/</code>에 두고 파일명을 입력하세요.</p>
+  </div>
+
+  <hr class="border-tv-cream">
+
+  <label class="flex items-center gap-2 font-bold text-sm">
+    <%= f.check_box :paid, class: "w-4 h-4" %> 유료 강의 (체크 시 결제 게이트 적용)
+  </label>
+
+  <div class="grid grid-cols-2 gap-4">
+    <div><%= f.label :price, "가격 (KRW)", class: "block text-sm font-bold mb-1" %><%= f.number_field :price, class: input %></div>
+    <div><%= f.label :status, "상태", class: "block text-sm font-bold mb-1" %>
+      <%= f.select :status, [["공개", "published"], ["초안", "draft"]], {}, class: input %></div>
+  </div>
+
+  <div class="bg-gray-50 rounded-card p-4 space-y-4">
+    <p class="text-sm font-bold text-tv-gray">Polar 연동 (유료만)</p>
+    <div><%= f.label :polar_benefit_id, "License Keys benefit_id", class: "block text-sm font-bold mb-1" %><%= f.text_field :polar_benefit_id, class: input %></div>
+    <div><%= f.label :checkout_url, "체크아웃 링크", class: "block text-sm font-bold mb-1" %><%= f.text_field :checkout_url, class: input %></div>
+    <div><%= f.label :polar_product_id, "product_id (선택)", class: "block text-sm font-bold mb-1" %><%= f.text_field :polar_product_id, class: input %></div>
+  </div>
+
+  <div class="flex items-center gap-3 pt-2">
+    <%= f.submit "저장", class: "bg-tv-gold text-tv-black rounded-pill px-6 py-3 text-sm font-bold hover:opacity-90 cursor-pointer" %>
+    <%= link_to "취소", admin_courses_path, class: "text-tv-gray text-sm" %>
+  </div>
+<% end %>

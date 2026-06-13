@@ -1,0 +1,37 @@
+<div class="flex items-center justify-between mb-6">
+  <h1 class="text-2xl font-black">강의 관리</h1>
+  <%= link_to "+ 새 강의", new_admin_course_path, class: "bg-tv-gold text-tv-black rounded-pill px-5 py-2.5 text-sm font-bold hover:opacity-90" %>
+</div>
+
+<div class="bg-white rounded-card overflow-x-auto border border-gray-100">
+  <table class="w-full text-sm">
+    <thead class="bg-gray-50 text-left text-tv-gray">
+      <tr>
+        <th class="p-3">#</th><th class="p-3">강의</th><th class="p-3">유형</th>
+        <th class="p-3">가격</th><th class="p-3">덱</th><th class="p-3">Polar</th>
+        <th class="p-3">상태</th><th class="p-3"></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @courses.each do |c| %>
+        <tr class="border-t border-gray-100">
+          <td class="p-3 text-tv-light-gray"><%= c.position %></td>
+          <td class="p-3 font-bold"><%= c.emoji %> <%= c.title %>
+            <div class="text-xs text-tv-gray font-normal"><%= c.slug %> · <%= c.deck_file %></div>
+          </td>
+          <td class="p-3"><%= c.paid? ? "💰 유료" : "🆓 무료" %></td>
+          <td class="p-3"><%= c.paid? ? "₩#{number_with_delimiter(c.price)}" : "—" %></td>
+          <td class="p-3"><%= c.deck_exists? ? "✓" : raw("<span class='text-red-500 font-bold'>없음</span>") %></td>
+          <td class="p-3 text-xs text-tv-gray"><%= c.polar_benefit_id.present? ? "#{c.polar_benefit_id[0, 8]}…" : "—" %></td>
+          <td class="p-3"><%= c.published? ? "공개" : "초안" %></td>
+          <td class="p-3 text-right whitespace-nowrap">
+            <%= link_to "수정", edit_admin_course_path(c), class: "text-tv-orange font-bold" %>
+            <%= button_to "삭제", admin_course_path(c), method: :delete,
+                  class: "text-red-500 ml-3 inline", form: { data: { turbo_confirm: "삭제할까요?" }, class: "inline" } %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+<p class="text-xs text-tv-gray mt-3">💡 슬라이드 HTML은 <code>app/decks/</code>에 두고 파일명을 입력합니다. 유료 강의는 Polar 대시보드에서 상품·License Keys 베네핏·체크아웃 링크를 만든 뒤 benefit_id·checkout_url을 채우세요.</p>

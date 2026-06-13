@@ -63,10 +63,42 @@
   @media(max-width:640px){.deck-grid{grid-template-columns:1fr}}
 
   .deck-card{display:flex;flex-direction:column;border-radius:var(--radius);overflow:hidden;
-    background:rgba(255,255,255,.028);border:1px solid var(--hairline);
-    transition:transform .5s var(--ease),border-color .3s var(--ease),box-shadow .4s var(--ease)}
-  .deck-card:hover{transform:translateY(-4px);border-color:rgba(244,186,84,.35);
-    box-shadow:0 24px 60px rgba(0,0,0,.45)}
+    background:rgba(255,255,255,.028);border:1px solid var(--hairline);transform-style:preserve-3d;
+    transform:perspective(1000px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateY(var(--ty,0));
+    transition:transform .18s var(--ease),border-color .3s var(--ease),box-shadow .4s var(--ease)}
+  .deck-card:hover{--ty:-4px;border-color:rgba(244,186,84,.35);box-shadow:0 24px 60px rgba(0,0,0,.45)}
+
+  /* 스크롤 진행바 */
+  .scroll-progress{position:fixed;top:0;left:0;height:3px;width:0;z-index:60;
+    background:linear-gradient(90deg,var(--gold),var(--gold-bright));transition:width .1s linear}
+
+  /* 스크롤 등장 */
+  .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s var(--ease),transform .7s var(--ease);transition-delay:var(--d,0s)}
+  .reveal.in{opacity:1;transform:none}
+
+  /* 마퀴 — 흐르는 토픽 리본 */
+  .marquee{margin:6px 0;overflow:hidden;background:var(--gold);color:var(--near-black);
+    -webkit-mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent);
+    mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent)}
+  .marquee-track{display:inline-flex;align-items:center;white-space:nowrap;will-change:transform;animation:marq 32s linear infinite}
+  .marquee:hover .marquee-track{animation-play-state:paused}
+  .marquee-item{display:inline-flex;align-items:center;padding:12px 0;font-family:var(--mono);
+    font-size:12.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase}
+  .marquee-item::after{content:"✦";margin:0 26px;opacity:.45}
+  @keyframes marq{to{transform:translateX(-50%)}}
+
+  /* 히어로 글로우 (떠다니는 빛) */
+  .hero{position:relative;isolation:isolate}
+  .hero::before{content:"";position:absolute;top:-70px;left:-50px;width:360px;height:360px;border-radius:50%;
+    background:radial-gradient(circle,rgba(244,186,84,.22),transparent 65%);filter:blur(22px);z-index:-1;
+    animation:floaty 9s var(--ease) infinite alternate}
+  @keyframes floaty{to{transform:translate(48px,34px) scale(1.18)}}
+
+  @media(prefers-reduced-motion:reduce){
+    .marquee-track,.hero::before{animation:none}
+    .reveal{opacity:1;transform:none;transition:none}
+    .deck-card{transition:border-color .3s,box-shadow .4s}
+  }
 
   .thumb{position:relative;aspect-ratio:16/10;padding:20px;display:flex;flex-direction:column;
     justify-content:space-between;overflow:hidden;isolation:isolate;transition:transform .6s var(--ease)}
@@ -130,6 +162,7 @@
   <%= yield :head %>
 </head>
 <body>
+  <div class="scroll-progress" aria-hidden="true"></div>
   <header class="ehead">
     <div class="wrap ehead-in">
       <a href="<%= courses_path %>" class="logo"><span class="logo-mark">T</span>Teo Vibe Edu</a>
@@ -155,5 +188,43 @@
     <span>Teo Vibe Edu · 바이브코딩 강의</span>
     <span>© <%= Time.current.year %> jaeho.im</span>
   </footer>
+
+  <script>
+  (function(){
+    // 스크롤 진행바
+    var bar = document.querySelector('.scroll-progress');
+    if (bar) addEventListener('scroll', function(){
+      var h = document.documentElement, max = h.scrollHeight - h.clientHeight;
+      bar.style.width = (max > 0 ? (h.scrollTop / max * 100) : 0) + '%';
+    }, { passive:true });
+
+    // 스크롤 등장 (IntersectionObserver)
+    var io = new IntersectionObserver(function(es){
+      es.forEach(function(e){ if (e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { threshold:.12 });
+    document.querySelectorAll('.reveal').forEach(function(el, i){
+      el.style.setProperty('--d', Math.min(i * 0.05, 0.4) + 's'); io.observe(el);
+    });
+
+    // 마퀴 — 끊김 없는 루프용으로 트랙 복제
+    var track = document.querySelector('.marquee-track');
+    if (track) track.innerHTML += track.innerHTML;
+
+    // 카드 틸트 (fine pointer + 모션 허용 시에만)
+    if (matchMedia('(pointer:fine)').matches && !matchMedia('(prefers-reduced-motion:reduce)').matches){
+      document.querySelectorAll('.deck-card').forEach(function(card){
+        card.addEventListener('pointermove', function(e){
+          var r = card.getBoundingClientRect();
+          var px = (e.clientX - r.left) / r.width - 0.5, py = (e.clientY - r.top) / r.height - 0.5;
+          card.style.setProperty('--ry', (px * 5).toFixed(2) + 'deg');
+          card.style.setProperty('--rx', (-py * 5).toFixed(2) + 'deg');
+        });
+        card.addEventListener('pointerleave', function(){
+          card.style.setProperty('--ry', '0deg'); card.style.setProperty('--rx', '0deg');
+        });
+      });
+    }
+  })();
+  </script>
 </body>
 </html>

@@ -32,16 +32,26 @@ class PolarWebhooksController < ApplicationController
 
   def grant(data)
     email = data.dig("customer", "email") || data["customer_email"]
-    benefit_id = extract_benefit_id(data)
-    return if email.blank? || benefit_id.blank?
+    return if email.blank?
 
-    course = Course.find_by(polar_benefit_id: benefit_id)
+    course = find_course(data)
     user = User.find_by(email_address: email.to_s.downcase)
     return unless course && user
 
     ent = user.entitlements.find_or_initialize_by(course: course)
     ent.assign_attributes(source: :purchase, status: :active, revoked_at: nil, polar_order_id: data["id"])
     ent.save!
+  end
+
+  # 강의 매칭: product_id가 order.paid 페이로드 최상위에 항상 있어 가장 안정적 → 1순위.
+  # benefit_id(product.benefits 중첩)는 폴백.
+  def find_course(data)
+    product_id = data["product_id"] || data.dig("product", "id")
+    if product_id.present? && (c = Course.find_by(polar_product_id: product_id))
+      return c
+    end
+    benefit_id = extract_benefit_id(data)
+    Course.find_by(polar_benefit_id: benefit_id) if benefit_id.present?
   end
 
   def revoke(data)

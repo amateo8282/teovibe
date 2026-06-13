@@ -8,8 +8,16 @@
 
     <%# 포트원(PortOne) 결제 — 한국 카드·간편결제(해외결제/플러그인 이슈 없음). .env 채워지면 활성. %>
     <% if current_user && PortoneService.configured? %>
+      <%# 이니시스(card) PC 결제는 customer.fullName·email·phoneNumber 필수 — 누락 시 issue-prepare 400. %>
+      <% payer_name = current_user.nickname.presence || current_user.email_address.split("@").first %>
+      <label class="muted" for="portone-phone" style="display:block;margin-bottom:6px">휴대폰 번호 (카드 결제 시 필수)</label>
+      <input id="portone-phone" type="tel" inputmode="numeric" autocomplete="tel"
+             placeholder="01012345678"
+             style="width:100%;margin-bottom:12px;padding:10px;border-radius:8px;border:1px solid rgba(0,0,0,.15)">
       <button id="portone-pay" class="btn btn--gold"
-              data-checkout-url="<%= course_checkout_path(@course.slug) %>">
+              data-checkout-url="<%= course_checkout_path(@course.slug) %>"
+              data-payer-name="<%= payer_name %>"
+              data-payer-email="<%= current_user.email_address %>">
         ₩<%= number_with_delimiter(@course.price) %> 결제하기 (카드·간편결제) →
       </button>
       <p class="muted" id="portone-msg" style="margin-top:12px"></p>
@@ -28,10 +36,17 @@
             var cfg = await post(btn.dataset.checkoutUrl);
             if (cfg.already) { location.href = cfg.redirect; return; }
             if (!cfg.payment_id) { msg.textContent = cfg.error || '결제를 시작할 수 없습니다.'; btn.disabled = false; return; }
+            var phone = (document.getElementById('portone-phone').value || '').replace(/[^0-9]/g, '');
+            if (phone.length < 10) { msg.textContent = '휴대폰 번호를 정확히 입력해 주세요 (카드 결제 필수).'; btn.disabled = false; return; }
             var res = await PortOne.requestPayment({
               storeId: cfg.store_id, channelKey: cfg.channel_key,
               paymentId: cfg.payment_id, orderName: cfg.order_name,
-              totalAmount: cfg.amount, currency: cfg.currency, payMethod: 'CARD'
+              totalAmount: cfg.amount, currency: cfg.currency, payMethod: 'CARD',
+              customer: {
+                fullName: btn.dataset.payerName,
+                email: btn.dataset.payerEmail,
+                phoneNumber: phone
+              }
             });
             if (res && res.code != null) { msg.textContent = '결제 취소/실패: ' + (res.message || res.code); btn.disabled = false; return; }
             msg.textContent = '결제 확인 중…';

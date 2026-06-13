@@ -5,12 +5,12 @@
   <p class="hero-sub reveal">바이브 코딩으로 직접 만들고 부수며 모은 <strong>진짜 문제들</strong>을 강의 슬라이드로 아카이브합니다. 기본 주차는 무료, 심화는 강의별로 잠금 해제하세요.</p>
 </section>
 
-<%# 흐르는 토픽 리본 (마퀴) %>
-<div class="marquee" aria-hidden="true">
-  <div class="marquee-track">
-    <% %w[바이브코딩 Claude\ Code Agent\ SDK CI/CD 프롬프트\ 엔지니어링 버티컬\ 에이전트 자동화\ 파이프라인 Polar\ 결제 라이브\ 코딩 워크플로우].each do |t| %>
-      <span class="marquee-item"><%= t %></span>
-    <% end %>
+<%# 사선으로 흐르는 토픽 리본 (마퀴) — JS가 영문 토픽 시퀀스 생성 %>
+<div class="marquee-zone" aria-hidden="true">
+  <div class="marquee">
+    <div class="marquee-track" id="marquee-track">
+      <div class="marquee-seq" id="marquee-seq"></div>
+    </div>
   </div>
 </div>
 

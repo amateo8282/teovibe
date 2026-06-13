@@ -88,10 +88,9 @@ CREATE VIRTUAL TABLE posts_fts USING fts5(
         content_rowid='id'
       )
 /* posts_fts(title,body,slug) */;
-CREATE TABLE IF NOT EXISTS 'posts_fts_data'(id INTEGER PRIMARY KEY, block BLOB);
-CREATE TABLE IF NOT EXISTS 'posts_fts_idx'(segid, term, pgno, PRIMARY KEY(segid, term)) WITHOUT ROWID;
-CREATE TABLE IF NOT EXISTS 'posts_fts_docsize'(id INTEGER PRIMARY KEY, sz BLOB);
-CREATE TABLE IF NOT EXISTS 'posts_fts_config'(k PRIMARY KEY, v) WITHOUT ROWID;
+-- FTS5 shadow 테이블(posts_fts_data/idx/docsize/config)은 위 CREATE VIRTUAL TABLE이 자동 생성한다.
+-- structure.sql에 명시하면 재로드(db:test:prepare) 시 "object name reserved for internal use" 에러 → 의도적 제외.
+-- ⚠️ development에서 db:migrate 하면 재덤프로 되살아남(prod migrate는 덤프 안 함). 되살아나면 이 4줄 다시 제거.
 CREATE TABLE IF NOT EXISTS "orders" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "user_id" integer NOT NULL, "skill_pack_id" integer NOT NULL, "status" integer DEFAULT 0 NOT NULL, "toss_order_id" varchar NOT NULL, "payment_event_id" varchar, "amount" integer NOT NULL, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL, CONSTRAINT "fk_rails_f868b47f6a"
 FOREIGN KEY ("user_id")
   REFERENCES "users" ("id")

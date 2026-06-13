@@ -1,5 +1,5 @@
 <% input = "w-full border border-tv-cream rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-tv-gold" %>
-<%= form_with(model: [:admin, course], class: "space-y-5 max-w-3xl") do |f| %>
+<%= form_with(model: [:admin, course], class: "space-y-5 max-w-2xl") do |f| %>
   <% if course.errors.any? %>
     <div class="bg-red-50 border border-red-200 rounded-card p-4">
       <ul class="list-disc pl-5 text-sm text-red-600">
@@ -15,14 +15,14 @@
 
   <div><%= f.label :description, "설명", class: "block text-sm font-bold mb-1" %><%= f.text_area :description, rows: 3, class: input %></div>
 
-  <div class="grid grid-cols-4 gap-4">
+  <div class="grid grid-cols-2 gap-4">
     <div><%= f.label :emoji, "이모지", class: "block text-sm font-bold mb-1" %><%= f.text_field :emoji, class: input %></div>
     <div><%= f.label :tag, "배지(태그)", class: "block text-sm font-bold mb-1" %><%= f.text_field :tag, class: input %></div>
     <div><%= f.label :slides_count, "슬라이드 수", class: "block text-sm font-bold mb-1" %><%= f.number_field :slides_count, class: input %></div>
     <div><%= f.label :duration, "소요시간", class: "block text-sm font-bold mb-1" %><%= f.text_field :duration, class: input %></div>
   </div>
 
-  <div class="grid grid-cols-3 gap-4">
+  <div class="grid grid-cols-2 gap-4">
     <div><%= f.label :level, "레벨", class: "block text-sm font-bold mb-1" %>
       <%= f.select :level, [["기본", "기본"], ["심화", "심화"]], {}, class: input %></div>
     <div><%= f.label :thumb_style, "썸네일 색", class: "block text-sm font-bold mb-1" %>

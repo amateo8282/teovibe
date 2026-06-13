@@ -1,11 +1,1179 @@
-<% content_for :title, "강의 · Teo Vibe Edu" %>
-<section class="hero wrap">
-  <p class="hero-label reveal">Slide Library · Est. 2026</p>
-  <h1 class="hero-title reveal">부딪힌 만큼,<br><em>가르칠 수 있다</em></h1>
-  <p class="hero-sub reveal">바이브 코딩으로 직접 만들고 부수며 모은 <strong>진짜 문제들</strong>을 강의 슬라이드로 아카이브합니다. 기본 주차는 무료, 심화는 강의별로 잠금 해제하세요.</p>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#1D1403">
+<meta name="description" content="바이브 코딩을 하며 만난 진짜 문제들을 강의 슬라이드로 아카이브하는 라이브러리. 모든 덱은 브라우저에서 바로 발표할 수 있습니다.">
+<meta property="og:title" content="Teo Vibe Edu — 바이브 코딩 슬라이드 라이브러리">
+<meta property="og:description" content="부딪힌 만큼, 가르칠 수 있다. 바이브 코딩 강의 슬라이드 아카이브.">
+<meta property="og:type" content="website">
+<title>Teo Vibe Edu — 바이브 코딩 슬라이드 라이브러리</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Crect%20width='64'%20height='64'%20rx='14'%20fill='%23F4BA54'/%3E%3Ctext%20x='32'%20y='44'%20font-family='Arial,sans-serif'%20font-size='34'%20font-weight='900'%20text-anchor='middle'%20fill='%231D1403'%3ET%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* ════════════════════════════════════════════
+   TOKENS — slide-deck 스킬 팔레트와 동일 계열
+   ════════════════════════════════════════════ */
+:root {
+  --black: #000000;
+  --white: #FFFFFF;
+  --cream: #F1EDE4;
+  --cream-light: #F7F4EE;
+  --dark-brown: #3E3A33;
+  --near-black: #1D1403;
+  --gold: #F4BA54;
+  --gold-bright: #FFC766;
+  --orange: #E86221;
+  --warm-orange: #FFAA54;
+  --deep-green: #124234;
+  --burgundy: #8D3D3E;
+  --gray: #757369;
+  --light-gray: #AAA9A7;
+  --hairline: rgba(29,20,3,0.1);
+  --hairline-soft: rgba(29,20,3,0.06);
+
+  --font: 'Pretendard Variable', -apple-system, 'system-ui', sans-serif;
+  --serif: 'Instrument Serif', Georgia, 'Times New Roman', serif;
+  --mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', monospace;
+
+  --radius: 24px;
+  --radius-sm: 16px;
+  --pill: 100px;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --header-h: 68px;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+  overflow-x: clip;
+}
+
+body {
+  font-family: var(--font);
+  color: var(--near-black);
+  letter-spacing: -0.02em;
+  background: var(--cream);
+  min-height: 100vh;
+  overflow-x: clip;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 필름 그레인 — 페이지 전체에 종이 질감 */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9990;
+  pointer-events: none;
+  opacity: 0.038;
+  background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='240'%20height='240'%3E%3Cfilter%20id='n'%3E%3CfeTurbulence%20type='fractalNoise'%20baseFrequency='0.9'%20numOctaves='2'%20stitchTiles='stitch'/%3E%3C/filter%3E%3Crect%20width='240'%20height='240'%20filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 240px 240px;
+}
+
+::selection { background: var(--gold); color: var(--near-black); }
+
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar { width: 11px; }
+::-webkit-scrollbar-track { background: var(--cream); }
+::-webkit-scrollbar-thumb {
+  background: rgba(29,20,3,0.22);
+  border-radius: 100px;
+  border: 3px solid var(--cream);
+}
+::-webkit-scrollbar-thumb:hover { background: var(--gold); }
+
+.skip-link {
+  position: fixed;
+  top: 12px; left: 12px;
+  z-index: 10001;
+  background: var(--gold);
+  color: var(--near-black);
+  font-weight: 800;
+  font-size: 13px;
+  padding: 10px 18px;
+  border-radius: var(--pill);
+  text-decoration: none;
+  transform: translateY(-80px);
+  transition: transform 0.3s var(--ease);
+}
+.skip-link:focus { transform: translateY(0); }
+
+/* ════════════════════════════════════════════
+   스크롤 리빌 시스템
+   ════════════════════════════════════════════ */
+.reveal {
+  opacity: 0;
+  transform: translateY(26px);
+  transition: opacity 0.9s var(--ease), transform 0.9s var(--ease);
+  transition-delay: var(--d, 0s);
+}
+.reveal.in { opacity: 1; transform: none; }
+
+/* ════════════════════════════════════════════
+   프로그레스 바 + 헤더
+   ════════════════════════════════════════════ */
+.progress {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%;
+  height: 2px;
+  z-index: 10000;
+  pointer-events: none;
+}
+.progress-bar {
+  height: 100%;
+  background: var(--gold);
+  transform: scaleX(0);
+  transform-origin: left;
+}
+
+.header {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 9999;
+  height: var(--header-h);
+  padding: 0 clamp(20px, 4vw, 48px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: background 0.4s var(--ease), border-color 0.4s var(--ease), height 0.4s var(--ease);
+  border-bottom: 1px solid transparent;
+}
+body[data-scrolled] .header {
+  background: rgba(241,237,228,0.82);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  border-bottom-color: var(--hairline);
+  height: 58px;
+}
+
+.header-logo {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  text-decoration: none;
+}
+.header-logo-mark {
+  width: 33px; height: 33px;
+  background: var(--gold);
+  border-radius: 9px;
+  display: grid;
+  place-items: center;
+  font-size: 15px;
+  font-weight: 900;
+  color: var(--near-black);
+  letter-spacing: -0.5px;
+  transition: transform 0.4s var(--ease);
+}
+.header-logo:hover .header-logo-mark { transform: rotate(-8deg) scale(1.06); }
+.header-logo-name {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+  color: var(--cream);
+  transition: color 0.4s var(--ease);
+}
+body[data-scrolled] .header-logo-name { color: var(--near-black); }
+
+.header-nav {
+  display: flex;
+  align-items: center;
+  gap: clamp(4px, 1.5vw, 10px);
+}
+.header-link {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: rgba(241,237,228,0.72);
+  text-decoration: none;
+  padding: 8px 13px;
+  border-radius: var(--pill);
+  transition: color 0.3s, background 0.3s;
+}
+.header-link:hover { color: var(--gold); }
+body[data-scrolled] .header-link { color: rgba(29,20,3,0.62); }
+body[data-scrolled] .header-link:hover { color: var(--near-black); background: rgba(29,20,3,0.05); }
+
+.header-count {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: var(--gold);
+  border: 1px solid rgba(244,186,84,0.4);
+  border-radius: var(--pill);
+  padding: 6px 12px;
+  white-space: nowrap;
+  transition: border-color 0.4s, color 0.4s;
+}
+body[data-scrolled] .header-count {
+  color: var(--near-black);
+  border-color: rgba(29,20,3,0.2);
+}
+
+/* ════════════════════════════════════════════
+   HERO — 잉크 블랙 매니페스토
+   ════════════════════════════════════════════ */
+.hero {
+  position: relative;
+  background: var(--near-black);
+  color: var(--cream);
+  padding: calc(var(--header-h) + clamp(56px, 9vh, 104px)) clamp(20px, 4vw, 48px) clamp(96px, 13vh, 150px);
+  overflow: hidden;
+}
+
+.hero-grid-bg {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(241,237,228,0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(241,237,228,0.045) 1px, transparent 1px);
+  background-size: 52px 52px;
+  mask-image: radial-gradient(ellipse 90% 80% at 50% 30%, black 35%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 90% 80% at 50% 30%, black 35%, transparent 100%);
+  pointer-events: none;
+}
+
+.hero-glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  pointer-events: none;
+}
+.hero-glow--gold {
+  width: 560px; height: 560px;
+  right: -160px; top: -180px;
+  background: radial-gradient(circle, rgba(244,186,84,0.26), transparent 65%);
+  animation: drift1 22s ease-in-out infinite alternate;
+}
+.hero-glow--green {
+  width: 640px; height: 640px;
+  left: -240px; bottom: -300px;
+  background: radial-gradient(circle, rgba(18,66,52,0.55), transparent 65%);
+  animation: drift2 26s ease-in-out infinite alternate;
+}
+@keyframes drift1 {
+  from { transform: translate(0, 0) scale(1); }
+  to   { transform: translate(-70px, 50px) scale(1.12); }
+}
+@keyframes drift2 {
+  from { transform: translate(0, 0) scale(1); }
+  to   { transform: translate(60px, -40px) scale(1.08); }
+}
+
+.hero-ghost {
+  position: absolute;
+  right: clamp(-40px, 1vw, 60px);
+  top: clamp(80px, 14vh, 150px);
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: clamp(100px, 17vw, 240px);
+  line-height: 1;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(244,186,84,0.22);
+  transform: rotate(-7deg);
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.hero-inner {
+  position: relative;
+  max-width: 1120px;
+  margin: 0 auto;
+}
+
+.hero-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: clamp(24px, 4vh, 40px);
+}
+.hero-label::before {
+  content: '';
+  width: 36px;
+  height: 1px;
+  background: var(--gold);
+}
+.hero-label .blink {
+  display: inline-block;
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--gold);
+  animation: blink 2.4s ease-in-out infinite;
+}
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
+
+.hero-title {
+  font-size: clamp(46px, 8.6vw, 108px);
+  font-weight: 900;
+  line-height: 1.04;
+  letter-spacing: -0.045em;
+  margin-bottom: clamp(24px, 4vh, 36px);
+}
+.hl-line {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.08em;
+  margin-bottom: -0.08em;
+}
+.hl-inner {
+  display: inline-block;
+  transform: translateY(115%);
+}
+body.loaded .hl-inner {
+  animation: lineUp 1.1s var(--ease) forwards;
+  animation-delay: var(--d, 0s);
+}
+@keyframes lineUp { to { transform: translateY(0); } }
+.hero-title em {
+  font-style: normal;
+  color: var(--gold);
+}
+.hero-title .serif {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+.hero-sub {
+  font-size: clamp(15.5px, 1.7vw, 18px);
+  line-height: 1.75;
+  color: rgba(241,237,228,0.62);
+  max-width: 520px;
+  margin-bottom: clamp(32px, 5vh, 44px);
+}
+.hero-sub strong { color: var(--cream); font-weight: 700; }
+
+.hero-cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: clamp(48px, 8vh, 80px);
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-family: var(--font);
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+  border-radius: var(--pill);
+  padding: 15px 26px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: transform 0.35s var(--ease), background 0.35s, border-color 0.35s, color 0.35s, box-shadow 0.35s;
+}
+.btn svg { transition: transform 0.35s var(--ease); }
+.btn:hover svg { transform: translateX(4px); }
+.btn--gold {
+  background: var(--gold);
+  color: var(--near-black);
+}
+.btn--gold:hover {
+  background: var(--gold-bright);
+  transform: translateY(-2px);
+  box-shadow: 0 14px 36px rgba(244,186,84,0.28);
+}
+.btn--ghost {
+  border-color: rgba(241,237,228,0.28);
+  color: var(--cream);
+}
+.btn--ghost:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+  transform: translateY(-2px);
+}
+
+/* 통계 스트립 — manifest에서 자동 계산 */
+.hero-stats {
+  display: flex;
+  align-items: stretch;
+  gap: clamp(24px, 5vw, 64px);
+  border-top: 1px solid rgba(241,237,228,0.14);
+  padding-top: clamp(24px, 4vh, 36px);
+  flex-wrap: wrap;
+}
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.stat-value {
+  font-family: var(--mono);
+  font-size: clamp(28px, 3.6vw, 44px);
+  font-weight: 600;
+  letter-spacing: -1px;
+  color: var(--cream);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.stat-value .unit {
+  font-size: 0.5em;
+  color: var(--gold);
+  margin-left: 2px;
+}
+.stat-label {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(241,237,228,0.45);
+}
+.hero-updated {
+  margin-left: auto;
+  align-self: flex-end;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  color: rgba(241,237,228,0.38);
+  text-transform: uppercase;
+}
+
+/* ════════════════════════════════════════════
+   골드 마키 밴드
+   ════════════════════════════════════════════ */
+.marquee-zone {
+  position: relative;
+  height: 0;
+  z-index: 5;
+}
+.marquee {
+  position: absolute;
+  top: -29px;
+  left: -3%;
+  width: 106%;
+  background: var(--gold);
+  color: var(--near-black);
+  transform: rotate(-1.4deg);
+  padding: 15px 0;
+  overflow: hidden;
+  box-shadow: 0 18px 50px rgba(29,20,3,0.18);
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 30s linear infinite;
+}
+.marquee:hover .marquee-track { animation-play-state: paused; }
+.marquee-seq {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+.marquee-item {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  padding: 0 18px;
+}
+.marquee-star {
+  font-size: 13px;
+  flex-shrink: 0;
+}
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* ════════════════════════════════════════════
+   섹션 공통
+   ════════════════════════════════════════════ */
+.section {
+  padding: clamp(80px, 12vh, 140px) clamp(20px, 4vw, 48px) 0;
+  scroll-margin-top: 70px;
+}
+.section-inner {
+  max-width: 1120px;
+  margin: 0 auto;
+}
+.section-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: clamp(32px, 5vh, 48px);
+  flex-wrap: wrap;
+}
+.section-eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--orange);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.section-eyebrow::before {
+  content: '';
+  width: 28px;
+  height: 1px;
+  background: var(--orange);
+}
+.section-title {
+  font-size: clamp(32px, 4.6vw, 52px);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1.08;
+}
+.section-title .serif {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--deep-green);
+  margin-left: 6px;
+}
+
+/* ════════════════════════════════════════════
+   필터 탭
+   ════════════════════════════════════════════ */
+.filters {
+  display: flex;
+  gap: 6px;
+  background: rgba(29,20,3,0.05);
+  border: 1px solid var(--hairline-soft);
+  border-radius: var(--pill);
+  padding: 5px;
+}
+.filter-btn {
+  font-family: var(--font);
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--gray);
+  background: transparent;
+  border: none;
+  border-radius: var(--pill);
+  padding: 9px 18px;
+  cursor: pointer;
+  transition: color 0.3s, background 0.3s, box-shadow 0.3s;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.filter-btn .n {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  opacity: 0.55;
+}
+.filter-btn:hover { color: var(--near-black); }
+.filter-btn[aria-pressed="true"] {
+  background: var(--near-black);
+  color: var(--cream);
+  box-shadow: 0 6px 18px rgba(29,20,3,0.22);
+}
+.filter-btn[aria-pressed="true"] .n { color: var(--gold); opacity: 1; }
+
+/* ════════════════════════════════════════════
+   덱 그리드 — 미니 슬라이드 카드
+   ════════════════════════════════════════════ */
+.deck-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(16px, 2vw, 24px);
+}
+@media (max-width: 1000px) { .deck-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 640px)  { .deck-grid { grid-template-columns: 1fr; } }
+
+.deck-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--white);
+  border: 1px solid var(--hairline-soft);
+  border-radius: var(--radius);
+  overflow: hidden;
+  text-decoration: none;
+  color: var(--near-black);
+  transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(var(--ty, 0px));
+  transition: transform 0.5s var(--ease), box-shadow 0.5s var(--ease), border-color 0.5s;
+  will-change: transform;
+}
+.deck-card:hover {
+  --ty: -7px;
+  box-shadow: 0 26px 64px rgba(29,20,3,0.16);
+  border-color: rgba(29,20,3,0.12);
+}
+.deck-card:active { --ty: -2px; }
+
+/* 썸네일 = 타이틀 슬라이드 미니어처 */
+.thumb {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  padding: clamp(16px, 1.6vw, 22px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  transition: transform 0.6s var(--ease);
+  transform-origin: center;
+  isolation: isolate;
+}
+.deck-card:hover .thumb { transform: scale(1.045); }
+
+/* ── 유료 잠금 상태 ── */
+.lock-badge {
+  position: absolute;
+  top: 12px; right: 12px;
+  z-index: 4;
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 10px;
+  font-family: var(--mono);
+  font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
+  color: var(--near-black);
+  background: var(--gold);
+  border-radius: var(--pill);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.28);
+}
+.deck-card--locked .thumb {
+  box-shadow: inset 0 0 0 100vmax rgba(13,9,2,0.30);
+}
+.deck-card--locked .deck-open { color: var(--orange); }
+.deck-card--locked:hover .arrow-circle { background: var(--orange); border-color: var(--orange); }
+
+.thumb::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+  background-size: 30px 30px;
+  pointer-events: none;
+}
+/* 슬라이드 하단 진행 바 흉내 */
+.thumb::after {
+  content: '';
+  position: absolute;
+  left: 0; bottom: 0;
+  height: 3px;
+  width: var(--p, 35%);
+  background: var(--gold);
+  transition: width 0.7s var(--ease);
+}
+.deck-card:hover .thumb::after { width: 100%; }
+
+.thumb--dark     { background: var(--near-black); color: var(--cream); }
+.thumb--green    { background: var(--deep-green); color: var(--cream-light); }
+.thumb--burgundy { background: var(--burgundy); color: #FBEFE3; }
+.thumb--orange   { background: var(--orange); color: #FFF3E4; }
+.thumb--gold     { background: var(--gold); color: var(--near-black); }
+.thumb--cream    { background: var(--cream); color: var(--near-black); box-shadow: inset 0 0 0 1px var(--hairline-soft); }
+.thumb--gold::before, .thumb--cream::before {
+  background-image:
+    linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,0.05) 1px, transparent 1px);
+}
+.thumb--gold::after { background: var(--near-black); }
+.thumb--cream::after { background: var(--orange); }
+
+.thumb-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  opacity: 0.62;
+  position: relative;
+}
+.thumb-no { color: var(--gold); opacity: 1; }
+.thumb--gold .thumb-no, .thumb--cream .thumb-no { color: var(--orange); }
+
+.thumb-mid {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.thumb-emoji {
+  font-size: 26px;
+  line-height: 1;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.18));
+}
+.thumb-title {
+  font-size: clamp(16px, 1.6vw, 19px);
+  font-weight: 900;
+  line-height: 1.22;
+  letter-spacing: -0.035em;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.thumb-bottom {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+.thumb-week {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  border: 1px solid currentColor;
+  border-radius: var(--pill);
+  padding: 4px 10px;
+  opacity: 0.85;
+  white-space: nowrap;
+}
+.thumb-slides {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 1.5px;
+  opacity: 0.55;
+  white-space: nowrap;
+}
+
+.deck-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px 22px 22px;
+  flex: 1;
+}
+.deck-desc {
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--gray);
+  flex: 1;
+}
+.deck-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 16px;
+  border-top: 1px solid var(--hairline-soft);
+}
+.deck-duration {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  color: var(--light-gray);
+}
+.deck-open {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--near-black);
+}
+.deck-open .arrow-circle {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  background: var(--near-black);
+  color: var(--cream);
+  display: grid;
+  place-items: center;
+  transition: background 0.35s, transform 0.35s var(--ease);
+}
+.deck-open .arrow-circle svg { transition: transform 0.35s var(--ease); }
+.deck-card:hover .arrow-circle {
+  background: var(--deep-green);
+  transform: scale(1.1);
+}
+.deck-card:hover .arrow-circle svg { transform: translateX(2px); }
+
+/* 빈 상태 / 에러 상태 */
+.state-card {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: clamp(60px, 10vh, 100px) 32px;
+  border: 1px dashed rgba(29,20,3,0.18);
+  border-radius: var(--radius);
+}
+.state-card .big {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: clamp(40px, 6vw, 64px);
+  color: var(--light-gray);
+  display: block;
+  margin-bottom: 14px;
+}
+.state-card .msg {
+  font-size: 15px;
+  color: var(--gray);
+  line-height: 1.7;
+}
+
+/* ════════════════════════════════════════════
+   커리큘럼 — 에디토리얼 인덱스
+   ════════════════════════════════════════════ */
+.curri-group { margin-bottom: clamp(40px, 7vh, 64px); }
+.curri-group:last-child { margin-bottom: 0; }
+
+.curri-group-head {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+.curri-group-title {
+  font-size: 19px;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+}
+.curri-group-sub {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--light-gray);
+  text-transform: uppercase;
+}
+.planned-tag {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  background: rgba(244,186,84,0.22);
+  color: #8a6500;
+  border-radius: var(--pill);
+  padding: 4px 11px;
+}
+
+.curri-list {
+  border-top: 1px solid rgba(29,20,3,0.14);
+}
+.curri-row {
+  display: grid;
+  grid-template-columns: 72px 1fr auto;
+  align-items: center;
+  gap: clamp(14px, 2.5vw, 28px);
+  padding: clamp(18px, 2.6vh, 26px) 6px;
+  border-bottom: 1px solid var(--hairline);
+  text-decoration: none;
+  color: var(--near-black);
+  position: relative;
+  transition: padding-left 0.45s var(--ease), background 0.45s;
+}
+a.curri-row:hover {
+  padding-left: 18px;
+  background: linear-gradient(90deg, rgba(244,186,84,0.1), transparent 65%);
+}
+
+.curri-num {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: clamp(26px, 3vw, 34px);
+  color: var(--light-gray);
+  line-height: 1;
+  transition: color 0.35s;
+}
+a.curri-row:hover .curri-num { color: var(--orange); }
+
+.curri-main {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  min-width: 0;
+}
+.curri-title-line {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.curri-title {
+  font-size: clamp(16px, 1.9vw, 19px);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.3;
+}
+.curri-week {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  background: var(--near-black);
+  color: var(--cream);
+  border-radius: var(--pill);
+  padding: 4px 11px;
+  white-space: nowrap;
+}
+.curri-dur {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--gray);
+  white-space: nowrap;
+}
+.curri-desc {
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: var(--gray);
+  max-width: 620px;
+}
+.curri-materials {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.material-chip {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  background: rgba(29,20,3,0.055);
+  color: var(--dark-brown);
+  border-radius: var(--pill);
+  padding: 4px 11px;
+  white-space: nowrap;
+}
+
+.curri-go {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  border: 1px solid rgba(29,20,3,0.16);
+  display: grid;
+  place-items: center;
+  color: var(--near-black);
+  transition: background 0.35s, border-color 0.35s, color 0.35s, transform 0.45s var(--ease);
+}
+a.curri-row:hover .curri-go {
+  background: var(--near-black);
+  border-color: var(--near-black);
+  color: var(--gold);
+  transform: rotate(-45deg);
+}
+
+/* 예정 세션 */
+.curri-list--planned .curri-row { opacity: 0.92; }
+.curri-list--planned .curri-num { color: rgba(244,186,84,0.85); }
+.curri-list--planned .curri-week {
+  background: transparent;
+  border: 1px dashed rgba(29,20,3,0.3);
+  color: var(--gray);
+}
+
+/* ════════════════════════════════════════════
+   FOOTER — 잉크 + 자이언트 워드마크
+   ════════════════════════════════════════════ */
+.footer {
+  position: relative;
+  margin-top: clamp(96px, 14vh, 160px);
+  background: var(--near-black);
+  color: var(--cream);
+  padding: clamp(56px, 8vh, 88px) clamp(20px, 4vw, 48px) 0;
+  overflow: hidden;
+}
+.footer::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(244,186,84,0.5), transparent);
+}
+.footer-inner {
+  max-width: 1120px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  gap: 40px;
+  flex-wrap: wrap;
+  padding-bottom: clamp(48px, 7vh, 72px);
+}
+.footer-brand { max-width: 420px; }
+.footer-brand-title {
+  font-size: 21px;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  margin-bottom: 12px;
+}
+.footer-brand-title .serif {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--gold);
+}
+.footer-brand-desc {
+  font-size: 14px;
+  line-height: 1.75;
+  color: rgba(241,237,228,0.55);
+}
+.footer-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  letter-spacing: 1px;
+  color: rgba(241,237,228,0.5);
+  text-transform: uppercase;
+}
+.footer-meta a {
+  color: rgba(241,237,228,0.5);
+  text-decoration: none;
+  transition: color 0.3s;
+}
+.footer-meta a:hover { color: var(--gold); }
+.footer-meta .lock { color: var(--gold); }
+
+.footer-wordmark {
+  font-size: clamp(56px, 12.5vw, 176px);
+  font-weight: 900;
+  letter-spacing: -0.05em;
+  line-height: 0.78;
+  white-space: nowrap;
+  text-align: center;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(244,186,84,0.34);
+  user-select: none;
+  transform: translateY(0.12em);
+  transition: -webkit-text-stroke-color 0.5s;
+}
+.footer:hover .footer-wordmark { -webkit-text-stroke-color: rgba(244,186,84,0.6); }
+
+/* ════════════════════════════════════════════
+   모바일
+   ════════════════════════════════════════════ */
+@media (max-width: 760px) {
+  :root { --header-h: 60px; }
+  .header-link { padding: 8px 9px; font-size: 13px; }
+  .hero-ghost { top: auto; bottom: 220px; opacity: 0.7; }
+  .hero-stats { gap: 0; justify-content: space-between; }
+  .stat { flex: 1; }
+  .hero-updated {
+    margin-left: 0;
+    width: 100%;
+    margin-top: 20px;
+    align-self: flex-start;
+  }
+  .marquee { top: -25px; padding: 12px 0; }
+  .filters { width: 100%; overflow-x: auto; scrollbar-width: none; }
+  .filters::-webkit-scrollbar { display: none; }
+  .filter-btn { flex: 1; justify-content: center; padding: 9px 12px; }
+  .curri-row { grid-template-columns: 1fr; gap: 12px; padding: 20px 2px; }
+  .curri-num { font-size: 22px; }
+  .curri-go { display: none; }
+  a.curri-row:hover { padding-left: 2px; }
+  .footer-inner { flex-direction: column; gap: 32px; }
+}
+@media (max-width: 420px) {
+  .header-count { display: none; }
+}
+
+/* ════════════════════════════════════════════
+   모션 최소화 대응
+   ════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .reveal { opacity: 1; transform: none; transition: none; }
+  .hl-inner { transform: none; }
+  body.loaded .hl-inner { animation: none; }
+  .marquee-track { animation: none; flex-wrap: wrap; }
+  .hero-glow--gold, .hero-glow--green { animation: none; }
+  .hero-label .blink { animation: none; }
+  .deck-card, .thumb, .btn, .curri-row, .curri-go { transition: none; }
+}
+</style>
+</head>
+<body>
+
+<a class="skip-link" href="#library">라이브러리로 건너뛰기</a>
+
+<div class="progress" aria-hidden="true"><div class="progress-bar" id="progress-bar"></div></div>
+
+<!-- ─── Header ─── -->
+<header class="header">
+  <a href="/" class="header-logo" aria-label="Teo Vibe Edu 홈">
+    <span class="header-logo-mark">T</span>
+    <span class="header-logo-name">Teo Vibe Edu</span>
+  </a>
+  <nav class="header-nav" aria-label="주요 섹션">
+    <a class="header-link" href="#library">라이브러리</a>
+    <a class="header-link" href="#curriculum">커리큘럼</a>
+    <a class="header-link" href="/">메인</a>
+    <% if current_user %>
+      <a class="header-link" href="/"><%= current_user.nickname %></a>
+    <% else %>
+      <a class="header-link" href="<%= new_session_path %>">로그인</a>
+    <% end %>
+    <span class="header-count" id="header-count" aria-hidden="true">— DECKS</span>
+  </nav>
+</header>
+
+<!-- ─── Hero ─── -->
+<section class="hero">
+  <div class="hero-grid-bg" aria-hidden="true"></div>
+  <div class="hero-glow hero-glow--gold" aria-hidden="true"></div>
+  <div class="hero-glow hero-glow--green" aria-hidden="true"></div>
+  <div class="hero-ghost" aria-hidden="true">Vibe!</div>
+
+  <div class="hero-inner">
+    <p class="hero-label"><span class="blink" aria-hidden="true"></span>Slide Library · Est. 2026</p>
+
+    <h1 class="hero-title">
+      <span class="hl-line"><span class="hl-inner" style="--d:.05s">부딪힌 만큼,</span></span>
+      <span class="hl-line"><span class="hl-inner" style="--d:.17s"><em>가르칠 수 있다</em><span class="serif">*</span></span></span>
+    </h1>
+
+    <p class="hero-sub reveal" style="--d:.4s">바이브 코딩으로 직접 만들고 부수며 모은 <strong>진짜 문제들</strong>을 강의 슬라이드로 아카이브합니다. 모든 덱은 브라우저에서 <strong>바로 발표</strong>할 수 있어요.</p>
+
+    <div class="hero-cta reveal" style="--d:.5s">
+      <a class="btn btn--gold" href="#library">강의 라이브러리
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2 8h11M9 3.5 13.5 8 9 12.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <a class="btn btn--ghost" href="#curriculum">커리큘럼 로드맵</a>
+    </div>
+
+    <div class="hero-stats reveal" style="--d:.6s">
+      <div class="stat">
+        <span class="stat-value"><span data-count id="stat-decks">0</span><span class="unit">decks</span></span>
+        <span class="stat-label">Slide Decks</span>
+      </div>
+      <div class="stat">
+        <span class="stat-value"><span data-count id="stat-slides">0</span><span class="unit">pages</span></span>
+        <span class="stat-label">Total Slides</span>
+      </div>
+      <div class="stat">
+        <span class="stat-value"><span data-count id="stat-hours">0</span><span class="unit">hours+</span></span>
+        <span class="stat-label">Lecture Runtime</span>
+      </div>
+      <span class="hero-updated" id="hero-updated"></span>
+    </div>
+  </div>
 </section>
 
-<%# 사선으로 흐르는 토픽 리본 (마퀴) — JS가 영문 토픽 시퀀스 생성 %>
+<!-- ─── Marquee ─── -->
 <div class="marquee-zone" aria-hidden="true">
   <div class="marquee">
     <div class="marquee-track" id="marquee-track">
@@ -14,8 +1182,498 @@
   </div>
 </div>
 
-<div class="wrap">
-  <div class="deck-grid">
-    <%= render DeckCardComponent.with_collection(@courses) %>
+<!-- ─── Deck Library ─── -->
+<main class="section" id="library">
+  <div class="section-inner">
+    <div class="section-head">
+      <div class="reveal">
+        <p class="section-eyebrow">All Decks</p>
+        <h2 class="section-title">강의 라이브러리<span class="serif">Library</span></h2>
+      </div>
+      <div class="filters reveal" style="--d:.1s" role="group" aria-label="강의 필터" id="filters">
+        <button class="filter-btn" data-filter="all" aria-pressed="true">전체 <span class="n" data-n="all">0</span></button>
+        <button class="filter-btn" data-filter="basic" aria-pressed="false">기본 과정 <span class="n" data-n="basic">0</span></button>
+        <button class="filter-btn" data-filter="adv" aria-pressed="false">심화 과정 <span class="n" data-n="adv">0</span></button>
+      </div>
+    </div>
+    <div class="deck-grid" id="deck-grid" aria-live="polite"></div>
   </div>
-</div>
+</main>
+
+<!-- ─── Curriculum ─── -->
+<section class="section" id="curriculum">
+  <div class="section-inner">
+    <div class="section-head">
+      <div class="reveal">
+        <p class="section-eyebrow">Curriculum</p>
+        <h2 class="section-title">커리큘럼 로드맵<span class="serif">Roadmap</span></h2>
+      </div>
+    </div>
+
+    <!-- 기본 과정 -->
+    <div class="curri-group reveal">
+      <div class="curri-group-head">
+        <h3 class="curri-group-title">기본 과정</h3>
+        <span class="curri-group-sub">바이브코딩 마스터 · 8주 완성</span>
+      </div>
+      <div class="curri-list">
+        <a class="curri-row" href="/courses/week-1-2" target="_blank" rel="noopener">
+          <span class="curri-num" aria-hidden="true">01</span>
+          <div class="curri-main">
+            <div class="curri-title-line">
+              <span class="curri-title">바이브코딩 마스터 1~2주차</span>
+              <span class="curri-week">Week 1–2</span>
+              <span class="curri-dur">90분 × 2회</span>
+            </div>
+            <div class="curri-materials">
+              <span class="material-chip">Cursor IDE</span>
+              <span class="material-chip">Claude 계정</span>
+              <span class="material-chip">인터넷 연결</span>
+            </div>
+          </div>
+          <span class="curri-go" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M2 8h11M9 3.5 13.5 8 9 12.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        </a>
+        <a class="curri-row" href="/courses/week-3-4" target="_blank" rel="noopener">
+          <span class="curri-num" aria-hidden="true">02</span>
+          <div class="curri-main">
+            <div class="curri-title-line">
+              <span class="curri-title">바이브코딩 마스터 3~4주차</span>
+              <span class="curri-week">Week 3–4</span>
+              <span class="curri-dur">90분 × 2회</span>
+            </div>
+            <div class="curri-materials">
+              <span class="material-chip">이전 주차 프로젝트</span>
+              <span class="material-chip">Node.js / bun</span>
+              <span class="material-chip">Vercel 계정</span>
+            </div>
+          </div>
+          <span class="curri-go" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M2 8h11M9 3.5 13.5 8 9 12.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        </a>
+        <a class="curri-row" href="/courses/week-5-6" target="_blank" rel="noopener">
+          <span class="curri-num" aria-hidden="true">03</span>
+          <div class="curri-main">
+            <div class="curri-title-line">
+              <span class="curri-title">바이브코딩 마스터 5~6주차</span>
+              <span class="curri-week">Week 5–6</span>
+              <span class="curri-dur">90분 × 2회</span>
+            </div>
+            <div class="curri-materials">
+              <span class="material-chip">Supabase 계정</span>
+              <span class="material-chip">Claude API 키</span>
+              <span class="material-chip">공공데이터 API 키</span>
+            </div>
+          </div>
+          <span class="curri-go" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M2 8h11M9 3.5 13.5 8 9 12.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        </a>
+        <a class="curri-row" href="/courses/week-7-8" target="_blank" rel="noopener">
+          <span class="curri-num" aria-hidden="true">04</span>
+          <div class="curri-main">
+            <div class="curri-title-line">
+              <span class="curri-title">엔티티 완전 정복 — 7~8주차</span>
+              <span class="curri-week">Week 7–8</span>
+              <span class="curri-dur">120분 × 2회</span>
+            </div>
+            <div class="curri-materials">
+              <span class="material-chip">이전 주차 프로젝트</span>
+              <span class="material-chip">Supabase</span>
+              <span class="material-chip">TablePlus</span>
+            </div>
+          </div>
+          <span class="curri-go" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M2 8h11M9 3.5 13.5 8 9 12.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        </a>
+      </div>
+    </div>
+
+    <!-- 심화 과정 -->
+    <div class="curri-group reveal">
+      <div class="curri-group-head">
+        <h3 class="curri-group-title">심화 과정</h3>
+        <span class="curri-group-sub">기본 과정 수료 후 선택</span>
+      </div>
+      <div class="curri-list">
+        <a class="curri-row" href="/courses/cicd" target="_blank" rel="noopener">
+          <span class="curri-num" aria-hidden="true">05</span>
+          <div class="curri-main">
+            <div class="curri-title-line">
+              <span class="curri-title">CI/CD 완전 정복</span>
+              <span class="curri-week">심화 · DevOps</span>
+              <span class="curri-dur">90분</span>
+            </div>
+            <div class="curri-materials">
+              <span class="material-chip">GitHub 계정</span>
+              <span class="material-chip">배포 중인 프로젝트</span>
+              <span class="material-chip">Vercel 계정</span>
+            </div>
+          </div>
+          <span class="curri-go" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M2 8h11M9 3.5 13.5 8 9 12.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        </a>
+        <a class="curri-row" href="/courses/agent-sdk" target="_blank" rel="noopener">
+          <span class="curri-num" aria-hidden="true">06</span>
+          <div class="curri-main">
+            <div class="curri-title-line">
+              <span class="curri-title">claude -p와 Agent SDK 입문</span>
+              <span class="curri-week">심화 · Claude</span>
+              <span class="curri-dur">90분</span>
+            </div>
+            <div class="curri-materials">
+              <span class="material-chip">claude CLI 설치</span>
+              <span class="material-chip">Node.js</span>
+              <span class="material-chip">터미널</span>
+            </div>
+          </div>
+          <span class="curri-go" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M2 8h11M9 3.5 13.5 8 9 12.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        </a>
+        <a class="curri-row" href="/courses/vertical-agent" target="_blank" rel="noopener">
+          <span class="curri-num" aria-hidden="true">07</span>
+          <div class="curri-main">
+            <div class="curri-title-line">
+              <span class="curri-title">스킬에서 버티컬 에이전트까지</span>
+              <span class="curri-week">심화 · Agent</span>
+              <span class="curri-dur">3시간</span>
+            </div>
+            <div class="curri-materials">
+              <span class="material-chip">claude CLI</span>
+              <span class="material-chip">Hermes 런타임</span>
+              <span class="material-chip">Claude 구독/API</span>
+            </div>
+          </div>
+          <span class="curri-go" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M2 8h11M9 3.5 13.5 8 9 12.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        </a>
+      </div>
+    </div>
+
+    <!-- 예정 -->
+    <div class="curri-group reveal">
+      <div class="curri-group-head">
+        <h3 class="curri-group-title">예정 세션</h3>
+        <span class="planned-tag">Planned</span>
+        <span class="curri-group-sub">추가하면 좋을 다음 챕터</span>
+      </div>
+      <div class="curri-list curri-list--planned">
+        <div class="curri-row">
+          <span class="curri-num" aria-hidden="true">P1</span>
+          <div class="curri-main">
+            <div class="curri-title-line">
+              <span class="curri-title">배포 &amp; 운영 실전 (Week 9–10)</span>
+              <span class="curri-week">기본 확장</span>
+              <span class="curri-dur">90분 × 2회 예상</span>
+            </div>
+            <p class="curri-desc">Vercel / Cloudflare Pages 배포, 커스텀 도메인, 환경변수 관리, 에러 모니터링. 배포가 각 주차에 흩어져 있어 한 번 집중 정리할 자리가 필요함.</p>
+            <div class="curri-materials">
+              <span class="material-chip">Vercel 계정</span>
+              <span class="material-chip">Cloudflare 계정</span>
+              <span class="material-chip">도메인 (선택)</span>
+            </div>
+          </div>
+        </div>
+        <div class="curri-row">
+          <span class="curri-num" aria-hidden="true">P2</span>
+          <div class="curri-main">
+            <div class="curri-title-line">
+              <span class="curri-title">Claude API 직접 연동</span>
+              <span class="curri-week">심화 브릿지</span>
+              <span class="curri-dur">90분 예상</span>
+            </div>
+            <p class="curri-desc">API 직접 호출, 스트리밍, system prompt 설계 실전. Week 5–6에서 스쳐가는데 Agent SDK 전에 따로 깊게 다루면 흐름이 자연스러워짐.</p>
+            <div class="curri-materials">
+              <span class="material-chip">Anthropic API 키</span>
+              <span class="material-chip">Node.js</span>
+            </div>
+          </div>
+        </div>
+        <div class="curri-row">
+          <span class="curri-num" aria-hidden="true">P3</span>
+          <div class="curri-main">
+            <div class="curri-title-line">
+              <span class="curri-title">수익화 &amp; SaaS 패턴</span>
+              <span class="curri-week">심화 · 비즈니스</span>
+              <span class="curri-dur">2시간 예상</span>
+            </div>
+            <p class="curri-desc">Stripe 결제 연동, 멤버십/구독 구조, 실제 유료 서비스 아키텍처. 커리큘럼의 자연스러운 종착점 — 만든 걸 팔 수 있게.</p>
+            <div class="curri-materials">
+              <span class="material-chip">Stripe 계정</span>
+              <span class="material-chip">배포 중인 프로젝트</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Footer ─── -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-brand reveal">
+      <p class="footer-brand-title">Teo <span class="serif">Vibe</span> Edu</p>
+      <p class="footer-brand-desc">만들며 부딪힌 문제를 그대로 교안으로. 바이브 코딩을 배우고, 가르치고, 나누기 위한 슬라이드 라이브러리입니다.</p>
+    </div>
+    <div class="footer-meta reveal" style="--d:.1s">
+      <span><a href="https://jaeho.im/courses">jaeho.im/courses</a></span>
+      <span>Built with Claude Code</span>
+      <span>© <span id="year">2026</span> Teo. All rights vibed.</span>
+    </div>
+  </div>
+  <div class="footer-wordmark" aria-hidden="true">TEO VIBE EDU</div>
+</footer>
+
+<noscript>
+  <div style="padding:24px 48px;font-size:15px;background:#fff;border-top:1px solid rgba(0,0,0,.1)">
+    이 페이지의 강의 목록은 JavaScript로 렌더링됩니다. <code>manifest.json</code>을 직접 확인하거나 <code>slides/</code> 폴더의 HTML 파일을 열어주세요.
+  </div>
+</noscript>
+
+<script>
+/* ════════════════════════════════════════════
+   상태
+   ════════════════════════════════════════════ */
+let DECKS = [];
+let currentFilter = 'all';
+let UNLOCKED = new Set();    /* 잠금 해제된 슬라이드 파일명 집합 (/api/me) */
+let CHECKOUT = {};           /* 데크별 Polar 체크아웃 링크 {파일명: url} (/api/me) */
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const finePointer  = matchMedia('(pointer: fine)').matches;
+
+const categoryOf = d => (d.tags || []).includes('심화') ? 'adv' : 'basic';
+
+/* ════════════════════════════════════════════
+   스크롤 리빌
+   ════════════════════════════════════════════ */
+const io = new IntersectionObserver(entries => {
+  for (const e of entries) {
+    if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+  }
+}, { threshold: 0.12, rootMargin: '0px 0px -4% 0px' });
+
+function observeReveals(root = document) {
+  root.querySelectorAll('.reveal:not(.in)').forEach(el => io.observe(el));
+}
+
+/* ════════════════════════════════════════════
+   헤더 + 프로그레스 바
+   ════════════════════════════════════════════ */
+const progressBar = document.getElementById('progress-bar');
+let ticking = false;
+function onScroll() {
+  if (ticking) return;
+  ticking = true;
+  requestAnimationFrame(() => {
+    const y = scrollY;
+    document.body.toggleAttribute('data-scrolled', y > 24);
+    const max = document.documentElement.scrollHeight - innerHeight;
+    progressBar.style.transform = `scaleX(${max > 0 ? Math.min(y / max, 1) : 0})`;
+    ticking = false;
+  });
+}
+addEventListener('scroll', onScroll, { passive: true });
+onScroll();
+
+/* ════════════════════════════════════════════
+   카운트업
+   ════════════════════════════════════════════ */
+function countUp(el, target, duration = 1400) {
+  if (reduceMotion || target === 0) { el.textContent = target; return; }
+  const t0 = performance.now();
+  (function tick(now) {
+    const p = Math.min((now - t0) / duration, 1);
+    el.textContent = Math.round(target * (1 - Math.pow(1 - p, 4)));
+    if (p < 1) requestAnimationFrame(tick);
+  })(t0);
+}
+
+/* duration 문자열 → 분: "90분 × 2회"=180, "3시간"=180 */
+function toMinutes(str) {
+  if (!str) return 0;
+  let m = 0;
+  const h  = str.match(/(\d+(?:\.\d+)?)\s*시간/);
+  const mm = str.match(/(\d+)\s*분/);
+  if (h)  m += parseFloat(h[1]) * 60;
+  if (mm) m += parseInt(mm[1], 10);
+  const x = str.match(/[×x]\s*(\d+)/);
+  if (x) m *= parseInt(x[1], 10);
+  return m;
+}
+
+function buildStats(decks) {
+  const slides = decks.reduce((s, d) => s + (d.slides || 0), 0);
+  const hours  = Math.floor(decks.reduce((s, d) => s + toMinutes(d.duration), 0) / 60);
+  countUp(document.getElementById('stat-decks'), decks.length, 1000);
+  countUp(document.getElementById('stat-slides'), slides, 1500);
+  countUp(document.getElementById('stat-hours'), hours, 1300);
+
+  const latest = decks.map(d => d.date).filter(Boolean).sort().pop();
+  if (latest) {
+    document.getElementById('hero-updated').textContent =
+      `Last update — ${latest.replaceAll('-', '.')}`;
+  }
+  document.getElementById('header-count').textContent =
+    `${String(decks.length).padStart(2, '0')} DECKS`;
+}
+
+/* ════════════════════════════════════════════
+   마키
+   ════════════════════════════════════════════ */
+const MARQUEE_TOPICS = [
+  'Claude Code', 'Cursor IDE', 'Supabase', 'GitHub Actions', 'Agent SDK',
+  'Entity Modeling', 'CI · CD', 'Prompt → Product', 'Vibe Coding', 'Ship It'
+];
+function buildMarquee() {
+  const seq = document.getElementById('marquee-seq');
+  seq.innerHTML = MARQUEE_TOPICS.map((t, i) =>
+    `<span class="marquee-item">${t}</span><span class="marquee-star">${i % 2 ? '✦' : '✶'}</span>`
+  ).join('');
+  const track = document.getElementById('marquee-track');
+  const clone = seq.cloneNode(true);
+  clone.setAttribute('aria-hidden', 'true');
+  track.appendChild(clone);
+}
+
+/* ════════════════════════════════════════════
+   덱 카드 렌더링
+   ════════════════════════════════════════════ */
+function renderCard(deck, i, originalIdx) {
+  const no    = String(originalIdx + 1).padStart(2, '0');
+  const week  = (deck.tags && deck.tags[0]) || 'Session';
+  const p     = 18 + (originalIdx * 17) % 58;   /* 미니 진행 바 길이 — 덱마다 다르게 */
+  const thumb = deck.thumb || 'thumb--dark';
+
+  const fname  = (deck.file || '').split('/').pop();
+  const buyUrl = CHECKOUT[fname] || '';
+  const locked = !!deck.paid && !UNLOCKED.has(fname);   /* 유료 + 미구매 = 잠김 */
+  const href   = '/courses/' + deck.slug;
+  const target = locked ? '_self' : '_blank';
+  const aria   = locked ? `${deck.title} — 심화 패키지 구매` : `${deck.title} 슬라이드 열기`;
+  const cta    = locked ? '구매하고 열람' : '발표 열기';
+  const ctaIcon = locked
+    ? `<span class="arrow-circle"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M5 7V5a3 3 0 1 1 6 0v2m-7 0h8v6H4V7Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></span>`
+    : `<span class="arrow-circle"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2 8h11M9 3.5 13.5 8 9 12.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>`;
+
+  return `
+  <a class="deck-card reveal${locked ? ' deck-card--locked' : ''}" style="--d:${Math.min(i * 0.07, 0.42)}s" href="${href}" target="${target}" rel="noopener" aria-label="${aria}">
+    <div class="thumb ${thumb}" style="--p:${p}%">
+      ${locked ? `<span class="lock-badge">🔒 ₩${(deck.price || 0).toLocaleString()}</span>` : ''}
+      <div class="thumb-top">
+        <span>Teo Vibe Edu</span>
+        <span class="thumb-no">N°${no}</span>
+      </div>
+      <div class="thumb-mid">
+        <span class="thumb-emoji" aria-hidden="true">${deck.emoji || '📑'}</span>
+        <span class="thumb-title">${deck.title}</span>
+      </div>
+      <div class="thumb-bottom">
+        <span class="thumb-week">${week}</span>
+        <span class="thumb-slides">${deck.slides || '–'} slides</span>
+      </div>
+    </div>
+    <div class="deck-body">
+      <p class="deck-desc">${deck.desc || ''}</p>
+      <div class="deck-meta">
+        <span class="deck-duration">⏱ ${deck.duration || '—'}</span>
+        <span class="deck-open">${cta}
+          ${ctaIcon}
+        </span>
+      </div>
+    </div>
+  </a>`;
+}
+
+function renderGrid(filter) {
+  const grid = document.getElementById('deck-grid');
+  const list = DECKS
+    .map((d, idx) => ({ d, idx }))
+    .filter(({ d }) => filter === 'all' || categoryOf(d) === filter);
+
+  if (!list.length) {
+    grid.innerHTML = `
+      <div class="state-card">
+        <span class="big">Empty.</span>
+        <p class="msg">아직 이 분류의 강의가 없어요.<br>슬라이드 덱이 추가되면 자동으로 표시됩니다.</p>
+      </div>`;
+    return;
+  }
+  grid.innerHTML = list.map(({ d, idx }, i) => renderCard(d, i, idx)).join('');
+  observeReveals(grid);
+  if (finePointer && !reduceMotion) bindTilt(grid);
+}
+
+/* ════════════════════════════════════════════
+   필터
+   ════════════════════════════════════════════ */
+function bindFilters() {
+  const counts = {
+    all:   DECKS.length,
+    basic: DECKS.filter(d => categoryOf(d) === 'basic').length,
+    adv:   DECKS.filter(d => categoryOf(d) === 'adv').length,
+  };
+  document.querySelectorAll('[data-n]').forEach(el => {
+    el.textContent = counts[el.dataset.n] ?? 0;
+  });
+  document.getElementById('filters').addEventListener('click', e => {
+    const btn = e.target.closest('.filter-btn');
+    if (!btn || btn.dataset.filter === currentFilter) return;
+    currentFilter = btn.dataset.filter;
+    document.querySelectorAll('.filter-btn').forEach(b =>
+      b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'));
+    renderGrid(currentFilter);
+  });
+}
+
+/* ════════════════════════════════════════════
+   카드 틸트 (데스크톱 전용, 미세하게)
+   ════════════════════════════════════════════ */
+function bindTilt(grid) {
+  grid.querySelectorAll('.deck-card').forEach(card => {
+    card.addEventListener('pointermove', e => {
+      const r = card.getBoundingClientRect();
+      const px = (e.clientX - r.left) / r.width  - 0.5;
+      const py = (e.clientY - r.top)  / r.height - 0.5;
+      card.style.setProperty('--ry', `${(px * 4).toFixed(2)}deg`);
+      card.style.setProperty('--rx', `${(-py * 4).toFixed(2)}deg`);
+    });
+    card.addEventListener('pointerleave', () => {
+      card.style.setProperty('--ry', '0deg');
+      card.style.setProperty('--rx', '0deg');
+    });
+  });
+}
+
+/* ════════════════════════════════════════════
+   init
+   ════════════════════════════════════════════ */
+function reflectEntitlement() {
+  const link = document.getElementById('unlock-link');
+  if (!link) return;
+  link.href = '/unlock';
+  link.textContent = UNLOCKED.size ? '🔓 잠금 해제' : '🔒 잠금 해제';
+}
+
+async function init() {
+  buildMarquee();
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  /* Rails /courses.json — 강의 데이터 + 잠금상태를 한 번에 */
+  try {
+    const res = await fetch('/courses.json', { headers: { 'Accept': 'application/json' } });
+    if (!res.ok) throw new Error(res.status);
+    const data = await res.json();
+    DECKS    = data.decks || [];
+    UNLOCKED = new Set(data.unlocked || []);
+    CHECKOUT = data.checkout || {};
+    reflectEntitlement();
+    buildStats(DECKS);
+    bindFilters();
+    renderGrid('all');
+  } catch (err) {
+    document.getElementById('deck-grid').innerHTML = `
+      <div class="state-card">
+        <span class="big">Oops.</span>
+        <p class="msg">강의 목록을 불러오지 못했어요.<br>새로고침해 주세요.</p>
+      </div>`;
+  }
+  observeReveals();
+  requestAnimationFrame(() => document.body.classList.add('loaded'));
+}
+init();
+</script>
+</body>
+</html>

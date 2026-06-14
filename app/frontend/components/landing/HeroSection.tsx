@@ -48,7 +48,7 @@ export default function HeroSection({ section }: { section: LandingSection }) {
         Vibe!
       </div>
 
-      <motion.div className="max-w-[1120px] mx-auto w-full relative" variants={container} initial="hidden" animate="show">
+      <motion.div className="max-w-[1120px] mx-auto w-full relative" variants={container} initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.2 }}>
         <motion.p className="tv-eyebrow tv-eyebrow--gold mb-7" variants={item}>
           <span className="dot" aria-hidden="true" />TeoVibe · 바이브코딩 커뮤니티
         </motion.p>

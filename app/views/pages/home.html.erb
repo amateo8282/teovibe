@@ -2,6 +2,9 @@
 <div id="landing-root"></div>
 
 <% content_for :head do %>
+  <%# React 랜딩은 Turbo 복원(뒤로가기) 시 언마운트→재마운트하며 Framer 진입 애니가
+      간헐적으로 opacity:0에 멈춤 → 홈은 Turbo 캐시 비활성으로 항상 새로 마운트(클린) %>
+  <meta name="turbo-cache-control" content="no-cache">
   <%= vite_javascript_tag 'landing.jsx' %>
   <%# 구조화 데이터 JSON-LD (WebSite + Organization) %>
   <script type="application/ld+json"><%= website_json_ld %></script>

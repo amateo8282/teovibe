@@ -23,8 +23,11 @@
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/icon.png">
 
-    <%# Pretendard 폰트 CDN %>
+    <%# 에디토리얼 폰트 트리오: Pretendard(본문) + Instrument Serif(강조) + IBM Plex Mono(라벨) %>
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 
     <%# Vite 빌드 파이프라인 (importmap 대체) %>
     <%= vite_client_tag %>
@@ -32,7 +35,10 @@
     <%= vite_javascript_tag 'application' %>
   </head>
 
-  <body class="bg-tv-cream text-tv-black min-h-screen flex flex-col">
+  <body class="bg-tv-cream text-tv-black min-h-screen flex flex-col" data-controller="header-scroll">
+    <div class="film-grain" aria-hidden="true"></div>
+    <div class="tv-scroll-progress" data-controller="scroll-progress" aria-hidden="true"><span data-scroll-progress-target="bar"></span></div>
+
     <%= render "shared/navbar" %>
     <%= render "shared/flash" %>
 
@@ -41,5 +47,6 @@
     </main>
 
     <%= render "shared/footer" %>
+    <script>requestAnimationFrame(function () { document.body.classList.add("loaded") })</script>
   </body>
 </html>

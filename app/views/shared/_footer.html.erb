@@ -1,38 +1,46 @@
-<footer class="bg-tv-dark text-tv-light-gray py-16">
-  <div class="max-w-[1200px] mx-auto px-5">
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
-      <%# 브랜드 %>
-      <div>
-        <h3 class="text-white text-2xl font-black mb-4">TeoVibe</h3>
-        <p class="text-sm leading-relaxed">바이브코딩으로 사업화하는 과정을<br>기록하고 공유하는 커뮤니티</p>
-      </div>
+<footer class="tv-ink relative mt-24 pt-14 px-5">
+  <%# 상단 골드 헤어라인 %>
+  <span class="absolute top-0 inset-x-0 h-px" style="background:linear-gradient(90deg,transparent,rgba(244,186,84,.5),transparent)" aria-hidden="true"></span>
 
-      <%# 링크 — visible_in_nav=true 카테고리 동적 표시 %>
+  <div class="max-w-[1120px] mx-auto flex flex-wrap justify-between gap-10 pb-12 relative">
+    <%# 브랜드 %>
+    <div class="max-w-[420px]">
+      <p class="text-[22px] font-black tracking-tight mb-3">Teo <span class="font-serif italic font-normal text-tv-gold">Vibe</span></p>
+      <p class="text-sm leading-relaxed text-tv-cream/55">만들며 부딪힌 문제를 그대로 기록으로. 바이브코딩으로 사업을 만드는 사람들의 커뮤니티입니다.</p>
+    </div>
+
+    <div class="flex flex-wrap gap-12">
+      <%# 둘러보기 — visible_in_nav 카테고리 동적 %>
       <div>
-        <h4 class="text-white text-sm font-bold uppercase mb-4">Links</h4>
-        <div class="space-y-2">
+        <p class="font-mono text-[11px] font-semibold tracking-[2px] uppercase text-tv-gold mb-4">Explore</p>
+        <div class="space-y-2.5 font-mono text-xs tracking-wide">
           <% Category.for_posts.visible_in_nav.ordered.each do |cat| %>
-            <%= link_to cat.name, category_posts_path(category_slug: cat.slug), class: "block text-sm hover:text-white transition-colors" %>
+            <%= link_to cat.name, category_posts_path(category_slug: cat.slug), class: "block text-tv-cream/55 hover:text-tv-gold transition-colors" %>
           <% end %>
-          <%= link_to "소개", about_path, class: "block text-sm hover:text-white transition-colors" %>
+          <%= link_to "스킬팩", skill_packs_path, class: "block text-tv-cream/55 hover:text-tv-gold transition-colors" %>
+          <%= link_to "강의", courses_path, class: "block text-tv-cream/55 hover:text-tv-gold transition-colors" %>
+          <%= link_to "소개", about_path, class: "block text-tv-cream/55 hover:text-tv-gold transition-colors" %>
         </div>
       </div>
 
       <%# 문의 %>
       <div>
-        <h4 class="text-white text-sm font-bold uppercase mb-4">Contact</h4>
-        <p class="text-sm">문의: teovibe@example.com</p>
-      </div>
-    </div>
-
-    <hr class="border-tv-gray/30 my-8">
-
-    <div class="flex flex-col md:flex-row justify-between items-center gap-4 text-xs">
-      <p>&copy; <%= Date.current.year %> TeoVibe. All rights reserved.</p>
-      <div class="flex gap-4">
-        <%= link_to "이용약관", "#", class: "hover:text-white transition-colors" %>
-        <%= link_to "개인정보처리방침", "#", class: "hover:text-white transition-colors" %>
+        <p class="font-mono text-[11px] font-semibold tracking-[2px] uppercase text-tv-gold mb-4">Contact</p>
+        <div class="space-y-2.5 font-mono text-xs tracking-wide text-tv-cream/55">
+          <p>support@jaeho.im</p>
+          <%= link_to "이용약관", "#", class: "block hover:text-tv-gold transition-colors" %>
+          <%= link_to "개인정보처리방침", "#", class: "block hover:text-tv-gold transition-colors" %>
+        </div>
       </div>
     </div>
   </div>
+
+  <%# 하단 메타 %>
+  <div class="max-w-[1120px] mx-auto flex flex-col md:flex-row justify-between items-center gap-3 pb-6 font-mono text-[11px] tracking-wider uppercase text-tv-cream/45 relative">
+    <span>&copy; <%= Date.current.year %> TeoVibe. All rights vibed.</span>
+    <span>Built with Claude Code</span>
+  </div>
+
+  <%# 거대 워드마크 (text-stroke) %>
+  <div class="tv-footer-wordmark" aria-hidden="true">TEOVIBE</div>
 </footer>

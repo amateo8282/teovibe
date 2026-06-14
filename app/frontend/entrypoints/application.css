@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./editorial.css";
 
 /* Rails 뷰 파일에서 Tailwind 클래스 스캔 */
 @source "../../../app/views/**/*.erb";
@@ -7,17 +8,20 @@
 @source "../../../app/frontend/**/*.ts";
 @source "../../../app/frontend/**/*.tsx";
 
-/* TeoVibe 디자인 시스템 - memoir 톤앤매너 기반 */
+/* TeoVibe 디자인 시스템 — 에디토리얼 (강의 갤러리 앵커, slide-deck 팔레트 계열) */
 @theme {
   /* Primary */
-  --color-tv-black: #1D1403;
+  --color-tv-black: #1D1403;        /* = 잉크(near-black). 잉크 강조존 배경 */
   --color-tv-white: #FFFFFF;
-  --color-tv-cream: #F5F1EA;
+  --color-tv-cream: #F1EDE4;        /* 종이 베이스 (앵커값으로 정렬) */
+  --color-tv-cream-light: #F7F4EE;
   --color-tv-dark: #3E3A33;
 
   /* Accent */
   --color-tv-gold: #F4BA54;
+  --color-tv-gold-bright: #FFC766;
   --color-tv-orange: #E86221;
+  --color-tv-warm-orange: #FFAA54;
   --color-tv-green: #124234;
   --color-tv-burgundy: #8D3D3E;
 
@@ -25,12 +29,22 @@
   --color-tv-gray: #757369;
   --color-tv-light-gray: #AAA9A7;
 
+  /* Hairline (잉크 위 / 종이 위) */
+  --color-tv-hairline: rgba(29, 20, 3, 0.1);
+  --color-tv-hairline-soft: rgba(29, 20, 3, 0.06);
+  --color-tv-hairline-ink: rgba(241, 237, 228, 0.12);
+
   /* Semantic */
   --color-tv-nav-bg: rgba(255, 255, 255, 0.6);
   --color-tv-card-shadow: rgba(0, 0, 0, 0.2);
 
-  /* 폰트 */
+  /* 폰트 — 에디토리얼 트리오 */
   --font-sans: 'Pretendard Variable', Pretendard, -apple-system, 'system-ui', 'Apple SD Gothic Neo', Roboto, 'Noto Sans KR', 'Segoe UI', 'Malgun Gothic', sans-serif;
+  --font-serif: 'Instrument Serif', Georgia, 'Times New Roman', serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', 'SFMono-Regular', monospace;
+
+  /* 에디토리얼 이징 (transition utility: ease-editorial) */
+  --ease-editorial: cubic-bezier(0.22, 1, 0.36, 1);
 
   /* 폰트 크기 */
   --text-hero: 90px;

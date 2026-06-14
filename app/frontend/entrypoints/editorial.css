@@ -1,0 +1,327 @@
+/* ════════════════════════════════════════════════════════════════════════
+   TeoVibe — Editorial Component Layer
+   강의 갤러리(app/views/courses/index.html.erb)를 앵커로 추출한 재사용 시그니처.
+   크림 종이 베이스 + 잉크(near-black) 강조존 + 골드. 토큰 = application.css @theme.
+   레이아웃은 Tailwind 유틸로, 시그니처(아이브로우·서리프 헤드·잉크 히어로·마퀴·
+   틸트 카드·리빌·통계·필터·푸터 워드마크)는 이 클래스로.
+   모든 모션은 하단 prefers-reduced-motion 블록에서 정지.
+   ════════════════════════════════════════════════════════════════════════ */
+@layer components {
+
+  /* ── 전역 질감: 필름 그레인 + 셀렉션 ───────────────────────────── */
+  .film-grain {
+    position: fixed; inset: 0; z-index: 9990; pointer-events: none; opacity: 0.04;
+    background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='240'%20height='240'%3E%3Cfilter%20id='n'%3E%3CfeTurbulence%20type='fractalNoise'%20baseFrequency='0.9'%20numOctaves='2'%20stitchTiles='stitch'/%3E%3C/filter%3E%3Crect%20width='240'%20height='240'%20filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 240px 240px;
+  }
+  ::selection { background: var(--color-tv-gold); color: var(--color-tv-black); }
+
+  /* ── 스크롤 진행바 (레이아웃 상단 1회) ─────────────────────────── */
+  .tv-scroll-progress {
+    position: fixed; top: 0; left: 0; width: 100%; height: 2px; z-index: 10000; pointer-events: none;
+  }
+  .tv-scroll-progress > span {
+    display: block; height: 100%; transform: scaleX(0); transform-origin: left;
+    background: linear-gradient(90deg, var(--color-tv-gold), var(--color-tv-gold-bright));
+  }
+
+  /* ── 전역 네비 (스크롤 시 투명→크림 블러+축소) ────────────────── */
+  .tv-nav {
+    height: 86px; background: transparent; border-bottom: 1px solid transparent;
+    transition: height 0.4s var(--ease-editorial), background 0.4s, border-color 0.4s, backdrop-filter 0.4s;
+  }
+  body[data-scrolled] .tv-nav {
+    height: 66px; background: rgba(241, 237, 228, 0.82);
+    -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+    border-bottom-color: var(--color-tv-hairline);
+  }
+  .tv-nav-mark {
+    width: 33px; height: 33px; background: var(--color-tv-gold); border-radius: 9px; display: grid; place-items: center;
+    font-size: 15px; font-weight: 900; color: var(--color-tv-black); letter-spacing: -0.5px; flex-shrink: 0;
+    transition: transform 0.4s var(--ease-editorial);
+  }
+  .tv-nav-logo:hover .tv-nav-mark { transform: rotate(-8deg) scale(1.06); }
+  .tv-nav-link {
+    font-family: var(--font-mono); font-size: 12px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase;
+    color: rgba(29, 20, 3, 0.62); padding: 8px 12px; border-radius: 100px; transition: color 0.25s, background 0.25s; text-decoration: none;
+  }
+  .tv-nav-link:hover { color: var(--color-tv-black); background: rgba(29, 20, 3, 0.05); }
+  .tv-nav-link[aria-current], .tv-nav-link.is-active { color: var(--color-tv-orange); }
+
+  /* ── 스크롤 리빌 (data-controller="tv-reveal") ─────────────────── */
+  .tv-reveal {
+    opacity: 0; transform: translateY(24px);
+    transition: opacity 0.8s var(--ease-editorial), transform 0.8s var(--ease-editorial);
+    transition-delay: var(--d, 0s);
+  }
+  .tv-reveal.in { opacity: 1; transform: none; }
+
+  /* ── 아이브로우 (모노 라벨 + 헤어라인) ─────────────────────────── */
+  .tv-eyebrow {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-family: var(--font-mono); font-size: 11px; font-weight: 600;
+    letter-spacing: 2.5px; text-transform: uppercase; color: var(--color-tv-orange);
+  }
+  .tv-eyebrow::before { content: ""; width: 28px; height: 1px; background: currentColor; }
+  .tv-eyebrow--gold { color: var(--color-tv-gold); }
+  .tv-eyebrow .dot {
+    width: 7px; height: 7px; border-radius: 50%; background: currentColor;
+    animation: tvBlink 2.4s ease-in-out infinite;
+  }
+  @keyframes tvBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
+
+  /* ── 섹션 제목 (서리프 이탤릭 꼬리말) ──────────────────────────── */
+  .tv-title {
+    font-size: clamp(32px, 4.6vw, 52px); font-weight: 900;
+    letter-spacing: -0.04em; line-height: 1.08;
+  }
+  .tv-title .serif {
+    font-family: var(--font-serif); font-style: italic; font-weight: 400;
+    color: var(--color-tv-green); margin-left: 8px; letter-spacing: -0.01em;
+  }
+  .tv-ink .tv-title .serif { color: var(--color-tv-gold); }
+
+  /* ── 잉크 강조존 (near-black 배경 + 크림 글자) ─────────────────── */
+  .tv-ink {
+    position: relative; background: var(--color-tv-black); color: var(--color-tv-cream);
+    overflow: hidden; isolation: isolate;
+  }
+  .tv-ink-grid {
+    position: absolute; inset: 0; pointer-events: none;
+    background-image:
+      linear-gradient(rgba(241, 237, 228, 0.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(241, 237, 228, 0.045) 1px, transparent 1px);
+    background-size: 52px 52px;
+    -webkit-mask-image: radial-gradient(ellipse 90% 80% at 50% 30%, black 35%, transparent 100%);
+            mask-image: radial-gradient(ellipse 90% 80% at 50% 30%, black 35%, transparent 100%);
+  }
+  .tv-glow { position: absolute; border-radius: 50%; filter: blur(90px); pointer-events: none; z-index: -1; }
+  .tv-glow--gold {
+    width: 560px; height: 560px; right: -160px; top: -180px;
+    background: radial-gradient(circle, rgba(244, 186, 84, 0.26), transparent 65%);
+    animation: tvDrift1 22s ease-in-out infinite alternate;
+  }
+  .tv-glow--green {
+    width: 640px; height: 640px; left: -240px; bottom: -300px;
+    background: radial-gradient(circle, rgba(18, 66, 52, 0.55), transparent 65%);
+    animation: tvDrift2 26s ease-in-out infinite alternate;
+  }
+  @keyframes tvDrift1 { from { transform: translate(0, 0) scale(1); } to { transform: translate(-70px, 50px) scale(1.12); } }
+  @keyframes tvDrift2 { from { transform: translate(0, 0) scale(1); } to { transform: translate(60px, -40px) scale(1.08); } }
+  /* 서리프 고스트 워드마크 (text-stroke) */
+  .tv-ghost {
+    position: absolute; font-family: var(--font-serif); font-style: italic; line-height: 1;
+    color: transparent; -webkit-text-stroke: 1px rgba(244, 186, 84, 0.22);
+    pointer-events: none; user-select: none; white-space: nowrap; z-index: -1;
+  }
+
+  /* ── 라인 리빌 타이틀 (히어로) ─────────────────────────────────── */
+  .tv-line { display: block; overflow: hidden; padding-bottom: 0.08em; margin-bottom: -0.08em; }
+  .tv-line > span { display: inline-block; transform: translateY(115%); }
+  .loaded .tv-line > span, body.loaded .tv-line > span {
+    animation: tvLineUp 1.05s var(--ease-editorial) forwards; animation-delay: var(--d, 0s);
+  }
+  @keyframes tvLineUp { to { transform: translateY(0); } }
+  .tv-em { font-style: normal; color: var(--color-tv-gold); }
+
+  /* ── 골드 마퀴 밴드 (사선 -1.4°) ──────────────────────────────── */
+  .tv-marquee-zone { position: relative; height: 0; z-index: 5; }
+  .tv-marquee {
+    position: absolute; top: -27px; left: -3%; width: 106%;
+    background: var(--color-tv-gold); color: var(--color-tv-black);
+    transform: rotate(-1.4deg); padding: 14px 0; overflow: hidden;
+    box-shadow: 0 18px 50px rgba(29, 20, 3, 0.18);
+  }
+  .tv-marquee-track { display: flex; width: max-content; animation: tvMarquee 30s linear infinite; }
+  .tv-marquee:hover .tv-marquee-track { animation-play-state: paused; }
+  .tv-marquee-seq { display: flex; align-items: center; flex-shrink: 0; }
+  .tv-marquee-item {
+    font-family: var(--font-mono); font-size: 12.5px; font-weight: 600; letter-spacing: 2.5px;
+    text-transform: uppercase; white-space: nowrap; padding: 0 18px;
+  }
+  .tv-marquee-star { font-size: 13px; flex-shrink: 0; }
+  @keyframes tvMarquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  /* ── 버튼 ──────────────────────────────────────────────────────── */
+  .tv-btn {
+    display: inline-flex; align-items: center; gap: 9px;
+    font-family: var(--font-sans); font-size: 15px; font-weight: 800; letter-spacing: -0.02em;
+    text-decoration: none; border-radius: 100px; padding: 14px 24px; cursor: pointer;
+    border: 1px solid transparent; transition: transform 0.35s var(--ease-editorial),
+      background 0.35s, border-color 0.35s, color 0.35s, box-shadow 0.35s;
+  }
+  .tv-btn svg { transition: transform 0.35s var(--ease-editorial); }
+  .tv-btn:hover svg { transform: translateX(4px); }
+  .tv-btn--gold { background: var(--color-tv-gold); color: var(--color-tv-black); }
+  .tv-btn--gold:hover { background: var(--color-tv-gold-bright); transform: translateY(-2px); box-shadow: 0 14px 36px rgba(244, 186, 84, 0.28); }
+  .tv-btn--ghost { border-color: var(--color-tv-hairline); color: var(--color-tv-black); }
+  .tv-btn--ghost:hover { border-color: var(--color-tv-gold); color: var(--color-tv-orange); transform: translateY(-2px); }
+  .tv-ink .tv-btn--ghost { border-color: rgba(241, 237, 228, 0.28); color: var(--color-tv-cream); }
+  .tv-ink .tv-btn--ghost:hover { border-color: var(--color-tv-gold); color: var(--color-tv-gold); }
+
+  /* ── pill 필터 탭 ──────────────────────────────────────────────── */
+  .tv-filter {
+    display: inline-flex; gap: 6px; background: rgba(29, 20, 3, 0.05);
+    border: 1px solid var(--color-tv-hairline-soft); border-radius: 100px; padding: 5px;
+  }
+  .tv-filter-btn {
+    font-family: var(--font-sans); font-size: 13.5px; font-weight: 700; letter-spacing: -0.02em;
+    color: var(--color-tv-gray); background: transparent; border: none; border-radius: 100px;
+    padding: 9px 18px; cursor: pointer; display: inline-flex; align-items: center; gap: 7px;
+    transition: color 0.3s, background 0.3s, box-shadow 0.3s; text-decoration: none;
+  }
+  .tv-filter-btn .n { font-family: var(--font-mono); font-size: 10.5px; font-weight: 600; opacity: 0.55; }
+  .tv-filter-btn:hover { color: var(--color-tv-black); }
+  .tv-filter-btn[aria-pressed="true"], .tv-filter-btn.is-active {
+    background: var(--color-tv-black); color: var(--color-tv-cream); box-shadow: 0 6px 18px rgba(29, 20, 3, 0.22);
+  }
+  .tv-filter-btn[aria-pressed="true"] .n, .tv-filter-btn.is-active .n { color: var(--color-tv-gold); opacity: 1; }
+
+  /* ── 칩 (자료/태그) ───────────────────────────────────────────── */
+  .tv-chip {
+    font-family: var(--font-mono); font-size: 10.5px; font-weight: 600; letter-spacing: 1px;
+    text-transform: uppercase; background: rgba(29, 20, 3, 0.055); color: var(--color-tv-dark);
+    border-radius: 100px; padding: 5px 11px; white-space: nowrap; display: inline-block;
+  }
+
+  /* ── 통계 (카운트업) ──────────────────────────────────────────── */
+  .tv-stat { display: flex; flex-direction: column; gap: 6px; }
+  .tv-stat-value {
+    font-family: var(--font-mono); font-size: clamp(28px, 3.6vw, 44px); font-weight: 600;
+    letter-spacing: -1px; line-height: 1; font-variant-numeric: tabular-nums;
+  }
+  .tv-stat-value .unit { font-size: 0.5em; color: var(--color-tv-gold); margin-left: 2px; }
+  .tv-stat-label {
+    font-family: var(--font-mono); font-size: 10.5px; font-weight: 500; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--color-tv-gray);
+  }
+  .tv-ink .tv-stat-label { color: rgba(241, 237, 228, 0.45); }
+
+  /* ── 카드 (슬라이드-썸네일 / 3D 틸트, data-controller="tilt") ──── */
+  .tv-card {
+    position: relative; display: flex; flex-direction: column; background: var(--color-tv-white);
+    border: 1px solid var(--color-tv-hairline-soft); border-radius: 24px; overflow: hidden;
+    text-decoration: none; color: var(--color-tv-black);
+    transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(var(--ty, 0px));
+    transition: transform 0.5s var(--ease-editorial), box-shadow 0.5s var(--ease-editorial), border-color 0.5s;
+  }
+  .tv-card:hover { --ty: -7px; box-shadow: 0 26px 64px rgba(29, 20, 3, 0.16); border-color: rgba(29, 20, 3, 0.12); }
+  .tv-card:active { --ty: -2px; }
+
+  /* 카드 커버 = 미니 슬라이드 (16:10, 그리드 텍스처 + 하단 진행바) */
+  .tv-cover {
+    position: relative; aspect-ratio: 16 / 10; padding: clamp(16px, 1.6vw, 22px);
+    display: flex; flex-direction: column; justify-content: space-between; overflow: hidden;
+    isolation: isolate; transition: transform 0.6s var(--ease-editorial);
+  }
+  .tv-card:hover .tv-cover { transform: scale(1.045); }
+  .tv-cover::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background-image: linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    background-size: 30px 30px;
+  }
+  .tv-cover::after {
+    content: ""; position: absolute; left: 0; bottom: 0; height: 3px; width: var(--p, 35%);
+    background: var(--color-tv-gold); transition: width 0.7s var(--ease-editorial);
+  }
+  .tv-card:hover .tv-cover::after { width: 100%; }
+  .tv-cover--dark     { background: var(--color-tv-black); color: var(--color-tv-cream); }
+  .tv-cover--green    { background: var(--color-tv-green); color: var(--color-tv-cream-light); }
+  .tv-cover--burgundy { background: var(--color-tv-burgundy); color: #FBEFE3; }
+  .tv-cover--orange   { background: var(--color-tv-orange); color: #FFF3E4; }
+  .tv-cover--gold     { background: var(--color-tv-gold); color: var(--color-tv-black); }
+  .tv-cover--cream    { background: var(--color-tv-cream); color: var(--color-tv-black); box-shadow: inset 0 0 0 1px var(--color-tv-hairline-soft); }
+  .tv-cover--gold::before, .tv-cover--cream::before {
+    background-image: linear-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+  }
+  .tv-cover--gold::after, .tv-cover--cream::after { background: var(--color-tv-black); }
+  .tv-cover-top {
+    display: flex; justify-content: space-between; align-items: center; font-family: var(--font-mono);
+    font-size: 9.5px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; opacity: 0.7; position: relative;
+  }
+  .tv-cover-no { opacity: 1; font-weight: 700; }
+  .tv-cover-mid { position: relative; display: flex; flex-direction: column; gap: 10px; }
+  .tv-cover-emoji { font-size: 26px; line-height: 1; filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.18)); }
+  .tv-cover-title {
+    font-size: clamp(16px, 1.6vw, 19px); font-weight: 900; line-height: 1.22; letter-spacing: -0.035em;
+    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .tv-cover-bottom { position: relative; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .tv-cover-tag {
+    font-family: var(--font-mono); font-size: 9.5px; font-weight: 600; letter-spacing: 1.5px;
+    text-transform: uppercase; border: 1px solid currentColor; border-radius: 100px; padding: 4px 10px; opacity: 0.85; white-space: nowrap;
+  }
+  .tv-cover-note { font-family: var(--font-mono); font-size: 9.5px; font-weight: 500; letter-spacing: 1.5px; opacity: 0.55; white-space: nowrap; }
+
+  .tv-card-body { display: flex; flex-direction: column; gap: 14px; padding: 20px 22px 22px; flex: 1; }
+  .tv-card-desc {
+    font-size: 14px; line-height: 1.65; color: var(--color-tv-gray); flex: 1;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .tv-card-meta {
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    padding-top: 14px; border-top: 1px solid var(--color-tv-hairline-soft);
+    font-family: var(--font-mono); font-size: 11px; color: var(--color-tv-light-gray);
+  }
+  .tv-card-meta .tv-card-stats { display: flex; gap: 12px; }
+  /* 카드 우하단 화살표 원 */
+  .tv-arrow {
+    width: 30px; height: 30px; border-radius: 50%; background: var(--color-tv-black); color: var(--color-tv-cream);
+    display: grid; place-items: center; flex-shrink: 0; transition: background 0.35s, transform 0.35s var(--ease-editorial);
+  }
+  .tv-card:hover .tv-arrow { background: var(--color-tv-green); transform: scale(1.1); }
+  .tv-card:hover .tv-arrow svg { transform: translateX(2px); }
+  .tv-arrow svg { transition: transform 0.35s var(--ease-editorial); }
+
+  /* 잠금 배지 */
+  .tv-lock {
+    position: absolute; top: 12px; right: 12px; z-index: 4; display: inline-flex; align-items: center; gap: 5px;
+    padding: 5px 10px; font-family: var(--font-mono); font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
+    color: var(--color-tv-black); background: var(--color-tv-gold); border-radius: 100px; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.28);
+  }
+
+  /* ── 에디토리얼 인덱스 로우 (커리큘럼/리스트) ──────────────────── */
+  .tv-row {
+    display: grid; grid-template-columns: 64px 1fr auto; align-items: center; gap: clamp(14px, 2.5vw, 28px);
+    padding: clamp(18px, 2.6vh, 26px) 6px; border-bottom: 1px solid var(--color-tv-hairline);
+    text-decoration: none; color: var(--color-tv-black); position: relative;
+    transition: padding-left 0.45s var(--ease-editorial), background 0.45s;
+  }
+  a.tv-row:hover { padding-left: 18px; background: linear-gradient(90deg, rgba(244, 186, 84, 0.1), transparent 65%); }
+  .tv-row-num { font-family: var(--font-serif); font-style: italic; font-size: clamp(26px, 3vw, 34px); color: var(--color-tv-light-gray); line-height: 1; transition: color 0.35s; }
+  a.tv-row:hover .tv-row-num { color: var(--color-tv-orange); }
+  .tv-row-go {
+    width: 38px; height: 38px; border-radius: 50%; border: 1px solid rgba(29, 20, 3, 0.16); display: grid; place-items: center;
+    color: var(--color-tv-black); transition: background 0.35s, border-color 0.35s, color 0.35s, transform 0.45s var(--ease-editorial);
+  }
+  a.tv-row:hover .tv-row-go { background: var(--color-tv-black); border-color: var(--color-tv-black); color: var(--color-tv-gold); transform: rotate(-45deg); }
+
+  /* ── 푸터 워드마크 (거대 text-stroke) ─────────────────────────── */
+  .tv-footer-wordmark {
+    font-size: clamp(56px, 12.5vw, 176px); font-weight: 900; letter-spacing: -0.05em; line-height: 0.78;
+    white-space: nowrap; text-align: center; color: transparent;
+    -webkit-text-stroke: 1px rgba(244, 186, 84, 0.34); user-select: none; transform: translateY(0.12em);
+    transition: -webkit-text-stroke-color 0.5s;
+  }
+  .tv-footer-wordmark:hover { -webkit-text-stroke-color: rgba(244, 186, 84, 0.6); }
+
+  /* ── 빈/상태 카드 ─────────────────────────────────────────────── */
+  .tv-state {
+    grid-column: 1 / -1; text-align: center; padding: clamp(60px, 10vh, 100px) 32px;
+    border: 1px dashed rgba(29, 20, 3, 0.18); border-radius: 24px;
+  }
+  .tv-state .big { font-family: var(--font-serif); font-style: italic; font-size: clamp(40px, 6vw, 64px); color: var(--color-tv-light-gray); display: block; margin-bottom: 14px; }
+  .tv-state .msg { font-size: 15px; color: var(--color-tv-gray); line-height: 1.7; }
+
+  /* ── 모션 최소화 ──────────────────────────────────────────────── */
+  @media (prefers-reduced-motion: reduce) {
+    .tv-reveal { opacity: 1; transform: none; transition: none; }
+    .tv-line > span { transform: none; }
+    .loaded .tv-line > span, body.loaded .tv-line > span { animation: none; }
+    .tv-marquee-track { animation: none; }
+    .tv-glow--gold, .tv-glow--green, .tv-eyebrow .dot { animation: none; }
+    .tv-card, .tv-cover, .tv-btn, .tv-row, .tv-row-go, .tv-arrow { transition: none; }
+  }
+}

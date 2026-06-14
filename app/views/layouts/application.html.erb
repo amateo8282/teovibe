@@ -35,7 +35,7 @@
     <%= vite_javascript_tag 'application' %>
   </head>
 
-  <body class="bg-tv-cream text-tv-black min-h-screen flex flex-col" data-controller="header-scroll">
+  <body class="bg-tv-cream text-tv-black min-h-screen flex flex-col" data-controller="header-scroll" <%= "data-hero-ink" if content_for?(:hero_ink) %>>
     <div class="film-grain" aria-hidden="true"></div>
     <div class="tv-scroll-progress" data-controller="scroll-progress" aria-hidden="true"><span data-scroll-progress-target="bar"></span></div>
 

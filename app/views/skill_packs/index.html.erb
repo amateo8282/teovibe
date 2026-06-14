@@ -1,54 +1,77 @@
-<div class="max-w-[1200px] mx-auto px-5 py-16">
-  <h1 class="text-display font-black text-center mb-4">스킬팩</h1>
-  <p class="text-xl text-tv-gray text-center mb-12">바이브코딩에 필요한 템플릿, 컴포넌트, 가이드를 무료로 다운로드하세요.</p>
+<% content_for :hero_ink, "1" %>
 
-  <%# 카테고리 필터 (Category 모델 기반 동적 루프) %>
-  <div class="flex justify-center gap-3 mb-12">
-    <%= link_to "전체", skill_packs_path,
-      class: "px-5 py-2 rounded-pill text-sm font-bold transition-colors #{params[:category].blank? ? 'bg-tv-gold text-tv-black' : 'bg-tv-cream text-tv-gray hover:bg-tv-gold/20'}" %>
-    <% Category.for_skill_packs.ordered.each do |cat| %>
-      <%= link_to cat.name, skill_packs_path(category: cat.slug),
-        class: "px-5 py-2 rounded-pill text-sm font-bold transition-colors #{params[:category] == cat.slug ? 'bg-tv-gold text-tv-black' : 'bg-tv-cream text-tv-gray hover:bg-tv-gold/20'}" %>
-    <% end %>
+<%# ─── 잉크 히어로 ─── %>
+<section class="tv-ink -mt-[86px] pt-[128px] pb-16 px-5">
+  <div class="tv-ink-grid" aria-hidden="true"></div>
+  <div class="tv-glow tv-glow--gold" aria-hidden="true"></div>
+  <div class="tv-glow tv-glow--green" aria-hidden="true"></div>
+  <div class="tv-ghost" aria-hidden="true" style="right:-1vw;top:24px;font-size:clamp(80px,13vw,180px);transform:rotate(-7deg)">Packs</div>
+
+  <div class="max-w-[1120px] mx-auto relative">
+    <p class="tv-eyebrow tv-eyebrow--gold"><span class="dot" aria-hidden="true"></span>Skill Packs · 무료 다운로드</p>
+    <h1 class="tv-title mt-5">스킬팩<span class="serif">Library</span></h1>
+    <p class="mt-5 max-w-[520px] text-[15.5px] leading-relaxed text-tv-cream/60">바이브코딩에 필요한 템플릿·컴포넌트·가이드를 모았습니다. 필요한 걸 골라 <strong class="text-tv-cream font-semibold">바로 받아</strong> 쓰세요.</p>
+
+    <div class="mt-8 pt-6 border-t border-[rgba(241,237,228,.14)]">
+      <div class="tv-stat">
+        <span class="tv-stat-value text-tv-cream"><span data-controller="count-up" data-count-up-to-value="<%= @pagy&.count || @skill_packs.size %>">0</span><span class="unit">packs</span></span>
+        <span class="tv-stat-label">전체 스킬팩</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<%# ─── 콘텐츠 ─── %>
+<main class="max-w-[1200px] mx-auto px-5 pt-16 pb-12" data-controller="tv-reveal tilt">
+  <%# pill 필터 %>
+  <div class="flex justify-center mb-12">
+    <div class="tv-filter overflow-x-auto max-w-full">
+      <%= link_to "전체", skill_packs_path, class: "tv-filter-btn #{'is-active' if params[:category].blank?}" %>
+      <% Category.for_skill_packs.ordered.each do |cat| %>
+        <%= link_to cat.name, skill_packs_path(category: cat.slug), class: "tv-filter-btn #{'is-active' if params[:category] == cat.slug}" %>
+      <% end %>
+    </div>
   </div>
 
-  <%# 그리드 카드 목록 %>
   <% if @skill_packs.any? %>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <% @skill_packs.each do |skill_pack| %>
-        <%= link_to skill_pack_path(skill_pack), class: "block bg-white rounded-card-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow" do %>
-          <% if skill_pack.thumbnail.attached? %>
-            <%= image_tag skill_pack.thumbnail, class: "w-full h-48 object-cover", loading: "lazy" %>
-          <% else %>
-            <div class="w-full h-48 bg-tv-cream flex items-center justify-center">
-              <svg class="w-12 h-12 text-tv-light-gray" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/>
-              </svg>
-            </div>
-          <% end %>
-          <div class="p-5">
-            <span class="inline-block px-3 py-1 rounded-pill text-xs font-bold bg-tv-cream text-tv-gray mb-3">
-              <%= skill_pack.category_name %>
-            </span>
-            <h3 class="text-lg font-bold mb-2"><%= skill_pack.title %></h3>
-            <p class="text-sm text-tv-gray line-clamp-2"><%= skill_pack.description %></p>
-            <div class="mt-4 flex items-center gap-2 text-sm text-tv-light-gray">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-              </svg>
-              <%= skill_pack.downloads_count %>회 다운로드
+      <% @skill_packs.each_with_index do |skill_pack, i| %>
+        <% variant = %w[dark green burgundy orange].fetch(i % 4) %>
+        <%= link_to skill_pack_path(skill_pack), class: "tv-card tv-reveal" do %>
+          <div class="tv-cover <%= 'tv-cover--' + variant unless skill_pack.thumbnail.attached? %>" style="--p:<%= 25 + (i % 4) * 18 %>%; <%= 'padding:0' if skill_pack.thumbnail.attached? %>">
+            <% if skill_pack.thumbnail.attached? %>
+              <%= image_tag skill_pack.thumbnail, class: "absolute inset-0 w-full h-full object-cover", loading: "lazy" %>
+              <span class="absolute inset-0" aria-hidden="true" style="background:linear-gradient(to top, rgba(13,9,2,.6), transparent 55%)"></span>
+              <div class="tv-cover-top" style="position:relative;color:#F1EDE4"><span>TeoVibe</span><span class="tv-cover-no"><%= skill_pack.category_name %></span></div>
+              <div class="tv-cover-bottom" style="position:relative;color:#F1EDE4"><span class="tv-cover-note"><%= skill_pack.downloads_count %> downloads</span></div>
+            <% else %>
+              <div class="tv-cover-top"><span>TeoVibe</span><span class="tv-cover-no"><%= skill_pack.category_name %></span></div>
+              <div class="tv-cover-mid"><span class="tv-cover-title"><%= skill_pack.title %></span></div>
+              <div class="tv-cover-bottom"><span class="tv-cover-tag">Pack</span><span class="tv-cover-note"><%= skill_pack.downloads_count %> dl</span></div>
+            <% end %>
+          </div>
+          <div class="tv-card-body">
+            <span class="tv-chip"><%= skill_pack.category_name %></span>
+            <h3 class="text-lg font-black tracking-tight leading-snug"><%= skill_pack.title %></h3>
+            <p class="tv-card-desc"><%= skill_pack.description %></p>
+            <div class="tv-card-meta">
+              <span>⬇ <%= skill_pack.downloads_count %>회 다운로드</span>
+              <span class="tv-arrow" aria-hidden="true">
+                <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M2 8h11M9 3.5 13.5 8 9 12.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
             </div>
           </div>
         <% end %>
       <% end %>
     </div>
 
-    <div class="mt-12">
+    <div class="mt-12 flex justify-center">
       <%== pagy_nav(@pagy) if @pagy.pages > 1 %>
     </div>
   <% else %>
-    <div class="text-center py-16">
-      <p class="text-lg text-tv-gray">등록된 스킬팩이 없습니다.</p>
+    <div class="tv-state">
+      <span class="big">Soon.</span>
+      <p class="msg">등록된 스킬팩이 없습니다.<br>곧 채워질 예정이에요.</p>
     </div>
   <% end %>
-</div>
+</main>

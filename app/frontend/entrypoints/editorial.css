@@ -47,6 +47,11 @@
   }
   .tv-nav-link:hover { color: var(--color-tv-black); background: rgba(29, 20, 3, 0.05); }
   .tv-nav-link[aria-current], .tv-nav-link.is-active { color: var(--color-tv-orange); }
+  /* 잉크 히어로 위(스크롤 전): 네비를 라이트로 */
+  body[data-hero-ink]:not([data-scrolled]) .tv-nav-link { color: rgba(241, 237, 228, 0.72); }
+  body[data-hero-ink]:not([data-scrolled]) .tv-nav-link:hover { color: var(--color-tv-gold); background: rgba(255, 255, 255, 0.06); }
+  body[data-hero-ink]:not([data-scrolled]) .tv-nav-logo span:last-child { color: var(--color-tv-cream); }
+  body[data-hero-ink]:not([data-scrolled]) .tv-nav button { color: var(--color-tv-cream); }
 
   /* ── 스크롤 리빌 (data-controller="tv-reveal") ─────────────────── */
   .tv-reveal {
@@ -306,6 +311,13 @@
     transition: -webkit-text-stroke-color 0.5s;
   }
   .tv-footer-wordmark:hover { -webkit-text-stroke-color: rgba(244, 186, 84, 0.6); }
+
+  /* ── 에디토리얼 아티클 (서리프 드롭캡) ────────────────────────── */
+  .tv-article > p:first-child::first-letter,
+  .tv-article > .prose > p:first-child::first-letter {
+    font-family: var(--font-serif); font-style: italic; font-size: 3.4em; line-height: 0.78;
+    float: left; margin: 0.06em 0.12em 0 0; color: var(--color-tv-orange);
+  }
 
   /* ── 빈/상태 카드 ─────────────────────────────────────────────── */
   .tv-state {

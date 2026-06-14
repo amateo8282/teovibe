@@ -1,20 +1,32 @@
-<%= link_to url_for_post(post), class: "block" do %>
-  <div class="bg-white rounded-card p-6 hover:shadow-xl transition-shadow">
-    <% if post.pinned? %>
-      <span class="inline-block bg-tv-orange text-white rounded-pill px-3 py-1 text-xs font-bold mb-3">고정</span>
-    <% end %>
-    <div class="mb-3">
-      <%= render "shared/tag", text: post.category_name %>
+<%# 에디토리얼 글 카드 — 카테고리 색 슬라이드 커버 + 모노 메타 %>
+<% slug = post.category&.slug.to_s %>
+<% variant = { "blog" => "dark", "tutorial" => "green", "qna" => "burgundy", "free-board" => "orange", "portfolio" => "gold", "notice" => "cream" }[slug] || %w[dark green burgundy orange].fetch(post.id % 4) %>
+<%= link_to url_for_post(post), class: "tv-card tv-reveal" do %>
+  <div class="tv-cover tv-cover--<%= variant %>" style="--p:<%= 22 + (post.id % 5) * 16 %>%">
+    <% if post.pinned? %><span class="tv-lock">📌 고정</span><% end %>
+    <div class="tv-cover-top">
+      <span>TeoVibe</span>
+      <span class="tv-cover-no"><%= post.category_name %></span>
     </div>
-    <h2 class="text-xl font-extrabold mb-2 line-clamp-2"><%= post.title %></h2>
-    <p class="text-tv-gray text-sm mb-4 line-clamp-2"><%= post.body&.to_plain_text&.truncate(100) %></p>
-    <div class="flex items-center justify-between text-sm text-tv-light-gray">
-      <span><%= post.user.nickname %></span>
-      <div class="flex items-center gap-3">
-        <span><%= post.likes_count %> 좋아요</span>
-        <span><%= post.comments_count %> 댓글</span>
-        <span><%= time_ago_in_words(post.created_at) %> 전</span>
-      </div>
+    <div class="tv-cover-mid">
+      <span class="tv-cover-title"><%= post.title %></span>
+    </div>
+    <div class="tv-cover-bottom">
+      <span class="tv-cover-tag"><%= post.user.nickname %></span>
+      <span class="tv-cover-note"><%= time_ago_in_words(post.created_at) %> 전</span>
+    </div>
+  </div>
+  <div class="tv-card-body">
+    <p class="tv-card-desc"><%= post.body&.to_plain_text&.truncate(110) %></p>
+    <div class="tv-card-meta">
+      <span class="tv-card-stats">
+        <span>♥ <%= post.likes_count %></span>
+        <span>💬 <%= post.comments_count %></span>
+        <span>👁 <%= post.views_count %></span>
+      </span>
+      <span class="tv-arrow" aria-hidden="true">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M2 8h11M9 3.5 13.5 8 9 12.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </span>
     </div>
   </div>
 <% end %>

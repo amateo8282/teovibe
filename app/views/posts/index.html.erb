@@ -1,13 +1,43 @@
-<div class="max-w-[1200px] mx-auto px-5 py-10">
-  <%= render "shared/breadcrumb", items: [{ name: "홈", path: root_path }, { name: @category.name }] %>
+<% content_for :hero_ink, "1" %>
 
-  <div class="flex items-center justify-between mb-8">
-    <h1 class="text-3xl md:text-4xl font-black"><%= @category.name %></h1>
-    <% if Current.user %>
-      <%= link_to "글쓰기", new_post_path, class: "bg-tv-gold text-tv-black rounded-pill px-5 py-2.5 text-base font-bold hover:opacity-90 transition-opacity" %>
-    <% end %>
+<%# ─── 잉크 히어로 ─── %>
+<section class="tv-ink -mt-[86px] pt-[128px] pb-16 px-5">
+  <div class="tv-ink-grid" aria-hidden="true"></div>
+  <div class="tv-glow tv-glow--gold" aria-hidden="true"></div>
+  <div class="tv-glow tv-glow--green" aria-hidden="true"></div>
+  <div class="tv-ghost" aria-hidden="true" style="right:-1vw;top:24px;font-size:clamp(80px,14vw,190px);transform:rotate(-7deg)"><%= @category.name %></div>
+
+  <div class="max-w-[1120px] mx-auto relative">
+    <p class="tv-eyebrow tv-eyebrow--gold"><span class="dot" aria-hidden="true"></span><%= @category.name %> · TeoVibe</p>
+    <h1 class="tv-title mt-5"><%= @category.name %><span class="serif">Archive</span></h1>
+
+    <div class="flex items-end justify-between gap-4 flex-wrap mt-8 pt-6 border-t border-[rgba(241,237,228,.14)]">
+      <div class="tv-stat">
+        <span class="tv-stat-value text-tv-cream"><span data-controller="count-up" data-count-up-to-value="<%= @pagy&.count || @posts.size %>">0</span><span class="unit">posts</span></span>
+        <span class="tv-stat-label">전체 글</span>
+      </div>
+      <% if Current.user %>
+        <%= link_to new_post_path, class: "tv-btn tv-btn--gold" do %>
+          글쓰기
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2 8h11M9 3.5 13.5 8 9 12.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <% end %>
+      <% end %>
+    </div>
   </div>
+</section>
 
+<%# ─── 마퀴 밴드 ─── %>
+<div class="tv-marquee-zone" aria-hidden="true" data-controller="marquee"
+     data-marquee-topics-value='["Vibe Coding","Build in Public","Ship It","1인 사업화","Claude Code","Prompt → Product","성장 기록","Made with AI"]'>
+  <div class="tv-marquee">
+    <div class="tv-marquee-track" data-marquee-target="track">
+      <div class="tv-marquee-seq" data-marquee-target="seq"></div>
+    </div>
+  </div>
+</div>
+
+<%# ─── 글 그리드 ─── %>
+<main class="max-w-[1200px] mx-auto px-5 pt-20 pb-12" data-controller="tv-reveal tilt">
   <% if @posts.any? %>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <% @posts.each do |post| %>
@@ -15,15 +45,16 @@
       <% end %>
     </div>
 
-    <div class="mt-10 flex justify-center">
+    <div class="mt-12 flex justify-center">
       <%== @pagy.series_nav %>
     </div>
   <% else %>
-    <div class="text-center py-20">
-      <p class="text-tv-gray text-lg">아직 작성된 글이 없습니다.</p>
+    <div class="tv-state">
+      <span class="big">Empty.</span>
+      <p class="msg">아직 작성된 글이 없습니다.<% if Current.user %><br>첫 글을 남겨 이 아카이브를 시작해 보세요.<% end %></p>
       <% if Current.user %>
-        <%= link_to "첫 번째 글 작성하기", new_post_path, class: "inline-block mt-4 bg-tv-black text-white rounded-pill px-6 py-3 font-bold hover:opacity-90" %>
+        <%= link_to "첫 번째 글 작성하기", new_post_path, class: "tv-btn tv-btn--gold mt-6" %>
       <% end %>
     </div>
   <% end %>
-</div>
+</main>

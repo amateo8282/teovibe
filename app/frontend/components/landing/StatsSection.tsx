@@ -1,36 +1,27 @@
 import { LandingSection } from "./HeroSection"
 import FadeInSection from "./FadeInSection"
 
-// 통계 숫자 섹션: 큰 숫자와 설명 카드 (_stats.html.erb 포팅)
-interface StatsSectionProps {
-  section: LandingSection
-}
-
-export default function StatsSection({ section }: StatsSectionProps) {
-  // section_cards를 position 순 정렬
-  const sortedCards = [...section.section_cards].sort((a, b) => a.position - b.position)
+// 통계 — 잉크 밴드 + 모노 큰 숫자 + 골드 강조
+export default function StatsSection({ section }: { section: LandingSection }) {
+  const cards = [...section.section_cards].sort((a, b) => a.position - b.position)
 
   return (
     <FadeInSection>
-      <section className="py-24 px-5">
-        <div className="max-w-[1200px] mx-auto text-center">
-          <h2
-            className="text-subheading md:text-display font-black leading-tight mb-16"
-            style={{ letterSpacing: "-0.8px" }}
-          >
-            {section.title}
-          </h2>
+      <section className="tv-ink relative py-24 px-5">
+        <div className="tv-glow tv-glow--gold" aria-hidden="true" style={{ right: "auto", left: "50%", top: "-200px", transform: "translateX(-50%)" }} />
+        <div className="max-w-[1120px] mx-auto relative text-center">
+          <p className="tv-eyebrow tv-eyebrow--gold justify-center mb-5" style={{ display: "inline-flex" }}>By the numbers</p>
+          <h2 className="tv-title mb-16">{section.title}</h2>
 
-          {/* 통계 카드 그리드: 모바일 1열, 데스크톱 3열 */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {sortedCards.map((card) => (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-y-12 gap-x-8">
+            {cards.map((card) => (
               <FadeInSection key={card.position}>
-                <div className="bg-white rounded-card p-8">
-                  {card.icon && (
-                    <p className="text-5xl font-black mb-2">{card.icon}</p>
-                  )}
-                  <h3 className="text-2xl font-extrabold mb-2">{card.title}</h3>
-                  <p className="text-tv-gray">{card.description}</p>
+                <div className="flex flex-col items-center gap-3">
+                  <span className="font-mono font-semibold text-tv-gold-bright tabular-nums" style={{ fontSize: "clamp(40px,6vw,68px)", lineHeight: 1, letterSpacing: "-1px" }}>
+                    {card.icon || card.title}
+                  </span>
+                  {card.icon && <span className="text-lg font-black tracking-tight text-tv-cream">{card.title}</span>}
+                  <span className="font-mono text-[11px] tracking-[2px] uppercase text-tv-cream/45">{card.description}</span>
                 </div>
               </FadeInSection>
             ))}

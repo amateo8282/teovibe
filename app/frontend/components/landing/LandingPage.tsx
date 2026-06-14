@@ -14,33 +14,21 @@ const SECTION_COMPONENTS: Record<string, React.ComponentType<{ section: LandingS
   cta: CtaSection,
 }
 
-// 섹션이 없을 때 표시되는 기본 히어로 (기존 home.html.erb fallback 포팅)
+// 섹션이 없을 때 표시되는 기본 히어로 — 잉크 히어로 재사용
 function DefaultHero() {
   return (
-    <section className="min-h-[calc(100vh-86px)] flex items-center justify-center bg-tv-cream">
-      <div className="text-center max-w-4xl mx-auto px-5">
-        <h1 className="text-display md:text-hero font-black tracking-tight leading-tight mb-6">
-          바이브코딩으로<br />사업을 만드는 사람들
-        </h1>
-        <p className="text-lg text-tv-gray mb-10 max-w-xl mx-auto">
-          코딩 없이 시작하는 1인 사업화 여정을 기록하고, 공유하고, 함께 성장하세요.
-        </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <a
-            href="/registration/new"
-            className="bg-tv-black text-white rounded-pill px-8 py-4 text-lg font-bold hover:opacity-90 transition-opacity"
-          >
-            시작하기
-          </a>
-          <a
-            href="/about"
-            className="border border-tv-black text-tv-black rounded-pill px-8 py-4 text-lg font-bold hover:bg-tv-black hover:text-white transition-colors"
-          >
-            더 알아보기
-          </a>
-        </div>
-      </div>
-    </section>
+    <HeroSection
+      section={{
+        id: 0,
+        section_type: "hero",
+        title: "바이브코딩으로\n사업을 만드는 사람들",
+        subtitle: "코딩 없이 시작하는 1인 사업화 여정을 기록하고, 공유하고, 함께 성장하세요.",
+        background_color: null,
+        text_color: null,
+        position: 0,
+        section_cards: [],
+      }}
+    />
   )
 }
 
@@ -63,9 +51,9 @@ export default function LandingPage() {
       })
   }, [])
 
-  // CLS 방지: 로딩 중에는 동일한 높이의 플레이스홀더 유지
+  // CLS 방지: 로딩 중에는 잉크 플레이스홀더(네비 라이트 유지 + 깜빡임 방지)
   if (loading) {
-    return <div className="min-h-[744px] bg-tv-cream" />
+    return <div className="tv-ink -mt-[86px] min-h-screen" />
   }
 
   // 섹션이 없으면 기본 히어로 표시

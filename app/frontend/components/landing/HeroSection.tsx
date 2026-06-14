@@ -21,83 +21,56 @@ export interface LandingSection {
   section_cards: SectionCard[]
 }
 
-// 그리드 SVG 배경 (기존 _hero.html.erb와 동일한 패턴)
-const GRID_BACKGROUND = `url("data:image/svg+xml,%3Csvg width='40' height='40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h40v40H0z' fill='none'/%3E%3Cpath d='M0 40V0h1v40zm40 0V0h1v40z' fill='%23ddd6c8' fill-opacity='0.3'/%3E%3Cpath d='M0 0h40v1H0zm0 40h40v1H0z' fill='%23ddd6c8' fill-opacity='0.3'/%3E%3C/svg%3E")`
-
-// stagger 컨테이너 애니메이션 변형
-const containerVariants = {
+const container = {
   hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.15,
-      delayChildren: 0.1,
-    },
-  },
+  show: { opacity: 1, transition: { staggerChildren: 0.12, delayChildren: 0.05 } },
+}
+const item = {
+  hidden: { opacity: 0, y: 28 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } },
 }
 
-// 개별 아이템 애니메이션 변형
-const itemVariants = {
-  hidden: { opacity: 0, y: 24 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.6,
-      ease: [0.22, 1, 0.36, 1],
-    },
-  },
-}
+const Arrow = () => (
+  <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+    <path d="M2 8h11M9 3.5 13.5 8 9 12.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+)
 
-interface HeroSectionProps {
-  section: LandingSection
-}
-
-export default function HeroSection({ section }: HeroSectionProps) {
+// 잉크 히어로: 그리드 + 드리프트 글로우 + 서리프 고스트 워드마크 + 스태거 리빌
+export default function HeroSection({ section }: { section: LandingSection }) {
+  const lines = (section.title || "").split("\n")
   return (
-    <section
-      className="min-h-[744px] flex items-center justify-center bg-tv-cream relative overflow-hidden"
-      style={{ backgroundImage: GRID_BACKGROUND }}
-    >
-      <motion.div
-        className="text-center max-w-5xl mx-auto px-5 relative z-10"
-        variants={containerVariants}
-        initial="hidden"
-        animate="show"
-      >
-        <motion.h1
-          className="text-display md:text-hero font-black tracking-tight leading-tight mb-6"
-          style={{ letterSpacing: "-0.8px" }}
-          variants={itemVariants}
-        >
-          {section.title}
+    <section className="tv-ink relative -mt-[86px] flex items-center min-h-[92vh] px-5 pt-[120px] pb-24">
+      <div className="tv-ink-grid" aria-hidden="true" />
+      <div className="tv-glow tv-glow--gold" aria-hidden="true" />
+      <div className="tv-glow tv-glow--green" aria-hidden="true" />
+      <div className="tv-ghost" aria-hidden="true" style={{ right: "-2vw", top: "12%", fontSize: "clamp(110px,18vw,260px)", transform: "rotate(-7deg)" }}>
+        Vibe!
+      </div>
+
+      <motion.div className="max-w-[1120px] mx-auto w-full relative" variants={container} initial="hidden" animate="show">
+        <motion.p className="tv-eyebrow tv-eyebrow--gold mb-7" variants={item}>
+          <span className="dot" aria-hidden="true" />TeoVibe · 바이브코딩 커뮤니티
+        </motion.p>
+
+        <motion.h1 className="font-black leading-[1.04] tracking-[-0.045em] mb-7" style={{ fontSize: "clamp(44px,8.4vw,104px)" }} variants={item}>
+          {lines.map((line, i) => (
+            <span key={i} className="block">
+              {line}
+              {i === lines.length - 1 && <span className="font-serif italic font-normal text-tv-gold">*</span>}
+            </span>
+          ))}
         </motion.h1>
 
         {section.subtitle && (
-          <motion.p
-            className="text-lg md:text-xl text-tv-gray mb-10 max-w-2xl mx-auto leading-relaxed"
-            variants={itemVariants}
-          >
+          <motion.p className="leading-relaxed text-tv-cream/60 max-w-[540px] mb-9" style={{ fontSize: "clamp(15.5px,1.7vw,18px)" }} variants={item}>
             {section.subtitle}
           </motion.p>
         )}
 
-        <motion.div
-          className="flex flex-col sm:flex-row gap-4 justify-center"
-          variants={itemVariants}
-        >
-          <a
-            href="/registration/new"
-            className="bg-tv-black text-white rounded-pill px-7 py-4 text-lg font-bold hover:opacity-90 transition-opacity"
-          >
-            시작하기 -&gt;
-          </a>
-          <a
-            href="/about"
-            className="border border-tv-black text-tv-black rounded-pill px-7 py-4 text-lg font-bold hover:bg-tv-black hover:text-white transition-colors"
-          >
-            더 알아보기
-          </a>
+        <motion.div className="flex flex-wrap gap-3" variants={item}>
+          <a href="/registration/new" className="tv-btn tv-btn--gold">시작하기 <Arrow /></a>
+          <a href="/about" className="tv-btn tv-btn--ghost">더 알아보기</a>
         </motion.div>
       </motion.div>
     </section>

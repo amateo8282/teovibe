@@ -68,6 +68,25 @@ jobs:
         with:
           bundler-cache: true
 
+      # 통합 테스트가 application 레이아웃을 렌더하며 Vite 태그(vite_javascript_tag 등)를
+      # 평가 → 빌드된 매니페스트가 없으면 "vite binary not available" 에러. 에셋 선빌드 필요.
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install JS dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Vite assets
+        run: bin/vite build
+
       - name: Run tests
         env:
           RAILS_ENV: test

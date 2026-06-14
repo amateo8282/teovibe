@@ -1,0 +1,17 @@
+{
+  "ignored_warnings": [
+    {
+      "fingerprint": "3ffce18eb7ff83bfe9364aad344a09ed148a644f4337c24d1847c509c64d1be6",
+      "note": "category_name은 모델 속성(사용자 입력 아님) — 신뢰 가능한 분류명 출력. 검토 완료."
+    },
+    {
+      "fingerprint": "44fe780db8e0c1f53ec52673925eadf36aef0f9c2829d3df0b6df4639764b7cc",
+      "note": "deck_path는 published Course 레코드에서 파생된 앱 관리 덱 파일 경로(슬러그로 레코드만 선택). 사용자 임의 경로 아님. 검토 완료."
+    },
+    {
+      "fingerprint": "64b617558dcbc929ae2dae1eb74f83b598a9d7bc02e858ba04d567acbbfab854",
+      "note": "admin/users 컨트롤러 — 관리자가 의도적으로 role 부여(권한 게이트 안). 검토 완료."
+    }
+  ],
+  "brakeman_version": "8.0.2"
+}

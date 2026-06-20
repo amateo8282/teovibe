@@ -1,4 +1,11 @@
 Rails.application.routes.draw do
+  # 도메인 스왑(2026-06-20): 루트 도메인 jaeho.im → www.jaeho.im(티스토리 블로그) 301.
+  #   teovibe 본체는 edu.jaeho.im으로 이전됨. host가 정확히 "jaeho.im"인 요청만 리다이렉트 →
+  #   edu.jaeho.im·기타 호스트는 host 불일치로 통과(평소대로 서빙). blog.jaeho.im은 CF Redirect Rule이 처리.
+  match "(*path)", via: :all,
+    to: redirect(status: 301) { |_params, req| "https://www.jaeho.im#{req.fullpath}" },
+    constraints: ->(req) { req.host == "jaeho.im" }
+
   # 인증
   resource :session
   resources :passwords, param: :token

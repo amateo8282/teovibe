@@ -71,7 +71,7 @@ jobs:
       # 통합 테스트가 application 레이아웃을 렌더하며 Vite 태그(vite_javascript_tag 등)를
       # 평가 → 빌드된 매니페스트가 없으면 "vite binary not available" 에러. 에셋 선빌드 필요.
       - name: Set up pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6
         with:
           version: 10
 
